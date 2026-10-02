@@ -2486,7 +2486,7 @@ dialog#dlg form.modal::before{background:linear-gradient(90deg,#cf8e7b 0 38%,#9a
 .commentary-speaker .speaker-role{font-size:12px!important;color:#526c79!important;letter-spacing:.5px}
 
 .explore-dialogue-line.action,.exploration-log-dialogue .action{background:#edf3ed!important;border:1px dashed #b1c4b4!important;border-left:3px solid #92ad98!important;padding:10px 12px!important;margin:7px 0}
-.explore-dialogue-line.action span,.exploration-log-dialogue .action span{color:#455e4b!important;font-family:Georgia,'Noto Serif TC','Songti TC',serif!important;font-style:italic;font-size:14px!important;line-height:1.8!important}
+.explore-dialogue-line.action span,.exploration-log-dialogue .action span{color:#455e4b!important;font-family:inherit!important;font-style:italic;font-size:14px!important;line-height:1.8!important}
 .explore-dialogue-line.action b::after,.exploration-log-dialogue .action b::after{content:' · 動作';color:#56715d;font-size:11px;font-weight:500}
 .combat-report-main span{color:#496977!important;font-size:13px!important;line-height:1.75!important}
 .combat-report-main strong{font-size:15px!important}
