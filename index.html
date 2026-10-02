@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="終端記錄">
 <title>RPG 化記帳工具</title>
-<link rel="stylesheet" href="styles.css?v=20261002zb">
+<link rel="stylesheet" href="styles.css?v=20261002zc">
 </head>
 <body>
 <script>
@@ -230,6 +230,12 @@ window.addEventListener('pageshow',function(){
         <div class="archive-stamp">12 FILES</div>
       </div>
       <div class="sub">查看罪人等級、探索 EXP、基礎能力、專業技能、E.G.O 參考技能與目前裝備。</div>
+      <div class="sinner-stat-guide" id="sinnerStatGuide">
+        <div class="sinner-stat-help"><b>戰鬥</b><span>提高對怪異造成的基礎傷害與直接制壓能力。</span></div>
+        <div class="sinner-stat-help"><b>觀察</b><span>用於辨識弱點、判讀事件，並影響部分探索與戰鬥修正。</span></div>
+        <div class="sinner-stat-help"><b>機動</b><span>用於移動、追擊與脫離，並參與整體探索成功判定。</span></div>
+        <div class="sinner-stat-help"><b>穩定</b><span>降低受到怪異攻擊與異常狀況影響的風險，提升生存能力。</span></div>
+      </div>
       <div id="sinnerManagementGrid" class="sinner-management-grid"></div>
     </div>
   </section>
@@ -296,6 +302,10 @@ window.addEventListener('pageshow',function(){
       </div>
       <div class="sub">完成記帳、探索、戰鬥、收容與裝備里程碑可解鎖成就，並取得金幣、道具箱或補給品。</div>
       <div id="achievementSummary" class="achievement-summary"></div>
+      <div class="achievement-view-switch" role="tablist" aria-label="成就顯示篩選">
+        <button type="button" id="achievementPendingBtn" class="active" data-ach-filter="pending">未完成</button>
+        <button type="button" id="achievementDoneBtn" data-ach-filter="done">已完成</button>
+      </div>
       <div id="achievementGrid" class="achievement-grid"></div>
     </div>
   </section>
@@ -427,16 +437,17 @@ window.addEventListener('pageshow',function(){
   </form>
 </dialog>
 
-<script src="dialogues.js?v=20261002ad"></script>
+<script src="sinners.js?v=20261002a"></script>
+<script src="dialogues.js?v=20261002ae"></script>
 <script src="exploration-dialogues.js?v=20261002b"></script>
-<script src="app.js?v=20261002zg"></script>
-<script src="sinner-management.js?v=20261002b"></script>
+<script src="app.js?v=20261002zh"></script>
+<script src="sinner-management.js?v=20261002c"></script>
 <script src="bestiary.js?v=20261002a"></script>
 <script src="exploration.js?v=20261002c"></script>
 <script src="exploration-shop.js?v=20261002c"></script>
 <script src="equipment.js?v=20261002b"></script>
 <script src="backpack.js?v=20261002a"></script>
-<script src="achievements.js?v=20261002a"></script>
+<script src="achievements.js?v=20261002b"></script>
 <script src="quests.js?v=20261002a"></script>
 <script src="statistics.js?v=20261002a"></script>
 <script src="manager-progress.js?v=20261002a"></script>
