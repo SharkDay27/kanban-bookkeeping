@@ -1220,3 +1220,15 @@ button.tabs-directory-head:hover{border-color:#747780;border-left-color:#a5535a}
   .bestiary-region-head{align-items:flex-start;flex-direction:column}
   .bestiary-region-meta{text-align:left}
 }
+
+
+/* ===== Exploration persistent log ===== */
+.exploration-log{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.exploration-log-entry{padding:10px 11px;background:linear-gradient(180deg,#1b1d22,#121316);border-left:4px solid #665c50}
+.exploration-log-head{display:flex;justify-content:space-between;gap:10px;font-size:8px;letter-spacing:1px;color:#9a968e}
+.exploration-log-title{font-size:14px;font-weight:900;margin-top:5px}
+.exploration-log-meta{font-size:9px;color:#aaa59a;margin-top:4px}
+.exploration-log-detail{font-size:11px;line-height:1.55;margin-top:7px}
+.exploration-log-reward{font-size:10px;color:#d2bd7c;margin-top:6px}
+.exploration-log-dialogue{margin-top:8px;padding-top:7px;border-top:1px solid #383a41;font-size:10px;line-height:1.55}
+.exploration-log-dialogue b{color:#d08b91;margin-right:5px}
