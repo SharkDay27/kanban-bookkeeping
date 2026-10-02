@@ -2174,3 +2174,115 @@ dialog#commentDlg{
 :root[data-theme="dark"]{
   color-scheme:light!important;
 }
+
+
+/* ===== Readability and top action refinements ===== */
+/* LAST OPERATION: ensure adequate contrast on the light containment card */
+.containment-feedback-head{
+  color:#5f7880!important;
+}
+.containment-feedback-main{
+  color:#284c56!important;
+  font-weight:950!important;
+}
+.containment-feedback-detail{
+  color:#5d7b83!important;
+}
+#exploreHomeCode{
+  color:#8b6d2f!important;
+}
+
+/* Top utility actions */
+.zone-actions{
+  display:flex!important;
+  align-items:stretch!important;
+  gap:8px!important;
+  flex-wrap:wrap!important;
+}
+.action-with-note{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  min-width:150px;
+}
+.action-with-note .action-main{
+  width:100%;
+  flex:1;
+}
+.action-with-note small{
+  display:block;
+  padding-left:3px;
+  color:#69858d;
+  font-size:9px;
+  line-height:1.25;
+  letter-spacing:.15px;
+}
+.clear-local-compact{
+  order:99;
+  align-self:center;
+  min-height:34px!important;
+  padding:6px 9px!important;
+  font-size:10px!important;
+  color:#a64d53!important;
+  background:#fff7f7!important;
+  border:1px solid #e0b5b8!important;
+  border-left:3px solid #cf6a70!important;
+  opacity:.86;
+}
+.clear-local-compact:hover{
+  opacity:1;
+  background:#fff0f1!important;
+}
+
+/* Item-box reward popup / toast: force light appearance */
+#toast.toast,
+.toast.wood{
+  background:#ffffff!important;
+  color:#2d525c!important;
+  border:1px solid #b7dbe0!important;
+  border-left:5px solid #d4a24a!important;
+  box-shadow:0 12px 34px rgba(55,105,115,.16)!important;
+  -webkit-text-fill-color:#2d525c!important;
+}
+#toast.toast.show{
+  background:#ffffff!important;
+  color:#2d525c!important;
+}
+
+/* Any reward modal/dialog generated later should stay light */
+dialog,
+dialog .modal,
+dialog .comment-dialog,
+.item-box-dialog,
+.reward-dialog,
+.loot-dialog{
+  color:var(--text)!important;
+}
+dialog .modal,
+dialog .comment-dialog,
+.item-box-dialog,
+.reward-dialog,
+.loot-dialog{
+  background:#fff!important;
+  border-color:#b8dbe0!important;
+  box-shadow:0 18px 48px rgba(55,105,115,.18)!important;
+}
+
+@media(max-width:700px){
+  .zone-actions{
+    display:flex!important;
+    overflow-x:auto;
+    flex-wrap:nowrap!important;
+    align-items:flex-start!important;
+    padding-bottom:7px!important;
+  }
+  .action-with-note{
+    min-width:145px;
+    flex:0 0 145px;
+  }
+  .clear-local-compact{
+    flex:0 0 auto;
+    min-width:max-content!important;
+    margin-top:4px;
+  }
+}
