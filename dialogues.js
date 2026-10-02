@@ -1020,3 +1020,57 @@ function commentKindLabel(kind){
   if(kind==='araya')return 'SPECIAL / 良秀・阿賴耶';
   return 'SINGLE / 單人評議';
 }
+
+
+function explorationPrimaryLine(name,kind,ctx){
+  const ab=ctx&&ctx.abnormality||'那東西',ev=ctx&&ctx.event||'這個狀況';
+  const success=ctx&&ctx.success;
+  const map={
+    '李箱': kind==='abnormality'?(success?'其動勢已有輪廓。再觀一回，或能看清其規律。':'此番觀測仍有缺口。先退，未必是壞事。'):'眼前之事雖異，仍可先留下其形。',
+    '浮士德': kind==='abnormality'?(success?'資料已足以支持這次制壓。下一次可以更精確。':'現有情報不足。繼續硬闖並非最優解。'):'這個事件可以記錄。現在先確認可驗證的部分。',
+    '堂吉訶德': kind==='abnormality'?(success?'漂亮！此番制壓確有成效！下一回也由吾等迎戰！':'可惡……此番暫退！待整備完畢，吾定再來！'):'喔！此處竟有如此事件！經理老爺定會想知道詳情！',
+    '良秀': kind==='abnormality'?(success?'可。斷。再來。':'嘖。醜。退。'):'有點意思。別弄壞。',
+    '默爾索': kind==='abnormality'?(success?'制壓成功。目標仍需再次處理。':'制壓失敗。撤離符合目前條件。'):'事件已確認。繼續執行探索程序。',
+    '鴻璐': kind==='abnormality'?(success?'原來它受到攻擊時會這樣反應。下次應該會更容易看懂吧。':'看來它比外表麻煩得多呢。先回去也好。'):'這種地方還會出現這種東西呀。挺讓人意外的。',
+    '希斯克利夫': kind==='abnormality'?(success?'哈，這不是能打嗎？再碰上就再揍一遍。':'嘖，這鬼東西比想的硬。先撤，別白送。'):'又是什麼怪事……別站著看了，先弄清楚能不能走。',
+    '以實瑪利': kind==='abnormality'?(success?'有效。先記住它的反應，下一次別從頭摸索。':'不對，這次條件不利。繼續下去只會增加風險。'):'先別碰。確認出口、聲音來源和退路，再處理。',
+    '羅佳': kind==='abnormality'?(success?'呼，還好有用。但丁看到這份報告應該會挺高興吧？':'哎呀，這次賭錯了。先走先走，命比較值錢。'):'嗯——這種事通常都不會白送好處吧？先看看。',
+    '辛克萊': kind==='abnormality'?(success?'成功了……好，至少我們知道它不是完全沒辦法處理。':'先撤吧。我覺得再留下去只會更糟。'):'等等，我覺得這裡有點不對勁。先別急著往前。',
+    '奧提斯': kind==='abnormality'?(success?'制壓有效。執行經理會需要完整的遭遇資料。':'撤退。此刻繼續交戰沒有戰術價值。'):'先建立警戒。事件本身尚不足以判定威脅等級。',
+    '格里高爾': kind==='abnormality'?(success?'行，至少這回沒白忙。下次大概也知道該怎麼下手了。':'唉，撤吧。再撐下去可不是勇敢，是找麻煩。'):'這種地方碰到怪事也不稀奇了。總之先別大意。'
+  };
+  return map[name]||'先確認狀況。';
+}
+function explorationReplyLine(name,previous,kind,ctx){
+  const base=explorationPrimaryLine(name,kind,ctx);
+  const map={
+    '李箱':previous+'所言可作一面。只是我想再看另一面。 '+base,
+    '浮士德':previous+'的判斷可以保留，但仍需驗證。 '+base,
+    '堂吉訶德':'嗯！'+previous+'所言吾已聽見！然而吾亦有一見！ '+base,
+    '良秀':'話多。 '+base,
+    '默爾索':'已理解'+previous+'的判斷。 '+base,
+    '鴻璐':'我明白'+previous+'的意思。不過我看到的好像有點不同。 '+base,
+    '希斯克利夫':'行了，'+previous+'，先別講那麼多。 '+base,
+    '以實瑪利':'先等等，'+previous+'。那個結論還下得太早。 '+base,
+    '羅佳':'嗯——'+previous+'這麼想也行啦。不過別太快把話說死。 '+base,
+    '辛克萊':'我懂'+previous+'的意思。不過我還是有點在意另一件事。 '+base,
+    '奧提斯':previous+'的意見可供參考，但還不夠完整。 '+base,
+    '格里高爾':'嗯，'+previous+'差不多說到點上了。只是啊，'+base
+  };
+  return map[name]||base;
+}
+function generateExplorationDialogue(names,kind,ctx){
+  if(!Array.isArray(names)||names.length<2)return [];
+  const first=names[0],second=names[1];
+  const lines=[
+    {speaker:first,text:explorationPrimaryLine(first,kind,ctx),visibility:'public'},
+    {speaker:second,text:explorationReplyLine(second,first,kind,ctx),visibility:'public'}
+  ];
+  if(first==='良秀'||second==='良秀'){
+    if(Math.random()<0.34){
+      lines.push({speaker:'阿賴耶識（刀鞘）',text:pick(['刀鞘輕輕震了一聲。','刀鞘傳來兩下短促的輕響。']),visibility:'public',kind:'scabbard'});
+      lines.push({speaker:'阿賴耶（刀鞘內）',text:ctx&&ctx.success?'我覺得這次的處理還算穩。下次再遇到，可以照剛才看到的規律來。':'我會先回去整理一下剛才發生的事。現在硬撐沒有必要。',visibility:'user-only',kind:'inner-voice'});
+    }
+  }
+  return lines;
+}
