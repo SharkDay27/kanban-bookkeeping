@@ -605,6 +605,49 @@ dialog#dlg .foot button[value="cancel"]{
   dialog#dlg .foot button[value="cancel"],
   dialog#dlg #del{min-height:40px!important;font-size:12px!important}
 }
+
+/* ===== v9.6 commentary archive grouping ===== */
+.commentary-view-switch{
+  display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:12px 0 10px;
+  padding:5px;background:#111216;border:1px solid #44464d;
+}
+.commentary-view-switch button{
+  min-height:42px;border:1px solid #4f5159;background:#191a1f;color:#9f9b92;
+  font-weight:900;letter-spacing:.5px
+}
+.commentary-view-switch button.active{
+  background:linear-gradient(180deg,#4a292d,#29191c);
+  border-color:#8c464d;color:#f2e8e6;
+  box-shadow:inset 4px 0 0 #b5555d
+}
+.sinner-filter-bar{
+  display:flex;gap:6px;overflow-x:auto;padding:2px 0 9px;margin-bottom:3px;
+  scrollbar-width:none;-webkit-overflow-scrolling:touch
+}
+.sinner-filter-bar::-webkit-scrollbar{display:none}
+.sinner-filter{
+  flex:0 0 auto;min-height:38px;padding:7px 10px;
+  border:1px solid #50525a;background:#17181c;color:#aaa69d;font-size:11px
+}
+.sinner-filter.active{border-color:#965058;background:#342023;color:#f2dddd}
+.sinner-filter .count{font-size:9px;opacity:.68;margin-left:4px}
+.sinner-group{margin-bottom:12px}
+.sinner-group-head{
+  display:flex;justify-content:space-between;align-items:center;gap:8px;
+  padding:10px 11px;background:#15161a;border:1px solid #4d4f56;border-left:4px solid #9a4d54;
+  margin-bottom:7px
+}
+.sinner-group-name{font-size:15px;font-weight:900;color:#e5deda}
+.sinner-group-code{font-size:9px;color:#a85c63;letter-spacing:1.2px}
+.sinner-group-count{font-size:10px;color:#949189}
+.commentary-entry.compact-by-sinner .commentary-speaker{display:none}
+.commentary-entry.compact-by-sinner .commentary-line{grid-template-columns:1fr}
+@media(max-width:700px){
+  .commentary-view-switch{position:sticky;top:0;z-index:8;background:#111216;margin-left:-2px;margin-right:-2px}
+  .commentary-view-switch button{font-size:12px}
+  .sinner-filter{min-height:40px;font-size:12px}
+  .sinner-group-head{position:sticky;top:52px;z-index:6}
+}
 </style>
 </head>
 <body>
@@ -795,8 +838,13 @@ dialog#dlg .foot button[value="cancel"]{
         <div><div class="archive-id">LCB // SINNER-COMMENTARY</div><div class="archive-title">罪人評議記錄</div></div>
         <div class="archive-stamp">ARCHIVE</div>
       </div>
-      <div class="sub">每筆新登錄的收入／支出會固定保存當時的罪人點評。稀有情況下會出現雙人評議或全員評議。</div>
-      <div id="commentaryList" class="commentary-list" style="margin-top:12px"></div>
+      <div class="sub">每筆新登錄的收入／支出會固定保存當時的罪人點評。可依時間或罪人切換檢視。</div>
+      <div class="commentary-view-switch">
+        <button type="button" id="commentViewTime" class="active">依時間</button>
+        <button type="button" id="commentViewSinner">依罪人</button>
+      </div>
+      <div id="sinnerFilterBar" class="sinner-filter-bar" style="display:none"></div>
+      <div id="commentaryList" class="commentary-list"></div>
     </div>
   </section>
 
@@ -1782,16 +1830,73 @@ function backfillMissingComments(){
   });
   if(changed)saveLocal();
 }
+
+let commentaryView='time';
+let commentarySinner='all';
+function sinnerForLineSpeaker(speaker){
+  if(!speaker)return null;
+  if(String(speaker).includes('阿賴耶'))return '良秀';
+  const found=SINNERS.find(function(s){return String(speaker).includes(s.name)});
+  return found?found.name:null;
+}
+function commentEntryCard(entry,opts){
+  opts=opts||{};
+  const rare=entry.comment.kind==='duo'||entry.comment.kind==='all';
+  let lines=entry.comment.lines||[];
+  if(opts.sinner){
+    lines=lines.filter(function(line){return sinnerForLineSpeaker(line.speaker)===opts.sinner || (opts.sinner==='良秀'&&String(line.speaker).includes('阿賴耶'))});
+    if(entry.comment.kind==='araya'&&opts.sinner==='良秀')lines=entry.comment.lines||[];
+  }
+  if(!lines.length)return '';
+  const copy={...entry.comment,lines:lines};
+  return '<div class="commentary-entry wood '+(opts.sinner?'compact-by-sinner':'')+'"><div class="commentary-head"><div><b>'+esc(entry.store)+'</b><div class="commentary-meta">'+esc(entry.date)+' / '+(entry.type==='income'?'收入':'支出')+' / '+esc(entry.category||'其他')+' / '+money(entry.amount)+'</div></div><span class="commentary-tag '+(rare?'rare':'')+'">'+commentKindLabel(entry.comment.kind)+'</span></div><div class="commentary-lines">'+renderCommentLines(copy)+'</div></div>';
+}
+function setCommentaryView(view){
+  commentaryView=view==='sinner'?'sinner':'time';
+  $('commentViewTime')?.classList.toggle('active',commentaryView==='time');
+  $('commentViewSinner')?.classList.toggle('active',commentaryView==='sinner');
+  if($('sinnerFilterBar'))$('sinnerFilterBar').style.display=commentaryView==='sinner'?'flex':'none';
+  renderCommentaryArchive();
+}
+function renderSinnerFilters(rows){
+  const bar=$('sinnerFilterBar');if(!bar)return;
+  const counts={};
+  SINNERS.forEach(function(s){counts[s.name]=0});
+  rows.forEach(function(entry){
+    const present=new Set();
+    (entry.comment.lines||[]).forEach(function(line){const n=sinnerForLineSpeaker(line.speaker);if(n)present.add(n)});
+    present.forEach(function(n){counts[n]=(counts[n]||0)+1});
+  });
+  bar.innerHTML='<button type="button" class="sinner-filter '+(commentarySinner==='all'?'active':'')+'" data-sinner="all">全部</button>'+
+    SINNERS.map(function(s){return '<button type="button" class="sinner-filter '+(commentarySinner===s.name?'active':'')+'" data-sinner="'+esc(s.name)+'">'+esc(s.name)+'<span class="count">'+(counts[s.name]||0)+'</span></button>'}).join('');
+  bar.querySelectorAll('[data-sinner]').forEach(function(btn){btn.onclick=function(){commentarySinner=btn.dataset.sinner;renderCommentaryArchive()}});
+}
 function renderCommentaryArchive(){
   const box=$('commentaryList');if(!box)return;
   const rows=state.entries.filter(function(x){return x.comment&&x.comment.lines&&x.comment.lines.length}).sort(function(a,b){
     const ca=a.comment.createdAt||a.date,cb=b.comment.createdAt||b.date;return cb.localeCompare(ca);
   });
+  $('commentViewTime')?.classList.toggle('active',commentaryView==='time');
+  $('commentViewSinner')?.classList.toggle('active',commentaryView==='sinner');
+  if($('sinnerFilterBar'))$('sinnerFilterBar').style.display=commentaryView==='sinner'?'flex':'none';
   if(!rows.length){box.innerHTML='<div class="empty wood panel">尚無罪人評議。新增一筆收入或支出後，評議會固定保存於此。</div>';return}
-  box.innerHTML=rows.map(function(entry){
-    const rare=entry.comment.kind==='duo'||entry.comment.kind==='all';
-    return '<div class="commentary-entry wood"><div class="commentary-head"><div><b>'+esc(entry.store)+'</b><div class="commentary-meta">'+esc(entry.date)+' / '+(entry.type==='income'?'收入':'支出')+' / '+esc(entry.category||'其他')+' / '+money(entry.amount)+'</div></div><span class="commentary-tag '+(rare?'rare':'')+'">'+commentKindLabel(entry.comment.kind)+'</span></div><div class="commentary-lines">'+renderCommentLines(entry.comment)+'</div></div>';
+  if(commentaryView==='time'){
+    box.innerHTML=rows.map(function(entry){return commentEntryCard(entry)}).join('');
+    return;
+  }
+  renderSinnerFilters(rows);
+  const sinners=commentarySinner==='all'?SINNERS.map(function(s){return s.name}):[commentarySinner];
+  const groups=sinners.map(function(name){
+    const sinner=SINNERS.find(function(s){return s.name===name});
+    const matched=rows.filter(function(entry){
+      return (entry.comment.lines||[]).some(function(line){return sinnerForLineSpeaker(line.speaker)===name}) ||
+        (name==='良秀'&&entry.comment.kind==='araya');
+    });
+    if(!matched.length)return '';
+    return '<div class="sinner-group"><div class="sinner-group-head"><div><div class="sinner-group-code">SINNER // '+esc(sinner?sinner.id:'--')+'</div><div class="sinner-group-name">'+esc(name)+'</div></div><div class="sinner-group-count">'+matched.length+' 筆評議</div></div>'+
+      matched.map(function(entry){return commentEntryCard(entry,{sinner:name})}).join('')+'</div>';
   }).join('');
+  box.innerHTML=groups||'<div class="empty wood panel">此罪人目前尚無評議紀錄。</div>';
 }
 
 
@@ -1934,7 +2039,7 @@ function mapIcon(kind){
 }
 function mountIcons(){$('logo').innerHTML=drawSprite('star');$('heroIcon').innerHTML=drawSprite('hero');$('monsterIcon').innerHTML=drawSprite('slime');$('salaryNpc').innerHTML=npcSprite('fairy');$('npcClerk').innerHTML=npcSprite('clerk');$('npcMerchant').innerHTML=npcSprite('merchant');$('npcFairy').innerHTML=npcSprite('fairy');}
 $('etype').addEventListener('change',syncEntryTypeUI);document.querySelectorAll('[data-entry-type]').forEach(b=>b.onclick=()=>{$('etype').value=b.dataset.entryType;syncEntryTypeUI()});$('dlg').addEventListener('click',e=>{if(e.target===$('dlg'))$('dlg').close()});$('ecat').addEventListener('change',renderQuickCats);
-$('save').onclick=()=>saveEntry(false);$('saveAgain').onclick=()=>saveEntry(true);$('closeDlg').onclick=()=>$('dlg').close();$('closeCommentDlg').onclick=()=>$('commentDlg').close();$('goCommentArchive').onclick=()=>{$('commentDlg').close();setTab('commentary')};$('del').onclick=deleteEntry;$('csv').addEventListener('change',importCsvFiles);$('export').onclick=exportCsv;$('backup').onclick=backupJson;$('restore').addEventListener('change',restoreJson);$('clear').onclick=clearLocalData;$('saveSettings').onclick=saveSettings;$('addExpense').onclick=()=>openEdit('', 'expense');$('addIncome').onclick=()=>openEdit('', 'income');$('fab').onclick=()=>openEdit('', 'expense');$('bottomAdd').onclick=()=>openEdit('', 'expense');['month','typeFilter','cat','search'].forEach(id=>$(id).addEventListener('input',render));document.querySelectorAll('[data-chest]').forEach(btn=>btn.onclick=()=>openChest(btn.dataset.chest));document.querySelectorAll('.tabs button').forEach(btn=>btn.onclick=()=>setTab(btn.dataset.tab));document.querySelectorAll('[data-goto]').forEach(btn=>btn.onclick=()=>setTab(btn.dataset.goto));if(!$('month').value){$('month').value=new Date().toISOString().slice(0,7)}mountIcons();render();setupIphoneSafariInput();
+$('save').onclick=()=>saveEntry(false);$('saveAgain').onclick=()=>saveEntry(true);$('closeDlg').onclick=()=>$('dlg').close();$('closeCommentDlg').onclick=()=>$('commentDlg').close();$('commentViewTime').onclick=()=>setCommentaryView('time');$('commentViewSinner').onclick=()=>setCommentaryView('sinner');$('goCommentArchive').onclick=()=>{$('commentDlg').close();setTab('commentary')};$('del').onclick=deleteEntry;$('csv').addEventListener('change',importCsvFiles);$('export').onclick=exportCsv;$('backup').onclick=backupJson;$('restore').addEventListener('change',restoreJson);$('clear').onclick=clearLocalData;$('saveSettings').onclick=saveSettings;$('addExpense').onclick=()=>openEdit('', 'expense');$('addIncome').onclick=()=>openEdit('', 'income');$('fab').onclick=()=>openEdit('', 'expense');$('bottomAdd').onclick=()=>openEdit('', 'expense');['month','typeFilter','cat','search'].forEach(id=>$(id).addEventListener('input',render));document.querySelectorAll('[data-chest]').forEach(btn=>btn.onclick=()=>openChest(btn.dataset.chest));document.querySelectorAll('.tabs button').forEach(btn=>btn.onclick=()=>setTab(btn.dataset.tab));document.querySelectorAll('[data-goto]').forEach(btn=>btn.onclick=()=>setTab(btn.dataset.goto));if(!$('month').value){$('month').value=new Date().toISOString().slice(0,7)}mountIcons();render();setupIphoneSafariInput();
 </script>
 </body>
 </html>
