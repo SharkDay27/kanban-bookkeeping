@@ -201,7 +201,7 @@ function renderCurrencySelector(){
 function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
 function toast(msg){const t=$('toast');t.textContent=localizeText(msg);t.style.display='block';clearTimeout(toast._t);toast._t=setTimeout(()=>t.style.display='none',2400)}
 function saveLocal(){localStorage.setItem(KEY,JSON.stringify(state))}
-function defaultState(){return {entries:[],profile:{initialAmount:0,name:'帳本終端者',currency:'TWD',language:'zh-Hant'},rpg:{xp:0,gold:0,chests:{wood:0,silver:0,gold:0},inventory:[],equipped:[],consumables:{water:3,potion:0},player:{hp:100,maxHp:100,lastCombat:'尚無受擊紀錄。'},achievements:[],monthlyBosses:{},rewardLog:'開始記錄來啟動管理流程。',streakMilestones:[]},daily:{}}}
+function defaultState(){return {entries:[],profile:{initialAmount:0,name:'帳本終端者',currency:'TWD',language:'zh-Hant'},rpg:{xp:0,gold:0,chests:{wood:0,silver:0,gold:0},inventory:[],equipped:[],consumables:{water:3,potion:0},player:{hp:100,maxHp:100,lastCombat:'尚無受擊紀錄。'},lastContainment:null,achievements:[],monthlyBosses:{},rewardLog:'開始記錄來啟動管理流程。',streakMilestones:[]},daily:{}}}
 function normalizeEntry(x){return {...x,type:x.type||'expense',category:x.category||'其他',amount:Number(x.amount||0),date:x.date||today(),payment:x.payment||'現金',store:x.store||'未命名紀錄',items:Array.isArray(x.items)?x.items:[],note:x.note||''}}
 function migrate(old){const s=defaultState();
   if(Array.isArray(old)){s.entries=old.map(v=>normalizeEntry(v));return s}
@@ -218,6 +218,7 @@ function migrate(old){const s=defaultState();
     s.rpg.achievements=Array.isArray(old.rpg.achievements)?old.rpg.achievements:[];
     s.rpg.monthlyBosses=old.rpg.monthlyBosses||{};
     s.rpg.player={...s.rpg.player,...(old.rpg.player||{})};
+    s.rpg.lastContainment=old.rpg.lastContainment||null;
     s.rpg.player.maxHp=Math.max(1,Number(s.rpg.player.maxHp||100));
     s.rpg.player.hp=Math.max(0,Math.min(s.rpg.player.maxHp,Number(s.rpg.player.hp??s.rpg.player.maxHp)));
     s.rpg.consumables={...s.rpg.consumables,...(old.rpg.consumables||{})};
@@ -370,18 +371,54 @@ function autoHealAfterHit(){
 function monsterCounterAttack(){
   ensureDaily(today());ensurePlayerState();
   const m=state.daily[today()].monster;
-  if(!m||m.defeated||state.rpg.player.hp<=0)return 0;
-  if(Math.random()>=0.35)return 0;
+  if(!m||m.defeated||state.rpg.player.hp<=0)return {damage:0,healed:0,autoWater:false};
+  if(Math.random()>=0.35)return {damage:0,healed:0,autoWater:false};
   const spec=MONSTER_CATALOG.find(function(x){return x.id===m.id})||MONSTER_CATALOG[0];
   const ranges={LOW:[4,8],MEDIUM:[7,12],HIGH:[10,16]},range=ranges[spec.risk]||ranges.LOW;
   const dmg=range[0]+Math.floor(Math.random()*(range[1]-range[0]+1));
   state.rpg.player.hp=Math.max(0,state.rpg.player.hp-dmg);
+  const beforeHeal=state.rpg.player.hp;
   const didHeal=autoHealAfterHit();
+  const healed=didHeal?state.rpg.player.hp-beforeHeal:0;
   state.rpg.player.lastCombat=m.name+'反擊，造成 '+dmg+' 傷害。'+(didHeal?' HP 偏低，已自動飲用瓶裝水。':'');
   if(state.rpg.player.hp===0)state.rpg.player.lastCombat+=' 使用者已失去作業能力，請在背包使用治療物品。';
-  return dmg;
+  return {damage:dmg,healed:healed,autoWater:didHeal};
 }
-function damageMonster(amount,allowCounter=true){const d=today();ensureDaily(d);const m=state.daily[d].monster;if(m.defeated)return;const e=equipmentEffects(),dmg=Math.max(1,Math.round(amount+e.monsterDamage+e.allDamage));m.hp=Math.max(0,m.hp-dmg);if(m.hp===0){m.defeated=true;state.rpg.gold+=20;state.rpg.chests.wood+=1;const drop=MONSTER_DROPS[m.id];if(drop&&!state.rpg.inventory.includes(drop))state.rpg.inventory.unshift(drop);state.rpg.rewardLog='每日收容單位處置完成！\n獲得 20 金幣、1 個木箱'+(drop?' 與 '+drop:'')+'。'}else if(allowCounter){monsterCounterAttack()}}
+function damageMonster(amount,allowCounter=true){
+  const d=today();ensureDaily(d);ensurePlayerState();
+  const m=state.daily[d].monster;
+  if(m.defeated)return {damage:0,counter:0,healed:0,defeated:true};
+  const e=equipmentEffects(),dmg=Math.max(1,Math.round(amount+e.monsterDamage+e.allDamage));
+  const before=m.hp;
+  m.hp=Math.max(0,m.hp-dmg);
+  const actual=Math.max(0,before-m.hp);
+  let drop='',counter={damage:0,healed:0,autoWater:false};
+  if(m.hp===0){
+    m.defeated=true;
+    state.rpg.gold+=20;
+    state.rpg.chests.wood+=1;
+    drop=MONSTER_DROPS[m.id]||'';
+    if(drop&&!state.rpg.inventory.includes(drop))state.rpg.inventory.unshift(drop);
+    state.rpg.rewardLog='每日收容單位處置完成！\n獲得 20 金幣、1 個木箱'+(drop?' 與 '+drop:'')+'。';
+  }else if(allowCounter){
+    counter=monsterCounterAttack();
+  }
+  const hitPct=Math.round((1-m.hp/m.maxHp)*100);
+  state.rpg.lastContainment={
+    at:new Date().toISOString(),
+    monster:m.name,
+    damage:actual,
+    remaining:m.hp,
+    maxHp:m.maxHp,
+    progress:hitPct,
+    counter:Number(counter.damage||0),
+    healed:Number(counter.healed||0),
+    autoWater:!!counter.autoWater,
+    defeated:!!m.defeated,
+    drop:drop
+  };
+  return {damage:actual,counter:Number(counter.damage||0),healed:Number(counter.healed||0),defeated:!!m.defeated,drop:drop};
+}
 function checkStreakMilestones(){const s=computeStreak();const ms=[{n:3,type:'wood',count:1},{n:7,type:'silver',count:1},{n:14,type:'silver',count:2},{n:30,type:'gold',count:1}];for(const m of ms){if(s.current>=m.n&&!state.rpg.streakMilestones.includes(m.n)){state.rpg.streakMilestones.push(m.n);state.rpg.chests[m.type]+=m.count;state.rpg.rewardLog=`連續記錄 ${m.n} 天達成！\n獲得 ${m.count} 個${m.type==='wood'?'木':m.type==='silver'?'銀':'金'}寶箱。`;}}}
 function checkQuests(){const d=today();ensureDaily(d);const ds=dayStats(d);QUESTS.forEach(q=>{const progress=q.id==='q3'?ds.cats:ds.count;const claimed=state.daily[d].questClaims[q.id];if(progress>=q.goal&&!claimed){state.daily[d].questClaims[q.id]=true;grantXp(q.rewardXp,`完成每日執行指令：${q.name}`);damageMonster(10);damageBoss(15)}});checkStreakMilestones();checkAchievements()}
 function openChest(type){
@@ -532,12 +569,34 @@ function renderBoss(){
   $('bossReward').textContent='REWARD / 100 金幣＋金寶箱 ×1＋'+spec.reward;
 }
 function rank(lv){if(lv>=20)return '傳奇帳本大師';if(lv>=12)return '黃金終端家';if(lv>=7)return '熟練記錄戰士';if(lv>=4)return '見習帳本獵人';return '新手村記錄員'}
-function renderRpg(){ensurePlayerState();const xp=state.rpg.xp,lv=Math.floor(xp/100)+1,cur=xp%100;$('lv').textContent=`Lv.${lv}`;$('rank').textContent=(state.profile.name||'帳本終端者')+'｜'+rank(lv);$('xpText').textContent=`${cur} / 100 EXP`;$('xpFill').style.width=cur+'%';$('xpPct').textContent=cur+'%';$('gold').textContent=state.rpg.gold;$('woodChest').textContent=state.rpg.chests.wood||0;$('silverChest').textContent=state.rpg.chests.silver||0;$('goldChest').textContent=state.rpg.chests.gold||0;$('rewardLog').textContent=state.rpg.rewardLog;renderInventory();ensureDaily(today());const m=state.daily[today()].monster;const spec=MONSTER_CATALOG.find(x=>x.id===m.id)||MONSTER_CATALOG[0];$('monsterIcon').innerHTML=monsterSprite(spec.shape,false);$('monsterName').textContent=m.name;$('monsterDate').textContent=today();$('monsterState').textContent=m.defeated?'已擊敗':'戰鬥中';$('hpFill').style.width=Math.round(m.hp/m.maxHp*100)+'%';$('hpText').textContent=`${m.hp} / ${m.maxHp}`;$('monsterMeta').textContent=m.defeated?'明天會出現新的怪物':'新增記錄造成 8 傷害；作業時收容單位有 35% 機率反擊';
+function renderRpg(){ensurePlayerState();const xp=state.rpg.xp,lv=Math.floor(xp/100)+1,cur=xp%100;$('lv').textContent=`Lv.${lv}`;$('rank').textContent=(state.profile.name||'帳本終端者')+'｜'+rank(lv);$('xpText').textContent=`${cur} / 100 EXP`;$('xpFill').style.width=cur+'%';$('xpPct').textContent=cur+'%';$('gold').textContent=state.rpg.gold;$('woodChest').textContent=state.rpg.chests.wood||0;$('silverChest').textContent=state.rpg.chests.silver||0;$('goldChest').textContent=state.rpg.chests.gold||0;$('rewardLog').textContent=state.rpg.rewardLog;renderInventory();ensureDaily(today());const m=state.daily[today()].monster;const spec=MONSTER_CATALOG.find(x=>x.id===m.id)||MONSTER_CATALOG[0];$('monsterIcon').innerHTML=monsterSprite(spec.shape,false);$('monsterName').textContent=m.name;$('monsterDate').textContent=today();$('monsterState').textContent=m.defeated?'已擊敗':'戰鬥中';$('hpFill').style.width=Math.round(m.hp/m.maxHp*100)+'%';$('hpText').textContent=`${m.hp} / ${m.maxHp}`;const baseHit=Math.max(1,Math.round(8+equipmentEffects().monsterDamage+equipmentEffects().allDamage));
+  const remainWorks=m.defeated?0:Math.ceil(m.hp/baseHit);
+  $('monsterMeta').textContent=m.defeated?'明天會出現新的怪物':'每次新增記錄約造成 '+baseHit+' 傷害；預估還需 '+remainWorks+' 次作業';
+  if($('monsterRisk'))$('monsterRisk').textContent='RISK / '+spec.risk;
   const op=state.rpg.player,opPct=Math.round(op.hp/op.maxHp*100);
   if($('operatorHpFill'))$('operatorHpFill').style.width=opPct+'%';
   if($('operatorHpText'))$('operatorHpText').textContent=op.hp+' / '+op.maxHp;
   if($('operatorHpState'))$('operatorHpState').textContent=op.hp===0?'DOWN':opPct<=25?'CRITICAL':opPct<=45?'LOW':'STABLE';
   if($('combatLog'))$('combatLog').textContent=op.lastCombat||'收容單位目前沒有造成傷害。';
+  const ev=state.rpg.lastContainment;
+  if($('containmentFeedback')){
+    $('containmentFeedback').classList.toggle('defeated',!!(ev&&ev.defeated));
+    $('containmentFeedback').classList.toggle('countered',!!(ev&&ev.counter));
+  }
+  if($('containmentFeedbackCode'))$('containmentFeedbackCode').textContent=!ev?'STANDBY':ev.defeated?'DISPOSED':ev.counter?'COUNTER':'HIT';
+  if($('containmentFeedbackMain'))$('containmentFeedbackMain').textContent=!ev?'等待下一次作業。':ev.defeated
+    ?('處置完成：對 '+ev.monster+' 造成 '+ev.damage+' 傷害。')
+    :('命中 '+ev.monster+'：-'+ev.damage+' HP　處置進度 '+ev.progress+'%');
+  if($('containmentFeedbackDetail')){
+    if(!ev)$('containmentFeedbackDetail').textContent='新增記錄後，這裡會顯示造成傷害、反擊、補血與掉落結果。';
+    else{
+      const details=['剩餘 '+ev.remaining+' / '+ev.maxHp+' HP'];
+      if(ev.counter)details.push('反擊 -'+ev.counter+' HP');
+      if(ev.autoWater)details.push('自動喝水 +'+ev.healed+' HP');
+      if(ev.defeated)details.push('獲得 20 金幣＋木箱'+(ev.drop?'＋'+ev.drop:''));
+      $('containmentFeedbackDetail').textContent=details.join('　／　');
+    }
+  }
   const ds=dayStats(today());$('todayCount').textContent=ds.count;$('todayNet').textContent=money(ds.net);$('todayNet').style.color=ds.net<0?'var(--red)':'var(--green)'}
 function renderSummary(){const expense=state.entries.filter(x=>x.type==='expense').reduce((s,x)=>s+x.amount,0),income=state.entries.filter(x=>x.type==='income').reduce((s,x)=>s+x.amount,0),init=Number(state.profile.initialAmount||0),bal=init+income-expense,m=$('month').value||today().slice(0,7),monthEntries=state.entries.filter(x=>x.date.startsWith(m)),mIncome=monthEntries.filter(x=>x.type==='income').reduce((s,x)=>s+x.amount,0),mExpense=monthEntries.filter(x=>x.type==='expense').reduce((s,x)=>s+x.amount,0),monthNet=mIncome-mExpense,st=computeStreak();$('initialAmount').textContent=money(init);$('allIncome').textContent=money(income);$('allIncome').style.color='var(--green)';$('allExpense').textContent=money(expense);$('allExpense').style.color='var(--red)';$('balance').textContent=money(bal);$('balance').style.color=bal<0?'var(--red)':'var(--green)';$('monthNet').textContent=money(monthNet);$('monthNet').style.color=monthNet<0?'var(--red)':'var(--green)';$('monthLabel').textContent=m;$('streak').textContent=st.current+' 天';$('bestStreak').textContent='最長 '+st.best+' 天';$('streakBig').textContent=st.current;$('bestBig').textContent=st.best}
 function renderQuests(){ensureDaily(today());const ds=dayStats(today());$('questList').innerHTML=QUESTS.map(q=>{const p=q.id==='q3'?ds.cats:ds.count,done=p>=q.goal,claim=state.daily[today()].questClaims[q.id];return `<div class="quest wood panel ${done?'done':''}"><div class="row"><div class="quest-name">${done?'✓ ':'◇ '}${q.name}</div><div class="quest-reward">+${q.rewardXp} EXP</div></div><div class="quest-desc">${q.desc}</div><div class="quest-progress"><div style="width:${Math.min(100,Math.round(p/q.goal*100))}%"></div></div><div class="quest-desc">${Math.min(p,q.goal)} / ${q.goal}${claim?'・已領取':''}</div></div>`}).join('')}
