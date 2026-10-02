@@ -1036,3 +1036,83 @@ button.pack-item{text-align:left;color:var(--text);width:100%}
   .zone-summary .stat .v{font-size:18px}
   .section.active{padding:9px!important}
 }
+
+
+/* ===== Exploration / sinner management mode ===== */
+.tabs.zone-tabs button[data-tab="explore"]::before{content:"FIELD OPS"}
+.tabs.zone-tabs button[data-tab="sinners"]::before{content:"LCB ROSTER"}
+#explore.section.active{border-top-color:#8c594c!important}
+#sinners.section.active{border-top-color:#536f89!important}
+
+.explore-command-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:12px}
+.explore-command-kpis .compact{font-size:12px;line-height:1.25}
+.home-containment-progress{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-top:10px}
+.containment-progress-row{display:flex;justify-content:space-between;gap:8px;padding:8px 10px;background:#15161a;border:1px solid #44464e;font-size:10px}
+.containment-progress-row.done{border-left:4px solid #67846d;color:#cfe0d1}
+
+.exploration-layout{display:grid;grid-template-columns:1.15fr .85fr;gap:12px}
+.exploration-result-panel{grid-column:1/-1}
+.explore-action-banner{display:flex;justify-content:space-between;gap:12px;align-items:end;padding:10px;border:1px solid #4d4f57;background:#121316;margin-bottom:10px}
+.explore-action-banner strong{display:block;font-size:30px;line-height:1;margin-top:4px}
+.exploration-area-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.exploration-area-card{text-align:left;padding:11px;min-height:126px;background:linear-gradient(180deg,#202228,#141519)}
+.exploration-area-card.active{border-color:#a45a52;box-shadow:inset 4px 0 0 #a45a52}
+.area-risk{font-size:8px;letter-spacing:1.2px;color:#a85d63;font-weight:900}
+.area-name{font-size:15px;font-weight:900;margin-top:7px}
+.area-level{font-size:10px;color:#c4b178;margin-top:4px}
+.area-desc{font-size:10px;color:var(--muted);line-height:1.45;margin-top:7px}
+.team-picker{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-top:10px;max-height:420px;overflow:auto}
+.team-sinner{text-align:left;padding:9px;background:#17181d}
+.team-sinner.active{border-color:#8b5651;box-shadow:inset 4px 0 0 #a65057;background:#21191b}
+.team-sinner-head{display:flex;justify-content:space-between;gap:8px}
+.team-sinner-head strong{font-size:12px}
+.team-sinner-head span{font-size:10px;color:#c3b175}
+.team-sinner-meta{font-size:9px;color:var(--muted);margin-top:5px}
+.explore-btn{width:100%;min-height:46px;margin-top:10px}
+.explore-result{padding:11px;background:#121316;border:1px solid #464850}
+.explore-result-title{font-size:17px;font-weight:900}
+.explore-result-meta{font-size:9px;color:#a59f92;letter-spacing:.6px;margin-top:5px}
+.explore-result-detail{font-size:12px;line-height:1.6;margin-top:8px}
+.explore-reward{margin-top:8px;padding:7px;border-left:4px solid #8b7447;background:#1b1912;font-size:11px;color:#d7c58c}
+.explore-dialogue{margin-top:10px}
+.explore-dialogue-head{font-size:9px;letter-spacing:1.2px;color:#8d8f98;margin-bottom:6px}
+.explore-dialogue-line{display:grid;grid-template-columns:90px 1fr;gap:8px;padding:8px 0;border-bottom:1px solid #34363d}
+.explore-dialogue-line b{font-size:11px;color:#d6a1a5}
+.explore-dialogue-line span{font-size:12px;line-height:1.55}
+
+.sinner-management-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:12px}
+.sinner-file{padding:12px;background:linear-gradient(180deg,#1d1f24,#121316)}
+.sinner-file-head{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.sinner-file-name{font-size:18px;font-weight:900;margin-top:2px}
+.sinner-level{font-size:12px;font-weight:900;color:#d1bb7e;border:1px solid #665b40;padding:5px 7px}
+.sinner-specialty{font-size:10px;color:#aaa69d;line-height:1.45;margin-top:7px}
+.sinner-exp{height:18px;background:#0e0f12;border:1px solid #4f5158;position:relative;margin-top:9px}
+.sinner-exp>div{height:100%;background:linear-gradient(90deg,#596b82,#8796a9)}
+.sinner-exp span{position:absolute;inset:0;display:grid;place-items:center;font-size:8px;font-weight:900}
+.sinner-condition{font-size:9px;color:#b6aa8f;margin-top:6px}
+.sinner-stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:8px}
+.sinner-stat-grid span{padding:6px 4px;background:#15161a;border:1px solid #3e4047;text-align:center;font-size:9px;color:#99978f}
+.sinner-stat-grid b{display:block;color:#eee9df;font-size:14px;margin-top:2px}
+.sinner-gear-label{display:flex;flex-direction:column;gap:5px;margin-top:9px;font-size:9px;color:var(--muted)}
+.sinner-gear-select{width:100%;min-height:36px;font-size:10px}
+.sinner-skill-list{display:flex;flex-direction:column;gap:5px;margin-top:9px}
+.sinner-skill{padding:7px 8px;border:1px solid #41434a;background:#141519}
+.sinner-skill b{display:block;font-size:10px}
+.sinner-skill span{display:block;font-size:9px;color:var(--muted);margin-top:3px;line-height:1.35}
+.sinner-skill.locked{opacity:.45}
+.sinner-skill.unlocked{border-left:3px solid #788e72}
+.abno-glyph{width:72px;height:72px;display:grid;place-items:center;border:2px solid #656771;background:#18191d;font-size:32px;color:#b6b0a5}
+
+@media(max-width:1050px){
+  .sinner-management-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:700px){
+  .explore-command-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .home-containment-progress{grid-template-columns:1fr}
+  .exploration-layout{grid-template-columns:1fr}
+  .exploration-result-panel{grid-column:auto}
+  .exploration-area-grid{grid-template-columns:1fr}
+  .team-picker{grid-template-columns:1fr 1fr;max-height:none}
+  .sinner-management-grid{grid-template-columns:1fr}
+  .explore-dialogue-line{grid-template-columns:76px 1fr}
+}
