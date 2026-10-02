@@ -76,7 +76,56 @@ const QUESTS=[
  {id:'q2',name:'完整記錄',desc:'今天新增至少 3 筆記錄',goal:3,rewardXp:20},
  {id:'q3',name:'分類探索',desc:'今天記錄至少 2 種不同分類',goal:2,rewardXp:15}
 ];
-let state=load();
+
+const SINNER_FIELD_PROFILES={
+ '李箱':{stats:{combat:4,observe:8,mobility:5,stability:7},specialty:'觀測解析',ego:'烏瞰刀',skills:[{lv:1,name:'烏瞰刀',desc:'怪異解析成功率提升'},{lv:3,name:'靜態推演',desc:'事件判定更穩定'},{lv:6,name:'軌跡讀取',desc:'高危區觀察加成'}]},
+ '浮士德':{stats:{combat:5,observe:9,mobility:4,stability:8},specialty:'情報演算',ego:'表象放射器',skills:[{lv:1,name:'表象放射器',desc:'未知事件情報加成'},{lv:3,name:'最優解搜索',desc:'探索失敗懲罰降低'},{lv:6,name:'情報重構',desc:'裝備發現率提升'}]},
+ '堂吉訶德':{stats:{combat:7,observe:4,mobility:8,stability:5},specialty:'先鋒突入',ego:'桑丘之血',skills:[{lv:1,name:'桑丘之血',desc:'戰鬥遭遇輸出提升'},{lv:3,name:'疾行突入',desc:'低中危區機動加成'},{lv:6,name:'不退之勢',desc:'負傷時仍保有戰力'}]},
+ '良秀':{stats:{combat:9,observe:6,mobility:7,stability:4},specialty:'弱點切割',ego:'森羅炎象',skills:[{lv:1,name:'森羅炎象',desc:'怪異戰鬥爆發提升'},{lv:3,name:'斷面鑑賞',desc:'高危怪異弱點判定加成'},{lv:6,name:'收尾美學',desc:'擊殺時額外 EXP 機率提升'}]},
+ '默爾索':{stats:{combat:8,observe:5,mobility:4,stability:9},specialty:'制壓固定',ego:'他人之鎖',skills:[{lv:1,name:'他人之鎖',desc:'制壓怪異時穩定性提升'},{lv:3,name:'程序執行',desc:'降低隨機事件波動'},{lv:6,name:'固定拘束',desc:'收容擊殺計數成功率提升'}]},
+ '鴻璐':{stats:{combat:5,observe:7,mobility:8,stability:6},specialty:'適應感知',ego:'太虛幻境',skills:[{lv:1,name:'太虛幻境',desc:'稀有事件發現率提升'},{lv:3,name:'環境適應',desc:'區域等級差懲罰降低'},{lv:6,name:'餘裕觀察',desc:'額外道具機率提升'}]},
+ '希斯克利夫':{stats:{combat:9,observe:4,mobility:7,stability:5},specialty:'強襲突破',ego:'裹屍袋',skills:[{lv:1,name:'裹屍袋',desc:'戰鬥判定大幅加成'},{lv:3,name:'硬闖',desc:'失敗時仍可能造成擊殺進度'},{lv:6,name:'怒勢追擊',desc:'高危遭遇追加戰力'}]},
+ '以實瑪利':{stats:{combat:7,observe:8,mobility:6,stability:8},specialty:'追跡與風險判讀',ego:'捕鯨叉',skills:[{lv:1,name:'捕鯨叉',desc:'追跡怪異與戰鬥兼具加成'},{lv:3,name:'航路判讀',desc:'事件與補給發現率提升'},{lv:6,name:'獵物鎖定',desc:'重複遭遇同怪異時加成'}]},
+ '羅佳':{stats:{combat:7,observe:5,mobility:7,stability:6},specialty:'機會判斷',ego:'覆水難收',skills:[{lv:1,name:'覆水難收',desc:'隨機事件收益波動提高'},{lv:3,name:'順手牽來',desc:'道具獲得量提升機率'},{lv:6,name:'賭一把',desc:'高風險探索成功時額外獎勵'}]},
+ '辛克萊':{stats:{combat:6,observe:6,mobility:7,stability:5},specialty:'成長適應',ego:'知識樹之枝',skills:[{lv:1,name:'知識樹之枝',desc:'探索 EXP 獲得提高'},{lv:3,name:'迅速學習',desc:'等級低於區域時獲得更多 EXP'},{lv:6,name:'決意突破',desc:'危急事件戰力提升'}]},
+ '奧提斯':{stats:{combat:7,observe:8,mobility:5,stability:8},specialty:'戰術指揮',ego:'致智慧與苦難',skills:[{lv:1,name:'致智慧與苦難',desc:'雙人隊伍整體判定提升'},{lv:3,name:'隊形校正',desc:'搭檔能力差距轉為加成'},{lv:6,name:'作戰預案',desc:'高危區失敗率下降'}]},
+ '格里高爾':{stats:{combat:7,observe:6,mobility:5,stability:9},specialty:'生存韌性',ego:'某一日，突然',skills:[{lv:1,name:'某一日，突然',desc:'負傷與失敗事件抗性提升'},{lv:3,name:'老兵直覺',desc:'伏擊事件較易脫離'},{lv:6,name:'殘存韌性',desc:'低狀態時額外穩定加成'}]}
+};
+
+const FIELD_GEAR={
+ 'field-vest':{name:'收容防護背心',desc:'穩定 +2',stats:{stability:2}},
+ 'survey-lens':{name:'異常觀測鏡',desc:'觀察 +2',stats:{observe:2}},
+ 'runner-boots':{name:'機動作業靴',desc:'機動 +2',stats:{mobility:2}},
+ 'shock-baton':{name:'制壓電擊棍',desc:'戰鬥 +2',stats:{combat:2}},
+ 'field-kit':{name:'多用途作業組',desc:'全能力 +1',stats:{combat:1,observe:1,mobility:1,stability:1}}
+};
+
+const EXPLORATION_AREAS=[
+ {id:'zone-1',name:'廢棄商業區',level:1,risk:'LOW',desc:'封鎖後的商業街與地下通道。適合初期偵察。',abnos:['A-101','A-114']},
+ {id:'zone-2',name:'地下維修層',level:3,risk:'MEDIUM',desc:'廢棄管線與維修廊道構成的複雜區域。',abnos:['A-203','A-227']},
+ {id:'zone-3',name:'封鎖研究棟',level:5,risk:'HIGH',desc:'舊研究設施仍有自律設備與怪異活動。',abnos:['A-311','A-338']},
+ {id:'zone-4',name:'外緣黑區',level:8,risk:'EXTREME',desc:'觀測資料稀少。建議高等級罪人組成隊伍。',abnos:['A-402','A-417']}
+];
+
+const ABNORMALITY_CATALOG={
+ 'A-101':{name:'逆向時鐘',level:1,kills:2,note:'所有指針皆向反方向運作；接近者會短暫失去時間感。'},
+ 'A-114':{name:'紙面訪客',level:2,kills:3,note:'會從廢棄文件中形成輪廓，並模仿最近閱讀者的姿態。'},
+ 'A-203':{name:'空洞售貨機',level:3,kills:3,note:'投入任何物品後，都可能吐出與原物毫無關聯的東西。'},
+ 'A-227':{name:'低語井',level:4,kills:4,note:'井口會重複探索者未曾說出口的念頭。'},
+ 'A-311':{name:'鏡中獸',level:5,kills:4,note:'只在反射面中移動，實體位置無法直接觀測。'},
+ 'A-338':{name:'無名司書',level:6,kills:5,note:'會替不存在的人整理不存在的檔案；被點名者會短暫失去自我認知。'},
+ 'A-402':{name:'食光列車',level:8,kills:5,note:'通過區域時會使所有照明逐段熄滅，之後才聽見軌道聲。'},
+ 'A-417':{name:'灰白天使',level:10,kills:6,note:'靜止時近似石像；只在無人直視時改變位置。'}
+};
+
+const EXPLORATION_EVENTS=[
+ {id:'sealed-door',name:'封死的防火門',desc:'前方通道被不明力量從另一側反覆撞擊。'},
+ {id:'false-radio',name:'錯頻廣播',desc:'通訊器傳來並不存在的第三名隊員聲音。'},
+ {id:'abandoned-meal',name:'仍溫熱的餐桌',desc:'無人區域裡出現剛擺好的兩套餐點。'},
+ {id:'mirror-corridor',name:'錯位鏡廊',desc:'鏡中的兩名罪人比本人慢了半拍才轉頭。'},
+ {id:'red-file',name:'紅色封存檔',desc:'地面上有一份標著兩名探索者姓名的未來日期檔案。'}
+];
+let state=load();ensureExplorationState();
 function $(id){return document.getElementById(id)}
 function today(){return new Date().toISOString().slice(0,10)}
 
@@ -201,12 +250,12 @@ function renderCurrencySelector(){
 function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
 function toast(msg){const t=$('toast');t.textContent=localizeText(msg);t.style.display='block';clearTimeout(toast._t);toast._t=setTimeout(()=>t.style.display='none',2400)}
 function saveLocal(){localStorage.setItem(KEY,JSON.stringify(state))}
-function defaultState(){return {entries:[],profile:{initialAmount:0,name:'帳本終端者',currency:'TWD',language:'zh-Hant'},rpg:{xp:0,gold:0,chests:{wood:0,silver:0,gold:0},inventory:[],equipped:[],consumables:{water:3,potion:0},player:{hp:100,maxHp:100,lastCombat:'尚無受擊紀錄。'},lastContainment:null,achievements:[],monthlyBosses:{},rewardLog:'開始記錄來啟動管理流程。',streakMilestones:[]},daily:{}}}
+function defaultState(){return {entries:[],profile:{initialAmount:0,name:'但丁',currency:'TWD',language:'zh-Hant'},rpg:{xp:0,gold:0,chests:{wood:0,silver:0,gold:0},inventory:[],equipped:[],consumables:{water:3,potion:0},player:{hp:100,maxHp:100,lastCombat:'尚無受擊紀錄。'},lastContainment:null,achievements:[],monthlyBosses:{},rewardLog:'開始記錄來啟動管理流程。',streakMilestones:[]},exploration:null,daily:{}}}
 function normalizeEntry(x){return {...x,type:x.type||'expense',category:x.category||'其他',amount:Number(x.amount||0),date:x.date||today(),payment:x.payment||'現金',store:x.store||'未命名紀錄',items:Array.isArray(x.items)?x.items:[],note:x.note||''}}
 function migrate(old){const s=defaultState();
   if(Array.isArray(old)){s.entries=old.map(v=>normalizeEntry(v));return s}
   if(old?.entries)s.entries=old.entries.map(v=>normalizeEntry(v));
-  if(old?.profile)s.profile={...s.profile,...old.profile};
+  if(old?.profile)s.profile={...s.profile,...old.profile};s.profile.name='但丁';
   if(old?.rpg){
     s.rpg.xp=Number(old.rpg.xp||0); s.rpg.gold=Number(old.rpg.gold||0);
     s.rpg.inventory=Array.isArray(old.rpg.inventory)?old.rpg.inventory:[];
@@ -228,6 +277,7 @@ function migrate(old){const s=defaultState();
       s.rpg.inventory=s.rpg.inventory.filter(function(x){return x!=='小型治療藥水'&&x!=='瓶裝水'});
     }
   }
+  s.exploration=old.exploration||null;
   s.daily=old.daily||{};
   return s;
 }
@@ -254,6 +304,258 @@ function ensureDaily(d){
 }
 function computeStreak(){const dates=[...new Set(state.entries.map(x=>x.date))].sort();if(!dates.length)return {current:0,best:0};let best=1,run=1,bestEnding=dates[0],runEnding=dates[0];for(let i=1;i<dates.length;i++){const a=new Date(dates[i-1]+'T00:00:00'),b=new Date(dates[i]+'T00:00:00'),diff=Math.round((b-a)/86400000);if(diff===1){run++;runEnding=dates[i];if(run>best){best=run;bestEnding=runEnding}}else if(diff>1){run=1;runEnding=dates[i]}}let current=0;let last=dates[dates.length-1];let td=today();let yd=new Date();yd.setDate(yd.getDate()-1);const y=yd.toISOString().slice(0,10);if(last===td||last===y){current=run;let tempRun=1;for(let i=dates.length-1;i>0;i--){const a=new Date(dates[i-1]+'T00:00:00'),b=new Date(dates[i]+'T00:00:00'),diff=Math.round((b-a)/86400000);if(diff===1)tempRun++;else break}current=tempRun}return {current,best}}
 
+function sinnerLevel(data){return Math.max(1,Math.floor(Number(data&&data.exp||0)/100)+1)}
+function ensureExplorationState(){
+  if(!state.exploration){
+    const sinners={};
+    Object.keys(SINNER_FIELD_PROFILES).forEach(function(name){sinners[name]={exp:0,condition:100,gear:''}});
+    state.exploration={
+      actions:state.entries.length,
+      earned:state.entries.length,
+      spent:0,
+      runs:0,
+      selected:['李箱','浮士德'],
+      areaId:'zone-1',
+      sinners:sinners,
+      fieldGear:['field-vest','survey-lens'],
+      abnormalityProgress:{},
+      seenAbnormalities:[],
+      lastResult:null
+    };
+  }
+  state.exploration.actions=Math.max(0,Number(state.exploration.actions||0));
+  state.exploration.earned=Math.max(state.exploration.actions,Number(state.exploration.earned||0));
+  state.exploration.spent=Math.max(0,Number(state.exploration.spent||0));
+  state.exploration.runs=Math.max(0,Number(state.exploration.runs||0));
+  state.exploration.selected=Array.isArray(state.exploration.selected)?state.exploration.selected.slice(0,2):['李箱','浮士德'];
+  state.exploration.fieldGear=Array.isArray(state.exploration.fieldGear)?state.exploration.fieldGear:[];
+  state.exploration.abnormalityProgress=state.exploration.abnormalityProgress||{};
+  state.exploration.seenAbnormalities=Array.isArray(state.exploration.seenAbnormalities)?state.exploration.seenAbnormalities:[];
+  state.exploration.sinners=state.exploration.sinners||{};
+  Object.keys(SINNER_FIELD_PROFILES).forEach(function(name){
+    const old=state.exploration.sinners[name]||{};
+    state.exploration.sinners[name]={exp:Number(old.exp||0),condition:Math.max(0,Math.min(100,Number(old.condition??100))),gear:old.gear||''};
+  });
+}
+function grantExplorationActions(n){
+  ensureExplorationState();
+  n=Math.max(0,Number(n||0));
+  state.exploration.actions+=n;state.exploration.earned+=n;
+}
+function sinnerEffectiveStats(name){
+  ensureExplorationState();
+  const profile=SINNER_FIELD_PROFILES[name],data=state.exploration.sinners[name],lv=sinnerLevel(data);
+  const stats={...profile.stats};
+  const gear=FIELD_GEAR[data.gear];
+  if(gear)Object.keys(gear.stats).forEach(function(k){stats[k]=(stats[k]||0)+gear.stats[k]});
+  const lvBonus=Math.floor((lv-1)/2);
+  Object.keys(stats).forEach(function(k){stats[k]+=lvBonus});
+  if(data.condition<50)Object.keys(stats).forEach(function(k){stats[k]=Math.max(1,stats[k]-1)});
+  return stats;
+}
+function unlockedFieldSkills(name){
+  const data=state.exploration.sinners[name],lv=sinnerLevel(data);
+  return SINNER_FIELD_PROFILES[name].skills.filter(function(x){return lv>=x.lv});
+}
+function awardSinnerExp(name,amount){
+  ensureExplorationState();
+  const data=state.exploration.sinners[name],before=sinnerLevel(data);
+  data.exp+=Math.max(0,Math.round(amount));
+  const after=sinnerLevel(data);
+  return {before:before,after:after,gained:amount};
+}
+function teamFieldPower(names,area){
+  let total=0;
+  names.forEach(function(name){
+    const st=sinnerEffectiveStats(name),lv=sinnerLevel(state.exploration.sinners[name]);
+    total+=st.combat*1.1+st.observe+st.mobility*.7+st.stability*.9+lv*1.5;
+    if(name==='奧提斯')total+=2;
+    if(name==='以實瑪利')total+=1.5;
+    if(name==='浮士德')total+=1.5;
+  });
+  return total-area.level*2;
+}
+function maybeAutoHealSinner(name){
+  const data=state.exploration.sinners[name];
+  if(data.condition>45)return 0;
+  ensurePlayerState();
+  if((state.rpg.consumables.water||0)<=0)return 0;
+  state.rpg.consumables.water--;
+  const before=data.condition;data.condition=Math.min(100,data.condition+25);
+  return data.condition-before;
+}
+function fieldGearAssignedElsewhere(gearId,name){
+  return Object.entries(state.exploration.sinners).some(function(pair){return pair[0]!==name&&pair[1].gear===gearId});
+}
+function assignFieldGear(name,gearId){
+  ensureExplorationState();
+  if(gearId&&(!state.exploration.fieldGear.includes(gearId)||fieldGearAssignedElsewhere(gearId,name))){toast('這件裝備目前不可配置');return}
+  state.exploration.sinners[name].gear=gearId||'';
+  saveLocal();renderSinnerManagement();
+}
+function pickExplorationLoot(){
+  ensurePlayerState();
+  const roll=Math.random();
+  if(roll<.55){state.rpg.consumables.water++;return '瓶裝水 ×1'}
+  if(roll<.8){state.rpg.consumables.potion++;return '小型治療藥水 ×1'}
+  state.rpg.chests.wood++;return '木箱 ×1';
+}
+function pickFieldGear(){
+  ensureExplorationState();
+  const ids=Object.keys(FIELD_GEAR),unowned=ids.filter(function(id){return !state.exploration.fieldGear.includes(id)});
+  if(unowned.length){const id=unowned[Math.floor(Math.random()*unowned.length)];state.exploration.fieldGear.push(id);return FIELD_GEAR[id].name}
+  state.rpg.chests.silver++;return '銀箱 ×1（重複裝備轉換）';
+}
+function explorationEventKind(){
+  const r=Math.random();
+  if(r<.34)return 'abnormality';
+  if(r<.59)return 'event';
+  if(r<.82)return 'supply';
+  return 'gear';
+}
+function runExploration(){
+  ensureExplorationState();
+  const ex=state.exploration;
+  if(ex.actions<=0){toast('沒有可用探索行動');return}
+  const names=(ex.selected||[]).filter(function(n){return SINNER_FIELD_PROFILES[n]});
+  if(names.length!==2||names[0]===names[1]){toast('請選擇兩名不同罪人');return}
+  const area=EXPLORATION_AREAS.find(function(x){return x.id===ex.areaId})||EXPLORATION_AREAS[0];
+  ex.actions--;ex.spent++;ex.runs++;
+  const kind=explorationEventKind();
+  let title='',detail='',reward='',stamp='FIELD',xp=18,ctx={area:area.name,kind:kind};
+  let resultSuccess=true;
+
+  if(kind==='abnormality'){
+    const id=area.abnos[Math.floor(Math.random()*area.abnos.length)],ab=ABNORMALITY_CATALOG[id];
+    if(!ex.seenAbnormalities.includes(id))ex.seenAbnormalities.push(id);
+    const power=teamFieldPower(names,area);
+    const target=22+ab.level*5;
+    const roll=power+Math.random()*20;
+    resultSuccess=roll>=target;
+    const prog=ex.abnormalityProgress[id]||{kills:0,contained:false};
+    if(resultSuccess){
+      prog.kills++;
+      title='怪異遭遇：'+ab.name;
+      detail='兩名罪人完成一次有效制壓。收容進度 '+Math.min(prog.kills,ab.kills)+' / '+ab.kills+'。';
+      xp=34+ab.level*3;
+      if(prog.kills>=ab.kills&&!prog.contained){
+        prog.contained=true;state.rpg.chests.silver++;
+        reward='正式收容完成，追加銀箱 ×1';
+        stamp='CONTAINED';
+      }else{reward='怪異擊殺計數 +1';stamp='SUPPRESSED'}
+    }else{
+      title='怪異遭遇失利：'+ab.name;
+      const injury=8+ab.level*2;
+      names.forEach(function(n){ex.sinners[n].condition=Math.max(0,ex.sinners[n].condition-injury);const healed=maybeAutoHealSinner(n);if(healed)reward+=(reward?'；':'')+n+' 自動喝水 +'+healed});
+      detail='未能形成有效制壓。兩名罪人狀態各 -'+injury+'。';
+      xp=14+ab.level;stamp='WITHDRAW';
+    }
+    ex.abnormalityProgress[id]=prog;
+    ctx.abnormality=ab.name;ctx.success=resultSuccess;
+  }else if(kind==='event'){
+    const ev=EXPLORATION_EVENTS[Math.floor(Math.random()*EXPLORATION_EVENTS.length)];
+    const power=teamFieldPower(names,area)+Math.random()*18;
+    resultSuccess=power>20+area.level*4;
+    title='隨機事件：'+ev.name;detail=ev.desc;
+    if(resultSuccess){reward='安全通過；獲得額外探索資料';xp=24+area.level*2;stamp='RESOLVED'}
+    else{detail+=' 判斷失誤，探索隊提前撤離。';xp=12;stamp='INCIDENT'}
+    ctx.event=ev.name;ctx.success=resultSuccess;
+  }else if(kind==='supply'){
+    title='補給發現';reward=pickExplorationLoot();detail='在區域內找到可回收補給。';xp=16+area.level;stamp='SUPPLY';
+  }else{
+    title='裝備回收';reward=pickFieldGear();detail='發現可供罪人配置的探索裝備。';xp=22+area.level;stamp='GEAR';
+  }
+
+  const levelUps=[];
+  names.forEach(function(n){const res=awardSinnerExp(n,xp);if(res.after>res.before)levelUps.push(n+' Lv.'+res.after)});
+  if(levelUps.length)reward+=(reward?'；':'')+'升級：'+levelUps.join('、');
+  const dialogue=typeof generateExplorationDialogue==='function'?generateExplorationDialogue(names,kind,ctx):[];
+  ex.lastResult={at:new Date().toISOString(),areaId:area.id,area:area.name,names:names,kind:kind,title:title,detail:detail,reward:reward,stamp:stamp,xp:xp,dialogue:dialogue};
+  saveLocal();render();toast('探索完成：'+title);
+}
+function containedAbnormalityCount(){
+  ensureExplorationState();
+  return Object.values(state.exploration.abnormalityProgress||{}).filter(function(x){return x&&x.contained}).length;
+}
+function renderExploration(){
+  ensureExplorationState();const ex=state.exploration;
+  if($('exploreActions'))$('exploreActions').textContent=ex.actions;
+  if($('exploreActionsHome'))$('exploreActionsHome').textContent=ex.actions;
+  if($('exploreRunsHome'))$('exploreRunsHome').textContent=ex.runs;
+  if($('containedCountHome'))$('containedCountHome').textContent=containedAbnormalityCount();
+  if($('exploreTeamHome'))$('exploreTeamHome').textContent=(ex.selected||[]).join('＋')||'未指定';
+
+  const areaBox=$('explorationAreas');
+  if(areaBox){
+    areaBox.innerHTML=EXPLORATION_AREAS.map(function(area){
+      const active=ex.areaId===area.id;
+      return '<button type="button" class="exploration-area-card wood '+(active?'active':'')+'" data-area="'+area.id+'">'+
+        '<div class="area-risk">RISK / '+area.risk+'</div><div class="area-name">'+esc(area.name)+'</div>'+
+        '<div class="area-level">建議等級 Lv.'+area.level+'</div><div class="area-desc">'+esc(area.desc)+'</div></button>';
+    }).join('');
+    areaBox.querySelectorAll('[data-area]').forEach(function(btn){btn.onclick=function(){ex.areaId=btn.dataset.area;saveLocal();renderExploration()}});
+  }
+
+  const picker=$('explorationTeamPicker');
+  if(picker){
+    picker.innerHTML=Object.keys(SINNER_FIELD_PROFILES).map(function(name){
+      const on=ex.selected.includes(name),data=ex.sinners[name],lv=sinnerLevel(data),profile=SINNER_FIELD_PROFILES[name];
+      return '<button type="button" class="team-sinner wood '+(on?'active':'')+'" data-team-sinner="'+esc(name)+'">'+
+        '<div class="team-sinner-head"><strong>'+esc(name)+'</strong><span>Lv.'+lv+'</span></div>'+
+        '<div class="team-sinner-meta">'+esc(profile.specialty)+' · '+data.condition+'%</div></button>';
+    }).join('');
+    picker.querySelectorAll('[data-team-sinner]').forEach(function(btn){btn.onclick=function(){
+      const n=btn.dataset.teamSinner,idx=ex.selected.indexOf(n);
+      if(idx>=0)ex.selected.splice(idx,1);
+      else{if(ex.selected.length>=2)ex.selected.shift();ex.selected.push(n)}
+      saveLocal();renderExploration();
+    }});
+  }
+
+  const r=ex.lastResult;
+  if($('exploreResultStamp'))$('exploreResultStamp').textContent=r?r.stamp:'STANDBY';
+  if($('exploreResult'))$('exploreResult').innerHTML=r
+    ?'<div class="explore-result-title">'+esc(r.title)+'</div><div class="explore-result-meta">'+esc(r.area)+' / '+esc(r.names.join('＋'))+' / EXP +'+r.xp+'</div><div class="explore-result-detail">'+esc(r.detail)+'</div>'+(r.reward?'<div class="explore-reward">REWARD / '+esc(r.reward)+'</div>':'')
+    :'等待探索命令。';
+  if($('exploreDialogue'))$('exploreDialogue').innerHTML=r&&r.dialogue&&r.dialogue.length
+    ?'<div class="explore-dialogue-head">EVENT DIALOGUE / 現場對話</div>'+r.dialogue.map(function(line){return '<div class="explore-dialogue-line"><b>'+esc(line.speaker)+'</b><span>'+esc(line.text)+'</span></div>'}).join('')
+    :'';
+
+  if($('exploreHomeCode'))$('exploreHomeCode').textContent=r?r.stamp:'STANDBY';
+  if($('exploreHomeMain'))$('exploreHomeMain').textContent=r?r.title:'尚未執行探索。';
+  if($('exploreHomeDetail'))$('exploreHomeDetail').textContent=r?(r.area+' / '+r.names.join('＋')+(r.reward?' / '+r.reward:'')):'前往「探索」頁籤選擇區域與兩名罪人。';
+
+  const home=$('homeContainmentProgress');
+  if(home){
+    const rows=Object.entries(ABNORMALITY_CATALOG).map(function(pair){
+      const id=pair[0],ab=pair[1],p=ex.abnormalityProgress[id]||{kills:0,contained:false};
+      return '<div class="containment-progress-row '+(p.contained?'done':'')+'"><span>'+id+' / '+esc(ab.name)+'</span><b>'+(p.contained?'CONTAINED':Math.min(p.kills,ab.kills)+' / '+ab.kills)+'</b></div>';
+    });
+    home.innerHTML=rows.join('');
+  }
+}
+function renderSinnerManagement(){
+  ensureExplorationState();
+  const box=$('sinnerManagementGrid');if(!box)return;
+  const owned=[...new Set(state.exploration.fieldGear)];
+  box.innerHTML=Object.keys(SINNER_FIELD_PROFILES).map(function(name){
+    const p=SINNER_FIELD_PROFILES[name],data=state.exploration.sinners[name],lv=sinnerLevel(data),exp=data.exp%100,st=sinnerEffectiveStats(name),skills=unlockedFieldSkills(name);
+    const options=['<option value="">LCB 標準裝備</option>'].concat(owned.map(function(id){
+      const unavailable=fieldGearAssignedElsewhere(id,name),selected=data.gear===id;
+      return '<option value="'+id+'" '+(selected?'selected':'')+' '+(unavailable&&!selected?'disabled':'')+'>'+esc(FIELD_GEAR[id].name)+(unavailable&&!selected?'（已配置）':'')+'</option>';
+    })).join('');
+    return '<article class="sinner-file wood">'+
+      '<div class="sinner-file-head"><div><div class="archive-id">LCB // '+esc(name)+'</div><div class="sinner-file-name">'+esc(name)+'</div></div><div class="sinner-level">Lv.'+lv+'</div></div>'+
+      '<div class="sinner-specialty">'+esc(p.specialty)+' / 基礎 E.G.O：'+esc(p.ego)+'</div>'+
+      '<div class="sinner-exp"><div style="width:'+exp+'%"></div><span>'+exp+' / 100 EXP</span></div>'+
+      '<div class="sinner-condition">CONDITION / '+data.condition+'%</div>'+
+      '<div class="sinner-stat-grid"><span>戰鬥 <b>'+st.combat+'</b></span><span>觀察 <b>'+st.observe+'</b></span><span>機動 <b>'+st.mobility+'</b></span><span>穩定 <b>'+st.stability+'</b></span></div>'+
+      '<label class="sinner-gear-label">探索裝備<select class="wood sinner-gear-select" data-sinner-gear="'+esc(name)+'">'+options+'</select></label>'+
+      '<div class="sinner-skill-list">'+p.skills.map(function(skill){const unlocked=lv>=skill.lv;return '<div class="sinner-skill '+(unlocked?'unlocked':'locked')+'"><b>Lv.'+skill.lv+' / '+esc(skill.name)+'</b><span>'+esc(unlocked?skill.desc:'尚未解鎖')+'</span></div>'}).join('')+'</div>'+
+      '</article>';
+  }).join('');
+  box.querySelectorAll('[data-sinner-gear]').forEach(function(sel){sel.onchange=function(){assignFieldGear(sel.dataset.sinnerGear,sel.value)}});
+}
 function equipmentEffects(){
   const out={expBonus:0,questXpBonus:0,goldBonus:0,monsterDamage:0,bossDamage:0,allDamage:0};
   (state.rpg.equipped||[]).forEach(function(name){
@@ -420,7 +722,7 @@ function damageMonster(amount,allowCounter=true){
   return {damage:actual,counter:Number(counter.damage||0),healed:Number(counter.healed||0),defeated:!!m.defeated,drop:drop};
 }
 function checkStreakMilestones(){const s=computeStreak();const ms=[{n:3,type:'wood',count:1},{n:7,type:'silver',count:1},{n:14,type:'silver',count:2},{n:30,type:'gold',count:1}];for(const m of ms){if(s.current>=m.n&&!state.rpg.streakMilestones.includes(m.n)){state.rpg.streakMilestones.push(m.n);state.rpg.chests[m.type]+=m.count;state.rpg.rewardLog=`連續記錄 ${m.n} 天達成！\n獲得 ${m.count} 個${m.type==='wood'?'木':m.type==='silver'?'銀':'金'}寶箱。`;}}}
-function checkQuests(){const d=today();ensureDaily(d);const ds=dayStats(d);QUESTS.forEach(q=>{const progress=q.id==='q3'?ds.cats:ds.count;const claimed=state.daily[d].questClaims[q.id];if(progress>=q.goal&&!claimed){state.daily[d].questClaims[q.id]=true;grantXp(q.rewardXp,`完成每日執行指令：${q.name}`);damageMonster(10);damageBoss(15)}});checkStreakMilestones();checkAchievements()}
+function checkQuests(){const d=today();ensureDaily(d);const ds=dayStats(d);QUESTS.forEach(q=>{const progress=q.id==='q3'?ds.cats:ds.count;const claimed=state.daily[d].questClaims[q.id];if(progress>=q.goal&&!claimed){state.daily[d].questClaims[q.id]=true;grantXp(q.rewardXp,`完成每日執行指令：${q.name}`)}});checkStreakMilestones();checkAchievements()}
 function openChest(type){
   if((state.rpg.chests[type]||0)<=0){toast('沒有這種寶箱');return}
   state.rpg.chests[type]--;
@@ -450,113 +752,20 @@ function monsterSprite(shape,locked=false){
   return `<svg viewBox="0 0 64 64" width="70" height="70"><path d="M14 40c0-15 9-24 18-24s18 9 18 24c0 7-5 12-11 12H25c-6 0-11-5-11-12z" fill="${base}" stroke="${edge}" stroke-width="3"/><circle cx="25" cy="35" r="3" fill="#1b1c20"/><circle cx="39" cy="35" r="3" fill="#1b1c20"/><path d="M26 44c4 3 8 3 12 0" stroke="${red}" stroke-width="2.5" fill="none"/></svg>`;
 }
 function renderBestiary(){
-  ensureDaily(today());
-  const stats=new Map();
-  Object.entries(state.daily||{}).sort().forEach(function(pair){
-    const date=pair[0],d=pair[1],m=d&&d.monster;
-    if(!m||!m.id)return;
-    const r=stats.get(m.id)||{encounters:0,defeated:0,first:date,last:date};
-    r.encounters++;
-    if(m.defeated)r.defeated++;
-    if(date<r.first)r.first=date;
-    if(date>r.last)r.last=date;
-    stats.set(m.id,r);
-  });
+  ensureExplorationState();
   const grid=$('bestiaryGrid');if(!grid)return;
-  grid.innerHTML=MONSTER_CATALOG.map(function(spec){
-    const r=stats.get(spec.id),seen=!!r;
+  const ex=state.exploration;
+  grid.innerHTML=Object.entries(ABNORMALITY_CATALOG).map(function(pair){
+    const id=pair[0],ab=pair[1],seen=ex.seenAbnormalities.includes(id),p=ex.abnormalityProgress[id]||{kills:0,contained:false};
     return '<div class="bestiary-card wood '+(seen?'':'locked')+'">'+
-      '<div class="bestiary-status '+(r&&r.defeated?'done':seen?'':'unknown')+'">'+(r&&r.defeated?'DISPOSED':seen?'OBSERVED':'UNKNOWN')+'</div>'+
-      '<div class="specimen">'+monsterSprite(spec.shape,!seen)+'</div>'+
-      '<div class="bestiary-code">'+(seen?spec.id:'M-???')+' / RISK '+(seen?spec.risk:'???')+'</div>'+
-      '<div class="bestiary-name">'+(seen?esc(spec.name):'未確認收容單位')+'</div>'+
-      '<div class="bestiary-meta">'+(seen?esc(spec.note):'尚未於每日作業中遭遇。')+'<br>'+
-      'HP / '+(seen?spec.hp:'???')+'<br>'+
-      '遭遇 / '+(seen?r.encounters:'?')+'　處置 / '+(seen?r.defeated:'?')+'<br>'+
-      '初次 / '+(seen?r.first:'—')+'　最後 / '+(seen?r.last:'—')+'<br>'+
-      'DROP / '+(seen?esc(MONSTER_DROPS[spec.id]||'未確認'):'???')+'</div></div>';
+      '<div class="bestiary-status '+(p.contained?'done':seen?'':'unknown')+'">'+(p.contained?'CONTAINED':seen?'OBSERVED':'UNKNOWN')+'</div>'+
+      '<div class="specimen"><div class="abno-glyph">'+(seen?'◈':'?')+'</div></div>'+
+      '<div class="bestiary-code">'+(seen?id:'A-???')+' / LV '+(seen?ab.level:'?')+'</div>'+
+      '<div class="bestiary-name">'+(seen?esc(ab.name):'未確認怪異')+'</div>'+
+      '<div class="bestiary-meta">'+(seen?esc(ab.note):'尚未於區域探索中遭遇。')+'<br>'+
+      '制壓進度 / '+(seen?Math.min(p.kills,ab.kills)+' / '+ab.kills:'? / ?')+'</div>'+
+      '</div>';
   }).join('');
-}
-function renderInventory(){
-  renderBackpack();
-}
-function renderBackpack(){
-  ensurePlayerState();
-  const p=state.rpg.player,ratio=p.hp/p.maxHp,equipped=state.rpg.equipped||[];
-  const hpPct=Math.round(ratio*100);
-  const hpState=p.hp===0?'DOWN':hpPct<=25?'CRITICAL':hpPct<=45?'LOW':'STABLE';
-  if($('backpackHpNumber'))$('backpackHpNumber').textContent=p.hp+' / '+p.maxHp;
-  if($('backpackHpText'))$('backpackHpText').textContent=p.hp+' / '+p.maxHp;
-  if($('backpackHpFill'))$('backpackHpFill').style.width=hpPct+'%';
-  if($('backpackHpState')){$('backpackHpState').textContent=hpState;$('backpackHpState').classList.toggle('red',hpPct<=45)}
-  if($('backpackCombatLog'))$('backpackCombatLog').textContent=p.lastCombat||'尚無受擊紀錄。';
-
-  const consumables=$('backpackConsumables');
-  if(consumables){
-    consumables.innerHTML=Object.entries(CONSUMABLE_EFFECTS).map(function(pair){
-      const key=pair[0],item=pair[1],count=Number(state.rpg.consumables[key]||0);
-      return '<div class="pack-item wood consumable-card"><div class="pack-item-head"><strong>'+esc(item.name)+'</strong><span class="pack-count">×'+count+'</span></div>'+
-        '<div class="pack-desc">'+esc(item.desc)+'</div>'+
-        '<button type="button" class="mini-btn" data-consumable="'+key+'" '+(count<=0||p.hp>=p.maxHp?'disabled':'')+'>使用</button></div>';
-    }).join('');
-    consumables.querySelectorAll('[data-consumable]').forEach(function(btn){btn.onclick=function(){useConsumable(btn.dataset.consumable,false)}});
-  }
-
-  const equipmentNames=[...new Set(state.rpg.inventory.filter(function(x){return !!EQUIPMENT_EFFECTS[x]}))];
-  const eqBox=$('backpackEquipment');
-  if(eqBox){
-    eqBox.innerHTML=equipmentNames.length?equipmentNames.map(function(x,i){
-      const eq=EQUIPMENT_EFFECTS[x],on=equipped.includes(x);
-      return '<button type="button" class="pack-item wood equipment-card '+(on?'equipped':'')+'" data-equip="'+esc(x)+'">'+
-        '<div class="pack-item-head"><strong>'+esc(x)+'</strong><span class="pack-state">'+(on?'EQUIPPED':'STORED')+'</span></div>'+
-        '<div class="pack-desc">'+esc(eq.desc)+'</div><div class="loot-action">'+(on?'點擊卸下':'點擊裝備')+'</div></button>';
-    }).join(''):'<div class="empty pack-empty">目前沒有裝備。</div>';
-    eqBox.querySelectorAll('[data-equip]').forEach(function(el){el.onclick=function(){toggleEquip(el.dataset.equip)}});
-  }
-
-  const materialCounts={};
-  state.rpg.inventory.filter(function(x){return !EQUIPMENT_EFFECTS[x]}).forEach(function(x){materialCounts[x]=(materialCounts[x]||0)+1});
-  const matBox=$('backpackMaterials');
-  if(matBox)matBox.innerHTML=Object.keys(materialCounts).length?Object.entries(materialCounts).map(function(pair){
-    return '<div class="pack-item wood material-card"><div class="pack-item-head"><strong>'+esc(pair[0])+'</strong><span class="pack-count">×'+pair[1]+'</span></div><div class="pack-desc">收容材料／其他物品</div></div>';
-  }).join(''):'<div class="empty pack-empty">目前沒有材料或其他物品。</div>';
-
-  const slots=$('backpackEquipmentSlots');
-  if(slots)slots.innerHTML=[0,1,2].map(function(i){
-    const n=equipped[i],e=n?EQUIPMENT_EFFECTS[n]:null;
-    return '<div class="equip-slot '+(n?'filled':'')+'"><small>SLOT '+(i+1)+'</small><b>'+(n?esc(n):'EMPTY')+'</b><small>'+(e?esc(e.desc):'尚未配置裝備')+'</small></div>';
-  }).join('');
-  const effects=equipmentEffects(),parts=[];
-  if(effects.expBonus)parts.push('記帳 EXP +'+Math.round(effects.expBonus*100)+'%');
-  if(effects.questXpBonus)parts.push('指令 EXP +'+Math.round(effects.questXpBonus*100)+'%');
-  if(effects.goldBonus)parts.push('開箱金幣 +'+Math.round(effects.goldBonus*100)+'%');
-  if(effects.monsterDamage)parts.push('怪物傷害 +'+effects.monsterDamage);
-  if(effects.bossDamage)parts.push('BOSS 傷害 +'+effects.bossDamage);
-  if(effects.allDamage)parts.push('全傷害 +'+effects.allDamage);
-  if($('backpackEquipmentSummary'))$('backpackEquipmentSummary').textContent=parts.length?'ACTIVE EFFECT / '+parts.join('・'):'尚未啟用裝備效果。';
-}
-function renderProgress(){
-  const ag=$('achievementGrid'),unlocked=state.rpg.achievements||[];
-  if(ag)ag.innerHTML=ACHIEVEMENTS.map(function(a){
-    const on=unlocked.includes(a.id);
-    return '<div class="achievement-card wood '+(on?'unlocked':'locked')+'">'+
-      '<div class="achievement-badge">'+(on?'UNLOCKED':'LOCKED')+'</div>'+
-      '<div class="achievement-code">'+a.id+'</div><div class="achievement-name">'+esc(a.name)+'</div>'+
-      '<div class="achievement-desc">'+esc(a.desc)+'</div><div class="achievement-reward">REWARD / '+a.gold+' 金幣</div></div>';
-  }).join('');
-  const slots=null,eq=state.rpg.equipped||[];
-  if(slots)slots.innerHTML=[0,1,2].map(function(i){
-    const n=eq[i],e=n?EQUIPMENT_EFFECTS[n]:null;
-    return '<div class="equip-slot '+(n?'filled':'')+'"><small>SLOT '+(i+1)+'</small><b>'+(n?esc(n):'EMPTY')+'</b><small>'+(e?esc(e.desc):'尚未配置裝備')+'</small></div>';
-  }).join('');
-  const e=equipmentEffects(),parts=[];
-  if(e.expBonus)parts.push('記帳 EXP +'+Math.round(e.expBonus*100)+'%');
-  if(e.questXpBonus)parts.push('指令 EXP +'+Math.round(e.questXpBonus*100)+'%');
-  if(e.goldBonus)parts.push('開箱金幣 +'+Math.round(e.goldBonus*100)+'%');
-  if(e.monsterDamage)parts.push('怪物傷害 +'+e.monsterDamage);
-  if(e.bossDamage)parts.push('BOSS 傷害 +'+e.bossDamage);
-  if(e.allDamage)parts.push('全傷害 +'+e.allDamage);
-  
 }
 function renderBoss(){
   const b=ensureMonthlyBoss(),spec=BOSS_CATALOG.find(function(x){return x.id===b.id})||BOSS_CATALOG[0];
@@ -569,40 +778,28 @@ function renderBoss(){
   $('bossReward').textContent='REWARD / 100 金幣＋金寶箱 ×1＋'+spec.reward;
 }
 function rank(lv){if(lv>=20)return '傳奇帳本大師';if(lv>=12)return '黃金終端家';if(lv>=7)return '熟練記錄戰士';if(lv>=4)return '見習帳本獵人';return '新手村記錄員'}
-function renderRpg(){ensurePlayerState();const xp=state.rpg.xp,lv=Math.floor(xp/100)+1,cur=xp%100;$('lv').textContent=`Lv.${lv}`;$('rank').textContent=(state.profile.name||'帳本終端者')+'｜'+rank(lv);$('xpText').textContent=`${cur} / 100 EXP`;$('xpFill').style.width=cur+'%';$('xpPct').textContent=cur+'%';$('gold').textContent=state.rpg.gold;$('woodChest').textContent=state.rpg.chests.wood||0;$('silverChest').textContent=state.rpg.chests.silver||0;$('goldChest').textContent=state.rpg.chests.gold||0;$('rewardLog').textContent=state.rpg.rewardLog;renderInventory();ensureDaily(today());const m=state.daily[today()].monster;const spec=MONSTER_CATALOG.find(x=>x.id===m.id)||MONSTER_CATALOG[0];$('monsterIcon').innerHTML=monsterSprite(spec.shape,false);$('monsterName').textContent=m.name;$('monsterDate').textContent=today();$('monsterState').textContent=m.defeated?'已擊敗':'戰鬥中';$('hpFill').style.width=Math.round(m.hp/m.maxHp*100)+'%';$('hpText').textContent=`${m.hp} / ${m.maxHp}`;const baseHit=Math.max(1,Math.round(8+equipmentEffects().monsterDamage+equipmentEffects().allDamage));
-  const remainWorks=m.defeated?0:Math.ceil(m.hp/baseHit);
-  $('monsterMeta').textContent=m.defeated?'明天會出現新的怪物':'每次新增記錄約造成 '+baseHit+' 傷害；預估還需 '+remainWorks+' 次作業';
-  if($('monsterRisk'))$('monsterRisk').textContent='RISK / '+spec.risk;
-  const op=state.rpg.player,opPct=Math.round(op.hp/op.maxHp*100);
-  if($('operatorHpFill'))$('operatorHpFill').style.width=opPct+'%';
-  if($('operatorHpText'))$('operatorHpText').textContent=op.hp+' / '+op.maxHp;
-  if($('operatorHpState'))$('operatorHpState').textContent=op.hp===0?'DOWN':opPct<=25?'CRITICAL':opPct<=45?'LOW':'STABLE';
-  if($('combatLog'))$('combatLog').textContent=op.lastCombat||'收容單位目前沒有造成傷害。';
-  const ev=state.rpg.lastContainment;
-  if($('containmentFeedback')){
-    $('containmentFeedback').classList.toggle('defeated',!!(ev&&ev.defeated));
-    $('containmentFeedback').classList.toggle('countered',!!(ev&&ev.counter));
-  }
-  if($('containmentFeedbackCode'))$('containmentFeedbackCode').textContent=!ev?'STANDBY':ev.defeated?'DISPOSED':ev.counter?'COUNTER':'HIT';
-  if($('containmentFeedbackMain'))$('containmentFeedbackMain').textContent=!ev?'等待下一次作業。':ev.defeated
-    ?('處置完成：對 '+ev.monster+' 造成 '+ev.damage+' 傷害。')
-    :('命中 '+ev.monster+'：-'+ev.damage+' HP　處置進度 '+ev.progress+'%');
-  if($('containmentFeedbackDetail')){
-    if(!ev)$('containmentFeedbackDetail').textContent='新增記錄後，這裡會顯示造成傷害、反擊、補血與掉落結果。';
-    else{
-      const details=['剩餘 '+ev.remaining+' / '+ev.maxHp+' HP'];
-      if(ev.counter)details.push('反擊 -'+ev.counter+' HP');
-      if(ev.autoWater)details.push('自動喝水 +'+ev.healed+' HP');
-      if(ev.defeated)details.push('獲得 20 金幣＋木箱'+(ev.drop?'＋'+ev.drop:''));
-      $('containmentFeedbackDetail').textContent=details.join('　／　');
-    }
-  }
-  const ds=dayStats(today());$('todayCount').textContent=ds.count;$('todayNet').textContent=money(ds.net);$('todayNet').style.color=ds.net<0?'var(--red)':'var(--green)'}
+function renderRpg(){
+  ensurePlayerState();ensureExplorationState();
+  const xp=state.rpg.xp,lv=Math.floor(xp/100)+1,cur=xp%100;
+  $('lv').textContent='Lv.'+lv;
+  $('rank').textContent='但丁｜LCB 執行經理';
+  $('xpText').textContent=cur+' / 100 EXP';
+  $('xpFill').style.width=cur+'%';$('xpPct').textContent=cur+'%';
+  $('gold').textContent=state.rpg.gold;
+  $('woodChest').textContent=state.rpg.chests.wood||0;$('silverChest').textContent=state.rpg.chests.silver||0;$('goldChest').textContent=state.rpg.chests.gold||0;
+  $('rewardLog').textContent=state.rpg.rewardLog;
+  renderInventory();
+  const ds=dayStats(today());
+  $('streakBig').textContent=computeStreak().current;
+  $('bestBig').textContent=computeStreak().best;
+  $('todayCount').textContent=ds.count;
+  $('todayNet').textContent=money(ds.net);$('todayNet').style.color=ds.net<0?'var(--red)':'var(--green)';
+}
 function renderSummary(){const expense=state.entries.filter(x=>x.type==='expense').reduce((s,x)=>s+x.amount,0),income=state.entries.filter(x=>x.type==='income').reduce((s,x)=>s+x.amount,0),init=Number(state.profile.initialAmount||0),bal=init+income-expense,m=$('month').value||today().slice(0,7),monthEntries=state.entries.filter(x=>x.date.startsWith(m)),mIncome=monthEntries.filter(x=>x.type==='income').reduce((s,x)=>s+x.amount,0),mExpense=monthEntries.filter(x=>x.type==='expense').reduce((s,x)=>s+x.amount,0),monthNet=mIncome-mExpense,st=computeStreak();$('initialAmount').textContent=money(init);$('allIncome').textContent=money(income);$('allIncome').style.color='var(--green)';$('allExpense').textContent=money(expense);$('allExpense').style.color='var(--red)';$('balance').textContent=money(bal);$('balance').style.color=bal<0?'var(--red)':'var(--green)';$('monthNet').textContent=money(monthNet);$('monthNet').style.color=monthNet<0?'var(--red)':'var(--green)';$('monthLabel').textContent=m;$('streak').textContent=st.current+' 天';$('bestStreak').textContent='最長 '+st.best+' 天';$('streakBig').textContent=st.current;$('bestBig').textContent=st.best}
 function renderQuests(){ensureDaily(today());const ds=dayStats(today());$('questList').innerHTML=QUESTS.map(q=>{const p=q.id==='q3'?ds.cats:ds.count,done=p>=q.goal,claim=state.daily[today()].questClaims[q.id];return `<div class="quest wood panel ${done?'done':''}"><div class="row"><div class="quest-name">${done?'✓ ':'◇ '}${q.name}</div><div class="quest-reward">+${q.rewardXp} EXP</div></div><div class="quest-desc">${q.desc}</div><div class="quest-progress"><div style="width:${Math.min(100,Math.round(p/q.goal*100))}%"></div></div><div class="quest-desc">${Math.min(p,q.goal)} / ${q.goal}${claim?'・已領取':''}</div></div>`}).join('')}
 function filtered(){const m=$('month').value,t=$('typeFilter').value,c=$('cat').value,q=$('search').value.trim().toLowerCase();return state.entries.filter(x=>(!m||x.date.startsWith(m))&&(!t||x.type===t)&&(!c||x.category===c)&&(!q||[x.store,x.note,x.invoice,x.category,...(x.items||[]).map(i=>i.name)].join(' ').toLowerCase().includes(q))).sort((a,b)=>b.date.localeCompare(a.date)||b.amount-a.amount)}
 function renderBoard(){const rows=filtered(),groups={};rows.forEach(x=>(groups[x.date]??=[]).push(x));const dates=Object.keys(groups).sort().reverse();if(!dates.length){$('board').innerHTML='<div class="empty wood panel">目前沒有資料。先新增一筆收入或支出吧！</div>';return}$('board').innerHTML='<div class="board">'+dates.map(date=>{const items=groups[date],expense=items.filter(x=>x.type==='expense').reduce((s,x)=>s+x.amount,0),income=items.filter(x=>x.type==='income').reduce((s,x)=>s+x.amount,0),net=income-expense;return `<section class="day wood panel"><div class="dayhead"><div><div style="font-weight:900">${date}</div><div class="s">${items.length} 筆紀錄</div></div><div style="text-align:right"><div class="daytotal">支出 ${money(expense)}</div><div class="daynet ${net<0?'minus':'plus'}">淨額 ${money(net)}</div></div></div>${items.map(entry=>`<article class="card wood transaction-card type-${entry.type}" style="${categoryStyle(entry.category||'其他')}"><div class="row"><div class="store">${esc(entry.store)}</div><div class="amt ${entry.type}">${entry.type==='income'?'+ ':''}${money(entry.amount)}</div></div><div class="badges"><span class="badge ${entry.type}">${entry.type==='income'?'收入':'支出'}</span><span class="badge category-badge" style="${categoryStyle(entry.category||'其他')}">${esc(entry.category||'其他')}</span><span class="badge">${esc(entry.payment||'未設定')}</span></div><div class="items">${(entry.items||[]).slice(0,3).map(i=>esc(i.name)).join('、')||esc(entry.note||'—')}</div>${entry.comment&&entry.comment.lines&&entry.comment.lines.length?`<div class="entry-comment-preview"><b>${esc(entry.comment.lines[0].speaker)}</b>：${esc(entry.comment.lines[0].text)}</div>`:''}<div class="card-actions"><button class="mini-btn" data-edit="${entry.id}">編輯</button></div></article>`).join('')}</section>`}).join('')+'</div>';document.querySelectorAll('[data-edit]').forEach(btn=>btn.onclick=()=>openEdit(btn.dataset.edit))}
-function render(){backfillMissingComments();refreshFilters();renderLanguageSwitch();renderCurrencySelector();renderSummary();renderRpg();renderQuests();renderBoard();renderCharts();renderBestiary();renderBoss();checkAchievements();renderProgress();renderBackpack();renderCommentaryArchive();$('initialInput').value=state.profile.initialAmount||'';$('playerName').value=state.profile.name||'帳本終端者'}
+function render(){backfillMissingComments();refreshFilters();renderLanguageSwitch();renderCurrencySelector();renderSummary();renderRpg();renderQuests();renderBoard();renderCharts();renderBestiary();checkAchievements();renderProgress();renderBackpack();renderExploration();renderSinnerManagement();renderCommentaryArchive();$('initialInput').value=state.profile.initialAmount||''}
 
 function renderCommentLines(comment){
   if(!comment||!Array.isArray(comment.lines))return '';
@@ -759,7 +956,7 @@ function saveEntry(keepOpen=false){
     obj.comment=generateSinnerComment(obj);freshComment=obj.comment;
     state.entries.unshift(obj);
     grantXp(XP_PER_ENTRY,(type==='income'?'新增收入':'新增支出')+'：'+obj.store);
-    damageMonster(8);damageBoss(12);
+    grantExplorationActions(1);
   }
   state.profile.lastPayment=obj.payment;
   checkQuests();checkAchievements();saveLocal();
@@ -774,7 +971,7 @@ function deleteEntry(){const id=$('eid').value;if(!id)return;if(confirm('確定�
 function parseCSVLoose(text){const rows=[];let row=[],field='',q=false;for(let i=0;i<text.length;i++){const c=text[i],n=text[i+1];if(q){if(c==='"'&&n==='"'){field+='"';i++}else if(c==='"'){q=false}else field+=c}else{if(c==='"')q=true;else if(c===','){row.push(field);field=''}else if(c==='\n'){row.push(field);rows.push(row);row=[];field=''}else if(c!=='\r')field+=c}}if(field.length||row.length){row.push(field);rows.push(row)}if(!rows.length)return [];const head=rows[0],out=[];rows.slice(1).forEach(r=>{if(!r.some(Boolean))return;while(r.length<head.length)r.push('');if(r.length>head.length)r=[...r.slice(0,head.length-1),r.slice(head.length-1).join(',')];out.push(Object.fromEntries(head.map((k,i)=>[k,r[i]||'']))) });return out}
 function autoExpenseCategory(store,items){const t=(store+' '+items.join(' ')).toLowerCase(),rules=[['便利商店',['統一超商','7-eleven','全家便利','萊爾富','ok mart']],['飲料',['茶','咖啡','飲料','鮮奶','拿鐵']],['交通',['捷運','台鐵','高鐵','uber','停車','加油']],['訂閱/數位',['apple','google','icloud','netflix','spotify','youtube']],['餐飲',['餐盒','便當','早餐','午餐','晚餐','飯','麵','餐廳','雞腿','壽司','鍋']],['購物',['誠品','紀伊國屋','商場','百貨','服飾','uniqlo','無印良品']],['醫療',['藥局','診所','醫院']],['娛樂',['電影','影城','遊戲','steam']]];for(const [cat,kws] of rules){if(kws.some(k=>t.includes(k)))return cat}return '其他'}
 async function importCsvFiles(ev){const files=[...ev.target.files];if(!files.length)return;let added=0,updated=0;for(const file of files){const text=(await file.text()).replace(/^\ufeff/,'');const rows=parseCSVLoose(text);const groups={};rows.forEach(r=>{const inv=(r['發票號碼']||'').trim(),d=(r['發票日期']||'').trim();if(inv&&/^\d{8}$/.test(d))(groups[inv]??=[]).push(r)});for(const [inv,rs] of Object.entries(groups)){const d=rs[0]['發票日期'],date=`${d.slice(0,4)}-${d.slice(4,6)}-${d.slice(6,8)}`,store=(rs[0]['賣方名稱']||'未命名店家').trim(),items=rs.map(r=>({name:(r['消費明細_品名']||'未提供品名').trim(),amount:Number(r['消費明細_金額']||r['發票金額']||0)})),amount=items.reduce((s,i)=>s+i.amount,0),id='inv-'+inv,old=state.entries.find(x=>x.id===id),obj={id,type:'expense',date,invoice:inv,store,amount,category:old?.category||autoExpenseCategory(store,items.map(i=>i.name)),payment:old?.payment||'未設定',note:old?.note||'',items,source:'電子發票',comment:old?.comment||null};if(old){state.entries=state.entries.map(x=>x.id===id?obj:x);updated++}else{obj.comment=generateSinnerComment(obj);state.entries.push(obj);added++}}}
-if(added){grantXp(added*XP_PER_ENTRY,`匯入發票完成，共新增 ${added} 筆`);for(let i=0;i<added;i++){damageMonster(8,false);damageBoss(12)}}else state.rpg.rewardLog=`匯入完成，沒有新增資料。更新了 ${updated} 筆資料。`;checkQuests();saveLocal();render();toast(`匯入完成：新增 ${added} 筆，更新 ${updated} 筆`);ev.target.value=''}
+if(added){grantXp(added*XP_PER_ENTRY,`匯入發票完成，共新增 ${added} 筆`);grantExplorationActions(added)}else state.rpg.rewardLog=`匯入完成，沒有新增資料。更新了 ${updated} 筆資料。`;checkQuests();saveLocal();render();toast(`匯入完成：新增 ${added} 筆，更新 ${updated} 筆`);ev.target.value=''}
 function download(name,content,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([content],{type}));a.download=name;a.click()}
 function backupJson(){download('終端記錄備份.json',JSON.stringify(state,null,2),'application/json')}
 async function restoreJson(ev){const file=ev.target.files?.[0];if(!file)return;try{const parsed=JSON.parse(await file.text());if(!parsed||(!Array.isArray(parsed.entries)&&!Array.isArray(parsed)))throw new Error();if(confirm('確定用這份備份覆蓋目前資料？')){state=migrate(parsed);saveLocal();render();toast('已還原備份')}}catch(e){alert('無法還原：這不是有效的備份 JSON。')}ev.target.value=''}
@@ -794,7 +991,7 @@ function renderCharts(){
   $('statsComment').textContent=income||expense?(net>=0?`本月目前是正淨額 ${money(net)}。繼續維持記錄，就能看清楚金幣流向。`:`本月目前支出高於收入 ${money(Math.abs(net))}。這只是資訊提示，不影響 RPG 獎勵。`):'先建立一些收入／支出檔案索引，就能看到完整分析。';
 }
 
-function saveSettings(){state.profile.initialAmount=Number($('initialInput').value||0);state.profile.name=$('playerName').value.trim()||'帳本終端者';saveLocal();render();toast('已儲存設定')}
+function saveSettings(){state.profile.initialAmount=Number($('initialInput').value||0);state.profile.name='但丁';saveLocal();render();toast('已儲存設定')}
 function setTab(id){
   document.querySelectorAll('.section').forEach(function(el){el.classList.toggle('active',el.id===id)});
   document.querySelectorAll('.tabs button').forEach(function(btn){btn.classList.toggle('active',btn.dataset.tab===id)});
@@ -826,4 +1023,4 @@ function mapIcon(kind){
 function mountIcons(){$('logo').innerHTML=drawSprite('star');$('heroIcon').innerHTML=drawSprite('hero');$('monsterIcon').innerHTML=drawSprite('slime');$('npcClerk').innerHTML=npcSprite('clerk');$('npcMerchant').innerHTML=npcSprite('merchant');}
 document.querySelectorAll('[data-language]').forEach(function(btn){btn.onclick=function(){setLanguage(btn.dataset.language)}});if($('currencySelect'))$('currencySelect').addEventListener('change',function(){setCurrency(this.value)});
 $('etype').addEventListener('change',syncEntryTypeUI);document.querySelectorAll('[data-entry-type]').forEach(b=>b.onclick=()=>{$('etype').value=b.dataset.entryType;syncEntryTypeUI()});$('dlg').addEventListener('click',e=>{if(e.target===$('dlg'))$('dlg').close()});$('ecat').addEventListener('change',renderQuickCats);
-$('save').onclick=()=>saveEntry(false);$('saveAgain').onclick=()=>saveEntry(true);$('closeDlg').onclick=()=>$('dlg').close();$('closeCommentDlg').onclick=()=>$('commentDlg').close();$('commentViewTime').onclick=()=>setCommentaryView('time');$('commentViewSinner').onclick=()=>setCommentaryView('sinner');$('goCommentArchive').onclick=()=>{$('commentDlg').close();setTab('commentary')};$('del').onclick=deleteEntry;$('csv').addEventListener('change',importCsvFiles);$('export').onclick=exportCsv;$('backup').onclick=backupJson;$('restore').addEventListener('change',restoreJson);$('clear').onclick=clearLocalData;$('saveSettings').onclick=saveSettings;$('addExpense').onclick=()=>openEdit('', 'expense');$('addIncome').onclick=()=>openEdit('', 'income');$('fab').onclick=()=>openEdit('', 'expense');$('bottomAdd').onclick=()=>openEdit('', 'expense');['month','typeFilter','cat','search'].forEach(id=>$(id).addEventListener('input',render));document.querySelectorAll('[data-chest]').forEach(btn=>btn.onclick=()=>openChest(btn.dataset.chest));document.querySelectorAll('.tabs button').forEach(btn=>btn.onclick=()=>setTab(btn.dataset.tab));document.querySelectorAll('[data-goto]').forEach(btn=>btn.onclick=()=>setTab(btn.dataset.goto));if(!$('month').value){$('month').value=new Date().toISOString().slice(0,7)}mountIcons();render();setupIphoneSafariInput();setupLanguageObserver();
+$('save').onclick=()=>saveEntry(false);$('saveAgain').onclick=()=>saveEntry(true);$('closeDlg').onclick=()=>$('dlg').close();$('closeCommentDlg').onclick=()=>$('commentDlg').close();$('commentViewTime').onclick=()=>setCommentaryView('time');$('commentViewSinner').onclick=()=>setCommentaryView('sinner');$('goCommentArchive').onclick=()=>{$('commentDlg').close();setTab('commentary')};$('del').onclick=deleteEntry;$('csv').addEventListener('change',importCsvFiles);$('export').onclick=exportCsv;$('backup').onclick=backupJson;$('restore').addEventListener('change',restoreJson);$('clear').onclick=clearLocalData;$('saveSettings').onclick=saveSettings;if($('exploreBtn'))$('exploreBtn').onclick=runExploration;$('addExpense').onclick=()=>openEdit('', 'expense');$('addIncome').onclick=()=>openEdit('', 'income');$('fab').onclick=()=>openEdit('', 'expense');$('bottomAdd').onclick=()=>openEdit('', 'expense');['month','typeFilter','cat','search'].forEach(id=>$(id).addEventListener('input',render));document.querySelectorAll('[data-chest]').forEach(btn=>btn.onclick=()=>openChest(btn.dataset.chest));document.querySelectorAll('.tabs button').forEach(btn=>btn.onclick=()=>setTab(btn.dataset.tab));document.querySelectorAll('[data-goto]').forEach(btn=>btn.onclick=()=>setTab(btn.dataset.goto));if(!$('month').value){$('month').value=new Date().toISOString().slice(0,7)}mountIcons();render();setupIphoneSafariInput();setupLanguageObserver();
