@@ -1257,3 +1257,28 @@ button.tabs-directory-head:hover{border-color:#747780;border-left-color:#a5535a}
 .containment-overview-collapse[open] .collapse-chevron{transform:rotate(180deg)}
 .containment-overview-body{padding:0 13px 13px;border-top:1px solid #3d3f46}
 .containment-overview-body>.sub{margin-top:10px}
+
+
+/* ===== Exploration random shop ===== */
+.exploration-shop{margin-top:12px;border:1px solid #5b5547;background:linear-gradient(180deg,#1e1b16,#121316)}
+.exploration-shop[hidden]{display:none!important}
+.shop-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:11px 12px;border-bottom:1px solid #4c483f}
+.shop-kicker{font-size:8px;font-weight:900;letter-spacing:1.2px;color:#b59b65}
+.shop-title{font-size:17px;font-weight:900;margin-top:3px}
+.shop-wallet{text-align:right;font-size:9px;color:#a9a398}
+.shop-wallet b{display:block;font-size:18px;color:#e0c477;margin-top:2px}
+.shop-flavor{padding:9px 12px;font-size:10px;line-height:1.5;color:var(--muted);border-bottom:1px solid #383a40}
+.shop-stock{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:10px}
+.shop-item{padding:10px;background:#15161a;border:1px solid #494b52}
+.shop-item.soldout{opacity:.48}
+.shop-item-head{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.shop-item-name{font-size:12px;font-weight:900}
+.shop-item-kind{font-size:8px;color:#b9a16d;letter-spacing:.8px;margin-top:3px}
+.shop-price{font-size:13px;font-weight:900;color:#e0c477;white-space:nowrap}
+.shop-item-desc{font-size:9px;color:var(--muted);line-height:1.45;margin-top:7px}
+.shop-item-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:9px}
+.shop-stock-count{font-size:9px;color:#aaa59b}
+.shop-buy{min-height:34px;padding:6px 10px}
+.shop-buy:disabled{opacity:.4}
+.shop-note{padding:0 12px 11px;font-size:9px;color:#8e8b83;line-height:1.45}
+@media(max-width:700px){.shop-stock{grid-template-columns:1fr}}
