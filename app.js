@@ -78,11 +78,11 @@ const QUESTS=[
 ];
 
 const FIELD_GEAR={
- 'field-vest':{name:'收容防護背心',desc:'穩定 +2',stats:{stability:2}},
- 'survey-lens':{name:'異常觀測鏡',desc:'觀察 +2',stats:{observe:2}},
- 'runner-boots':{name:'機動作業靴',desc:'機動 +2',stats:{mobility:2}},
- 'shock-baton':{name:'制壓電擊棍',desc:'戰鬥 +2',stats:{combat:2}},
- 'field-kit':{name:'多用途作業組',desc:'全能力 +1',stats:{combat:1,observe:1,mobility:1,stability:1}}
+ 'field-vest':{name:'收容防護背心',rarity:'common',desc:'偏重防護與承傷，適合需要提高生存穩定性的罪人。',stats:{stability:2}},
+ 'survey-lens':{name:'異常觀測鏡',rarity:'uncommon',desc:'協助辨識怪異行動與環境線索，適合觀察型探索者。',stats:{observe:2}},
+ 'runner-boots':{name:'機動作業靴',rarity:'common',desc:'降低複雜地形移動負擔，強化追擊與脫離能力。',stats:{mobility:2}},
+ 'shock-baton':{name:'制壓電擊棍',rarity:'rare',desc:'近距離制壓工具，適合直接提高戰鬥輸出的編成。',stats:{combat:2}},
+ 'field-kit':{name:'多用途作業組',rarity:'epic',desc:'整合觀測、防護與現場工具，適合需要全面能力的探索。',stats:{combat:1,observe:1,mobility:1,stability:1}}
 };
 
 const EXPLORATION_AREAS=[
