@@ -1407,3 +1407,37 @@ dialog#dlg .entry-wide{
 .stats-table-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;padding:7px 8px;border-bottom:1px solid #34363d;font-size:10px}
 .stats-table-row strong{color:#ddd8ce}
 .stats-period-label{font-size:9px;color:#aaa59a;letter-spacing:.8px;margin:7px 0}
+
+
+/* ===== Manager progression / bookkeeping reward sync ===== */
+.manager-reward-grid{
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+}
+.manager-action-card{
+  border-top:2px solid #8f6d49!important;
+}
+#managerActions{
+  color:#e0c477;
+}
+#managerSupply{
+  font-size:14px!important;
+  line-height:1.15;
+}
+.entry-reward-notice{
+  margin:0 0 10px;
+  padding:9px 11px;
+  border:1px solid #5f5540;
+  border-left:4px solid #aa8b4d;
+  background:linear-gradient(90deg,rgba(146,112,55,.15),rgba(18,19,23,.82));
+  color:#ddd4bf;
+  font-size:11px;
+  line-height:1.55;
+}
+.entry-reward-notice[hidden]{display:none!important}
+.entry-reward-notice strong{
+  color:#f0d177;
+  font-size:13px;
+}
+@media(max-width:820px){
+  .manager-reward-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
