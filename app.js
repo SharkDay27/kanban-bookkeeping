@@ -87,7 +87,7 @@ const HANS_PHRASES={
  '新增支出':'新增支出','新增收入':'新增收入','匯入發票 CSV':'导入发票 CSV','匯出 CSV':'导出 CSV','備份 JSON':'备份 JSON',
  '還原 JSON':'还原 JSON','清除本機資料':'清除本机数据','資料只保存在目前瀏覽器':'数据只保存在当前浏览器',
  '換裝置或清除 Safari 網站資料前':'更换设备或清除 Safari 网站数据前','請先備份 JSON':'请先备份 JSON',
- '薪資':'薪资','薪資精靈提醒':'薪资精灵提醒','交易紀錄已歸檔':'交易记录已归档','請保持資料完整性':'请保持数据完整性',
+ '薪資':'薪资','交易紀錄已歸檔':'交易记录已归档','請保持資料完整性':'请保持数据完整性',
  '支出是結果':'支出是结果','淨額才是本期報表的結論':'净额才是本期报表的结论','薪資週期已登錄':'薪资周期已登录',
  '到期時將顯示提示':'到期时将显示提示','人格檔案':'人格档案','每新增一筆收入或支出':'每新增一笔收入或支出',
  '該人格檔案獲得經驗值':'该人格档案获得经验值','每筆紀錄':'每笔记录','今日收容單位':'今日收容单位',
@@ -197,7 +197,7 @@ function renderCurrencySelector(){
 function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
 function toast(msg){const t=$('toast');t.textContent=localizeText(msg);t.style.display='block';clearTimeout(toast._t);toast._t=setTimeout(()=>t.style.display='none',2400)}
 function saveLocal(){localStorage.setItem(KEY,JSON.stringify(state))}
-function defaultState(){return {entries:[],profile:{initialAmount:0,name:'帳本終端者',salaryDay:0,salaryAdvance:1,currency:'TWD',language:'zh-Hant'},rpg:{xp:0,gold:0,chests:{wood:0,silver:0,gold:0},inventory:[],equipped:[],achievements:[],monthlyBosses:{},rewardLog:'開始記錄來啟動管理流程。',streakMilestones:[]},daily:{}}}
+function defaultState(){return {entries:[],profile:{initialAmount:0,name:'帳本終端者',currency:'TWD',language:'zh-Hant'},rpg:{xp:0,gold:0,chests:{wood:0,silver:0,gold:0},inventory:[],equipped:[],achievements:[],monthlyBosses:{},rewardLog:'開始記錄來啟動管理流程。',streakMilestones:[]},daily:{}}}
 function normalizeEntry(x){return {...x,type:x.type||'expense',category:x.category||'其他',amount:Number(x.amount||0),date:x.date||today(),payment:x.payment||'現金',store:x.store||'未命名紀錄',items:Array.isArray(x.items)?x.items:[],note:x.note||''}}
 function migrate(old){const s=defaultState();
   if(Array.isArray(old)){s.entries=old.map(v=>normalizeEntry(v));return s}
@@ -424,7 +424,7 @@ function renderSummary(){const expense=state.entries.filter(x=>x.type==='expense
 function renderQuests(){ensureDaily(today());const ds=dayStats(today());$('questList').innerHTML=QUESTS.map(q=>{const p=q.id==='q3'?ds.cats:ds.count,done=p>=q.goal,claim=state.daily[today()].questClaims[q.id];return `<div class="quest wood panel ${done?'done':''}"><div class="row"><div class="quest-name">${done?'✓ ':'◇ '}${q.name}</div><div class="quest-reward">+${q.rewardXp} EXP</div></div><div class="quest-desc">${q.desc}</div><div class="quest-progress"><div style="width:${Math.min(100,Math.round(p/q.goal*100))}%"></div></div><div class="quest-desc">${Math.min(p,q.goal)} / ${q.goal}${claim?'・已領取':''}</div></div>`}).join('')}
 function filtered(){const m=$('month').value,t=$('typeFilter').value,c=$('cat').value,q=$('search').value.trim().toLowerCase();return state.entries.filter(x=>(!m||x.date.startsWith(m))&&(!t||x.type===t)&&(!c||x.category===c)&&(!q||[x.store,x.note,x.invoice,x.category,...(x.items||[]).map(i=>i.name)].join(' ').toLowerCase().includes(q))).sort((a,b)=>b.date.localeCompare(a.date)||b.amount-a.amount)}
 function renderBoard(){const rows=filtered(),groups={};rows.forEach(x=>(groups[x.date]??=[]).push(x));const dates=Object.keys(groups).sort().reverse();if(!dates.length){$('board').innerHTML='<div class="empty wood panel">目前沒有資料。先新增一筆收入或支出吧！</div>';return}$('board').innerHTML='<div class="board">'+dates.map(date=>{const items=groups[date],expense=items.filter(x=>x.type==='expense').reduce((s,x)=>s+x.amount,0),income=items.filter(x=>x.type==='income').reduce((s,x)=>s+x.amount,0),net=income-expense;return `<section class="day wood panel"><div class="dayhead"><div><div style="font-weight:900">${date}</div><div class="s">${items.length} 筆紀錄</div></div><div style="text-align:right"><div class="daytotal">支出 ${money(expense)}</div><div class="daynet ${net<0?'minus':'plus'}">淨額 ${money(net)}</div></div></div>${items.map(entry=>`<article class="card wood transaction-card type-${entry.type}" style="${categoryStyle(entry.category||'其他')}"><div class="row"><div class="store">${esc(entry.store)}</div><div class="amt ${entry.type}">${entry.type==='income'?'+ ':''}${money(entry.amount)}</div></div><div class="badges"><span class="badge ${entry.type}">${entry.type==='income'?'收入':'支出'}</span><span class="badge category-badge" style="${categoryStyle(entry.category||'其他')}">${esc(entry.category||'其他')}</span><span class="badge">${esc(entry.payment||'未設定')}</span></div><div class="items">${(entry.items||[]).slice(0,3).map(i=>esc(i.name)).join('、')||esc(entry.note||'—')}</div>${entry.comment&&entry.comment.lines&&entry.comment.lines.length?`<div class="entry-comment-preview"><b>${esc(entry.comment.lines[0].speaker)}</b>：${esc(entry.comment.lines[0].text)}</div>`:''}<div class="card-actions"><button class="mini-btn" data-edit="${entry.id}">編輯</button></div></article>`).join('')}</section>`}).join('')+'</div>';document.querySelectorAll('[data-edit]').forEach(btn=>btn.onclick=()=>openEdit(btn.dataset.edit))}
-function render(){backfillMissingComments();refreshFilters();renderLanguageSwitch();renderCurrencySelector();renderSummary();renderRpg();renderQuests();renderBoard();renderCharts();renderBestiary();renderBoss();checkAchievements();renderProgress();renderCommentaryArchive();renderSalaryReminder();$('initialInput').value=state.profile.initialAmount||'';$('playerName').value=state.profile.name||'帳本終端者';$('salaryDay').value=state.profile.salaryDay||'';$('salaryAdvance').value=String(state.profile.salaryAdvance??1)}
+function render(){backfillMissingComments();refreshFilters();renderLanguageSwitch();renderCurrencySelector();renderSummary();renderRpg();renderQuests();renderBoard();renderCharts();renderBestiary();renderBoss();checkAchievements();renderProgress();renderCommentaryArchive();$('initialInput').value=state.profile.initialAmount||'';$('playerName').value=state.profile.name||'帳本終端者'}
 
 function renderCommentLines(comment){
   if(!comment||!Array.isArray(comment.lines))return '';
@@ -603,25 +603,6 @@ async function restoreJson(ev){const file=ev.target.files?.[0];if(!file)return;t
 function clearLocalData(){if(confirm('確定清除這台裝置上的所有記錄與 RPG 進度？此動作無法復原。')){state=defaultState();saveLocal();render();toast('已清除本機資料')}}
 function exportCsv(){const rows=filtered();const head=['日期','類型','店家/用途/來源','金額','分類','付款方式','發票號碼','備註','來源'];const body=rows.map(x=>[x.date,x.type==='income'?'收入':'支出',x.store,x.amount,x.category,x.payment,x.invoice||'',x.note||'',x.source||'']);const q=v=>/[",\n]/.test(String(v??''))?`"${String(v).replaceAll('"','""')}"`:String(v??'');const text='\ufeff'+[head,...body].map(r=>r.map(q).join(',')).join('\n');download('終端記錄匯出.csv',text,'text/csv;charset=utf-8')}
 
-function salaryStatus(){
-  const day=Number(state.profile.salaryDay||0); if(!day)return null;
-  const now=new Date(), y=now.getFullYear(), m=now.getMonth();
-  const daysInMonth=new Date(y,m+1,0).getDate();
-  const targetDay=Math.min(day,daysInMonth);
-  let target=new Date(y,m,targetDay); target.setHours(0,0,0,0);
-  const todayDate=new Date(y,m,now.getDate()); todayDate.setHours(0,0,0,0);
-  let diff=Math.round((target-todayDate)/86400000);
-  if(diff<0){const nm=m===11?0:m+1, ny=m===11?y+1:y;const nd=Math.min(day,new Date(ny,nm+1,0).getDate());target=new Date(ny,nm,nd);diff=Math.round((target-todayDate)/86400000)}
-  return {diff,targetDay:target.getDate(),month:target.getMonth()+1};
-}
-function renderSalaryReminder(){
-  const box=$('salaryAlert'), st=salaryStatus();
-  if(!st){box.classList.remove('show');return}
-  const adv=Number(state.profile.salaryAdvance||0);
-  if(st.diff===0){$('salaryTitle').textContent='今天是薪資日！';$('salaryMessage').textContent='露露提醒你：如果薪水已入帳，記得新增一筆「收入」。';box.classList.add('show')}
-  else if(st.diff>0&&st.diff<=adv){$('salaryTitle').textContent='薪資日快到了';$('salaryMessage').textContent=`距離 ${st.month}/${st.targetDay} 還有 ${st.diff} 天。準備迎接本月的金幣補給！`;box.classList.add('show')}
-  else box.classList.remove('show');
-}
 const CHART_COLORS=['#b52d2d','#d2cec4','#797b83','#8b7046','#59675d','#715a65','#8f6b6b','#555860','#aaa69c','#6f6251'];
 function pieData(rows,keyFn){const map={};rows.forEach(x=>{const k=keyFn(x)||'其他';map[k]=(map[k]||0)+Number(x.amount||0)});return Object.entries(map).sort((a,b)=>b[1]-a[1])}
 function setPie(pieId,legendId,data){const pie=$(pieId),legend=$(legendId),total=data.reduce((s,x)=>s+x[1],0);if(!total){pie.style.background='#24262b';legend.innerHTML='<div class="chart-empty">目前沒有資料</div>';return}let acc=0,parts=[];data.forEach(([name,val],i)=>{const start=acc/total*360;acc+=val;const end=acc/total*360;parts.push(`${CHART_COLORS[i%CHART_COLORS.length]} ${start}deg ${end}deg`)});pie.style.background=`conic-gradient(${parts.join(',')})`;legend.innerHTML=data.map(([name,val],i)=>`<div class="legend-row"><span class="legend-dot" style="background:${CHART_COLORS[i%CHART_COLORS.length]}"></span><span>${esc(name)}</span><strong>${money(val)}</strong></div>`).join('')}
@@ -635,7 +616,7 @@ function renderCharts(){
   $('statsComment').textContent=income||expense?(net>=0?`本月目前是正淨額 ${money(net)}。繼續維持記錄，就能看清楚金幣流向。`:`本月目前支出高於收入 ${money(Math.abs(net))}。這只是資訊提示，不影響 RPG 獎勵。`):'先建立一些收入／支出檔案索引，就能看到完整分析。';
 }
 
-function saveSettings(){state.profile.initialAmount=Number($('initialInput').value||0);state.profile.name=$('playerName').value.trim()||'帳本終端者';state.profile.salaryDay=Math.max(0,Math.min(31,Number($('salaryDay').value||0)));state.profile.salaryAdvance=Number($('salaryAdvance').value||0);saveLocal();render();toast('已儲存設定')}
+function saveSettings(){state.profile.initialAmount=Number($('initialInput').value||0);state.profile.name=$('playerName').value.trim()||'帳本終端者';saveLocal();render();toast('已儲存設定')}
 function setTab(id){document.querySelectorAll('.section').forEach(el=>el.classList.toggle('active',el.id===id));document.querySelectorAll('.tabs button').forEach(btn=>btn.classList.toggle('active',btn.dataset.tab===id))}
 function drawSprite(kind){
   if(kind==='star')return `<svg viewBox="0 0 64 64" width="44" height="44" aria-hidden="true"><circle cx="32" cy="32" r="23" fill="#1c1d22" stroke="#b52d2d" stroke-width="4"/><path d="M32 16l4 12 12 4-12 4-4 12-4-12-12-4 12-4z" fill="#d6d2c7"/></svg>`;
@@ -660,7 +641,7 @@ function mapIcon(kind){
   };
   return `<div style="display:grid;place-items:center">${icons[kind]||icons.book}</div>`
 }
-function mountIcons(){$('logo').innerHTML=drawSprite('star');$('heroIcon').innerHTML=drawSprite('hero');$('monsterIcon').innerHTML=drawSprite('slime');$('salaryNpc').innerHTML=npcSprite('fairy');$('npcClerk').innerHTML=npcSprite('clerk');$('npcMerchant').innerHTML=npcSprite('merchant');$('npcFairy').innerHTML=npcSprite('fairy');}
+function mountIcons(){$('logo').innerHTML=drawSprite('star');$('heroIcon').innerHTML=drawSprite('hero');$('monsterIcon').innerHTML=drawSprite('slime');$('npcClerk').innerHTML=npcSprite('clerk');$('npcMerchant').innerHTML=npcSprite('merchant');}
 document.querySelectorAll('[data-language]').forEach(function(btn){btn.onclick=function(){setLanguage(btn.dataset.language)}});if($('currencySelect'))$('currencySelect').addEventListener('change',function(){setCurrency(this.value)});
 $('etype').addEventListener('change',syncEntryTypeUI);document.querySelectorAll('[data-entry-type]').forEach(b=>b.onclick=()=>{$('etype').value=b.dataset.entryType;syncEntryTypeUI()});$('dlg').addEventListener('click',e=>{if(e.target===$('dlg'))$('dlg').close()});$('ecat').addEventListener('change',renderQuickCats);
 $('save').onclick=()=>saveEntry(false);$('saveAgain').onclick=()=>saveEntry(true);$('closeDlg').onclick=()=>$('dlg').close();$('closeCommentDlg').onclick=()=>$('commentDlg').close();$('commentViewTime').onclick=()=>setCommentaryView('time');$('commentViewSinner').onclick=()=>setCommentaryView('sinner');$('goCommentArchive').onclick=()=>{$('commentDlg').close();setTab('commentary')};$('del').onclick=deleteEntry;$('csv').addEventListener('change',importCsvFiles);$('export').onclick=exportCsv;$('backup').onclick=backupJson;$('restore').addEventListener('change',restoreJson);$('clear').onclick=clearLocalData;$('saveSettings').onclick=saveSettings;$('addExpense').onclick=()=>openEdit('', 'expense');$('addIncome').onclick=()=>openEdit('', 'income');$('fab').onclick=()=>openEdit('', 'expense');$('bottomAdd').onclick=()=>openEdit('', 'expense');['month','typeFilter','cat','search'].forEach(id=>$(id).addEventListener('input',render));document.querySelectorAll('[data-chest]').forEach(btn=>btn.onclick=()=>openChest(btn.dataset.chest));document.querySelectorAll('.tabs button').forEach(btn=>btn.onclick=()=>setTab(btn.dataset.tab));document.querySelectorAll('[data-goto]').forEach(btn=>btn.onclick=()=>setTab(btn.dataset.goto));if(!$('month').value){$('month').value=new Date().toISOString().slice(0,7)}mountIcons();render();setupIphoneSafariInput();setupLanguageObserver();
