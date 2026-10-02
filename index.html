@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="終端記錄">
 <title>RPG 化記帳工具</title>
-<link rel="stylesheet" href="styles.css?v=20261002g">
+<link rel="stylesheet" href="styles.css?v=20261002h">
 </head>
 <body>
 <div class="wrap">
@@ -17,6 +17,10 @@
       <div>
         <div class="title">RPG 化記帳工具</div>
       </div>
+    </div>
+    <div class="language-switch wood" role="group" aria-label="語言切換">
+      <button type="button" data-language="zh-Hant" class="active">繁體</button>
+      <button type="button" data-language="zh-Hans">简体</button>
     </div>
   </div>
 
@@ -319,7 +323,7 @@
       <summary>日期、付款方式、備註（選填）</summary>
       <div class="advanced-body form-grid">
         <div class="field"><label>日期</label><input id="edate" class="wood" type="date" required></div>
-        <div class="field"><label>付款方式</label><select id="epay" class="wood"><option>未設定</option><option>現金</option><option>信用卡</option><option>悠遊卡</option><option>LINE Pay</option><option>街口支付</option><option>轉帳</option><option>其他</option></select></div>
+        <div class="field"><label>付款方式</label><select id="epay" class="wood"><option>現金</option><option>轉帳</option><option>信用卡</option><option>支付寶</option><option>微信</option><option>其他</option></select></div>
         <div class="field" style="grid-column:1/-1"><label>備註</label><textarea id="enote" class="wood" placeholder="需要時再填即可"></textarea></div>
       </div>
     </details>
@@ -335,6 +339,6 @@
 </dialog>
 
 <script src="dialogues.js?v=20261002f"></script>
-<script src="app.js?v=20261002g"></script>
+<script src="app.js?v=20261002h"></script>
 </body>
 </html>
