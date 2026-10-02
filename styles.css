@@ -698,3 +698,23 @@ dialog#dlg .foot button[value="cancel"]{
   .currency-pick span{font-size:9px}
   .currency-pick small{font-size:8px}
 }
+
+
+/* ===== v9.9 traditional / simplified language switch ===== */
+.language-switch{
+  display:flex;gap:3px;padding:4px;background:#111216;border:1px solid #4e5057;
+  align-self:center;
+}
+.language-switch button{
+  min-width:62px;min-height:38px;padding:7px 10px;border:1px solid transparent;
+  background:#18191d;color:#8f8c84;font-weight:900;font-size:12px;
+}
+.language-switch button.active{
+  color:#fff;background:linear-gradient(180deg,#4a292d,#29191c);
+  border-color:#945058;box-shadow:inset 3px 0 0 #bd5962;
+}
+@media(max-width:700px){
+  .top{align-items:center}
+  .language-switch{margin-left:auto}
+  .language-switch button{min-width:54px;min-height:36px;padding:6px 8px;font-size:11px}
+}
