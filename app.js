@@ -311,7 +311,8 @@ function render(){backfillMissingComments();refreshFilters();renderSummary();ren
 function renderCommentLines(comment){
   if(!comment||!Array.isArray(comment.lines))return '';
   return comment.lines.map(function(line){
-    return '<div class="commentary-line"><div class="commentary-speaker">'+esc(line.speaker)+'</div><div class="commentary-text">'+esc(line.text)+'</div></div>';
+    const color=typeof sinnerColorForSpeaker==='function'?sinnerColorForSpeaker(line.speaker):'#c9c5bb';
+    return '<div class="commentary-line" style="--speaker-color:'+color+'"><div class="commentary-speaker">'+esc(line.speaker)+'</div><div class="commentary-text">'+esc(line.text)+'</div></div>';
   }).join('');
 }
 function showSinnerComment(comment){
@@ -397,7 +398,7 @@ function renderCommentaryArchive(){
         (name==='良秀'&&entry.comment.kind==='araya');
     });
     if(!matched.length)return '';
-    return '<div class="sinner-group"><div class="sinner-group-head"><div><div class="sinner-group-code">SINNER // '+esc(sinner?sinner.id:'--')+'</div><div class="sinner-group-name">'+esc(name)+'</div></div><div class="sinner-group-count">'+matched.length+' 筆評議</div></div>'+
+    return '<div class="sinner-group"><div class="sinner-group-head"><div><div class="sinner-group-code">SINNER // '+esc(sinner?sinner.id:'--')+'</div><div class="sinner-group-name" style="--speaker-color:'+(typeof sinnerColorForSpeaker==='function'?sinnerColorForSpeaker(name):'#c9c5bb')+'">'+esc(name)+'</div></div><div class="sinner-group-count">'+matched.length+' 筆評議</div></div>'+
       matched.map(function(entry){return commentEntryCard(entry,{sinner:name})}).join('')+'</div>';
   }).join('');
   box.innerHTML=groups||'<div class="empty wood panel">此罪人目前尚無評議紀錄。</div>';
