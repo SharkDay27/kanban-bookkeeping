@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex,nofollow,noarchive">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="終端記錄">
-<title>終端記錄管理終端 v5</title>
+<title>RPG 化記帳工具</title>
 <style>
 
 :root{
@@ -250,6 +250,35 @@ dialog#dlg .foot{
   dialog#dlg .foot{margin-left:-14px;margin-right:-14px;margin-bottom:-14px;padding:12px 14px calc(14px + env(safe-area-inset-bottom))}
   .dialog-close{right:10px;top:10px}
 }
+
+/* ===== v8 achievements / equipment / boss ===== */
+.progress-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.achievement-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}
+.achievement-card{padding:10px;background:linear-gradient(180deg,#1e2025,#131418);min-height:105px;position:relative}
+.achievement-card.locked{opacity:.42;filter:grayscale(1)}
+.achievement-code{font-size:9px;color:#aa6060;letter-spacing:1.4px}
+.achievement-name{font-size:13px;font-weight:900;margin-top:4px}
+.achievement-desc{font-size:10px;color:var(--muted);line-height:1.5;margin-top:5px}
+.achievement-reward{font-size:10px;color:#bfa978;margin-top:6px}
+.achievement-badge{position:absolute;right:7px;top:7px;border:1px solid #55575f;padding:3px 5px;font-size:8px;letter-spacing:1px}
+.achievement-card.unlocked .achievement-badge{color:#8eaf94;border-color:#58705c}
+.equipment-slots{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.equip-slot{min-height:84px;padding:9px;background:#101114;border:1px dashed #55575e}
+.equip-slot.filled{border-style:solid;border-color:#7c6a4d;background:linear-gradient(180deg,#26231c,#171614)}
+.equip-slot b{display:block;font-size:11px;margin-top:4px}
+.equip-slot small{display:block;font-size:9px;color:var(--muted);margin-top:4px;line-height:1.4}
+.equipment-summary{margin-top:10px;padding:9px;background:#111216;border-left:4px solid #786848;font-size:11px;line-height:1.6}
+.loot.equippable{cursor:pointer}.loot.equipped{border-color:#8f764a;box-shadow:inset 4px 0 0 #8f764a}
+.loot-action{font-size:9px;color:#b9a16d;margin-top:4px}
+.boss-panel{margin-top:12px}.boss-wrap{display:grid;grid-template-columns:130px 1fr;gap:14px;align-items:center;margin-top:10px}
+.boss-icon{height:126px;display:grid;place-items:center;background:#0e0f12;border:1px solid #595b63}
+.boss-name{font-size:20px;font-weight:900}.boss-meta{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.5}
+.boss-reward{margin-top:8px;padding:8px;border:1px solid #5f533e;background:#191713;color:#c9b98e;font-size:10px}
+.boss-hp{height:24px;background:#0d0e11;border:1px solid #666870;position:relative;margin-top:10px}
+.boss-hp>div:first-child{height:100%;background:linear-gradient(90deg,#7c2025,#b43a3d)}
+.boss-hp span{position:absolute;inset:0;display:grid;place-items:center;font-size:10px;font-weight:900}
+@media(max-width:850px){.progress-grid{grid-template-columns:1fr}.achievement-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:700px){.achievement-grid{grid-template-columns:1fr}.equipment-slots{grid-template-columns:1fr}.boss-wrap{grid-template-columns:90px 1fr}.boss-icon{height:100px}}
 </style>
 </head>
 <body>
@@ -258,7 +287,7 @@ dialog#dlg .foot{
     <div class="brand">
       <div class="logo wood" id="logo"></div>
       <div>
-        <div class="title">終端記錄管理終端 v5</div>
+        <div class="title">RPG 化記帳工具</div>
       </div>
     </div>
   </div>
@@ -290,6 +319,7 @@ dialog#dlg .foot{
     <button class="wood" data-tab="book">記錄</button>
     <button class="wood" data-tab="quests">任務</button>
     <button class="wood" data-tab="bestiary">圖鑑</button>
+    <button class="wood" data-tab="progress">成就</button>
     <button class="wood" data-tab="stats">統計</button>
     <button class="wood" data-tab="settings">設定</button>
   </div>
@@ -347,6 +377,23 @@ dialog#dlg .foot{
         </div>
       </div>
     </div>
+    <div class="wood panel boss-panel">
+      <div class="archive-header">
+        <div><div class="archive-id">MONTHLY // BOSS-ENTITY</div><div class="archive-title">月度 BOSS 收容單位</div></div>
+        <div class="archive-stamp">HOSTILE</div>
+      </div>
+      <div class="sub">每新增一筆紀錄都會對本月 BOSS 造成傷害；完成每日指令會追加傷害。月底前擊敗可取得限定獎勵。</div>
+      <div class="boss-wrap">
+        <div class="boss-icon" id="bossIcon"></div>
+        <div>
+          <div class="row"><div class="boss-name" id="bossName">—</div><div class="archive-id" id="bossMonth">—</div></div>
+          <div class="classification-row"><span class="class-chip red">RISK / BOSS</span><span class="class-chip" id="bossState">ACTIVE</span></div>
+          <div class="boss-hp"><div id="bossHpFill"></div><span id="bossHpText">0 / 0</span></div>
+          <div class="boss-meta" id="bossMeta">等待載入。</div>
+          <div class="boss-reward" id="bossReward">REWARD / 金寶箱 ×1 ＋ 限定裝備</div>
+        </div>
+      </div>
+    </div>
   </section>
 
   <section id="book" class="section">
@@ -389,6 +436,28 @@ dialog#dlg .foot{
       </div>
       <div class="sub">每日出現的收容單位會自動登錄。擊敗後會追加「處置完成」標記。</div>
       <div id="bestiaryGrid" class="bestiary-grid" style="margin-top:12px"></div>
+    </div>
+  </section>
+
+  <section id="progress" class="section">
+    <div class="progress-grid">
+      <div class="wood panel">
+        <div class="archive-header">
+          <div><div class="archive-id">RECORD // ACHIEVEMENTS</div><div class="archive-title">成就系統</div></div>
+          <div class="archive-stamp">MILESTONE</div>
+        </div>
+        <div class="sub">完成里程碑會自動解鎖並獲得金幣。既有紀錄也會回溯判定。</div>
+        <div id="achievementGrid" class="achievement-grid"></div>
+      </div>
+      <div class="wood panel">
+        <div class="archive-header">
+          <div><div class="archive-id">EQUIPMENT // ACTIVE-SLOTS</div><div class="archive-title">裝備系統</div></div>
+          <div class="archive-stamp">3 SLOTS</div>
+        </div>
+        <div class="sub">點擊裝備檔案即可裝備／卸下。最多同時裝備 3 件；材料類道具無法裝備。</div>
+        <div id="equipmentSlots" class="equipment-slots"></div>
+        <div id="equipmentSummary" class="equipment-summary">尚未啟用裝備效果。</div>
+      </div>
     </div>
   </section>
 
