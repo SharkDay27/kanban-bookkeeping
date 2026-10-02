@@ -148,6 +148,108 @@ svg{shape-rendering:geometricPrecision}
 .quick-hint{font-size:10px;color:var(--muted);margin-top:4px}
 @media(max-width:900px){.bestiary-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:700px){.bestiary-grid{grid-template-columns:1fr}.entry-primary{grid-template-columns:1fr}.entry-wide{grid-column:auto}}
+
+/* ===== v7.1 modal hierarchy ===== */
+dialog#dlg{
+  width:100vw;height:100vh;max-width:none;max-height:none;
+  margin:0;padding:0;border:0;background:transparent;
+}
+dialog#dlg::backdrop{
+  background:rgba(2,3,5,.78);
+  backdrop-filter:blur(5px) saturate(.55);
+}
+dialog#dlg[open]{
+  display:grid;
+  place-items:center;
+  padding:18px;
+}
+dialog#dlg form.modal{
+  width:min(680px,100%);
+  max-height:min(88vh,900px);
+  overflow:auto;
+  background:
+    linear-gradient(180deg,rgba(181,45,45,.09),transparent 120px),
+    linear-gradient(180deg,#23242a,#15161a);
+  border:1px solid #898b94;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.04) inset,
+    0 28px 70px rgba(0,0,0,.72),
+    0 0 32px rgba(132,42,42,.15);
+  padding:18px;
+  position:relative;
+}
+dialog#dlg form.modal:before{
+  content:"INPUT LAYER / ACTIVE";
+  position:absolute;top:0;left:0;right:0;height:4px;
+  background:linear-gradient(90deg,#a83c3c 0 28%,#62646c 28% 100%);
+  font-size:0;
+}
+dialog#dlg .archive-header{
+  background:#1a1b20;
+  margin:-4px -4px 14px;
+  padding:12px 54px 12px 12px;
+  border:1px solid #3e4047;
+  border-left:4px solid #9c3c3c;
+}
+dialog#dlg .quick-type{
+  background:#111216;
+  border:1px solid #3d3f46;
+  padding:8px;
+}
+dialog#dlg .entry-primary{
+  background:#191a1f;
+  border:1px solid #42444c;
+  padding:12px;
+  margin-top:10px;
+}
+dialog#dlg .field>label{
+  color:#c2beb5;
+}
+dialog#dlg input,
+dialog#dlg select,
+dialog#dlg textarea{
+  background:#0f1013;
+  border-color:#5b5d66;
+}
+dialog#dlg .amount-field input{
+  background:#0b0c0f;
+  border-color:#8b4b4b;
+  box-shadow:inset 0 0 0 1px rgba(181,45,45,.15);
+}
+dialog#dlg .entry-advanced{
+  background:#131418;
+  border-color:#45474e;
+}
+dialog#dlg .foot{
+  position:sticky;
+  bottom:-18px;
+  background:linear-gradient(180deg,rgba(21,22,26,.88),#15161a 28%);
+  margin:14px -18px -18px;
+  padding:14px 18px 18px;
+  border-top:1px solid #3f4148;
+  z-index:4;
+}
+.dialog-close{
+  position:absolute;
+  right:14px;top:14px;
+  z-index:8;
+  width:36px;height:36px;
+  padding:0;
+  display:grid;place-items:center;
+  border:1px solid #747680;
+  background:#111216;
+  color:#d6d2c7;
+  font-size:22px;
+  line-height:1;
+}
+.dialog-close:hover{background:#311c1f;border-color:#9a4a4a;color:white}
+@media(max-width:700px){
+  dialog#dlg[open]{padding:8px}
+  dialog#dlg form.modal{max-height:94vh;padding:14px}
+  dialog#dlg .archive-header{padding-right:48px}
+  dialog#dlg .foot{margin-left:-14px;margin-right:-14px;margin-bottom:-14px;padding:12px 14px calc(14px + env(safe-area-inset-bottom))}
+  .dialog-close{right:10px;top:10px}
+}
 </style>
 </head>
 <body>
@@ -339,6 +441,7 @@ svg{shape-rendering:geometricPrecision}
 
 <dialog id="dlg">
   <form class="modal wood" method="dialog">
+    <button type="button" id="closeDlg" class="dialog-close" aria-label="關閉輸入介面">×</button>
     <div class="archive-header">
       <div><div class="archive-id">TRANSACTION // QUICK-ENTRY</div><h3 id="dlgTitle" style="margin:2px 0 0">新增記錄</h3></div>
       <div class="archive-stamp">INPUT</div>
@@ -582,8 +685,8 @@ function mapIcon(kind){
   return `<div style="display:grid;place-items:center">${icons[kind]||icons.book}</div>`
 }
 function mountIcons(){$('logo').innerHTML=drawSprite('star');$('heroIcon').innerHTML=drawSprite('hero');$('monsterIcon').innerHTML=drawSprite('slime');$('salaryNpc').innerHTML=npcSprite('fairy');$('npcClerk').innerHTML=npcSprite('clerk');$('npcMerchant').innerHTML=npcSprite('merchant');$('npcFairy').innerHTML=npcSprite('fairy');}
-$('etype').addEventListener('change',syncEntryTypeUI);document.querySelectorAll('[data-entry-type]').forEach(b=>b.onclick=()=>{$('etype').value=b.dataset.entryType;syncEntryTypeUI()});$('ecat').addEventListener('change',renderQuickCats);
-$('save').onclick=()=>saveEntry(false);$('saveAgain').onclick=()=>saveEntry(true);$('del').onclick=deleteEntry;$('csv').addEventListener('change',importCsvFiles);$('export').onclick=exportCsv;$('backup').onclick=backupJson;$('restore').addEventListener('change',restoreJson);$('clear').onclick=clearLocalData;$('saveSettings').onclick=saveSettings;$('addExpense').onclick=()=>openEdit('', 'expense');$('addIncome').onclick=()=>openEdit('', 'income');$('fab').onclick=()=>openEdit('', 'expense');$('bottomAdd').onclick=()=>openEdit('', 'expense');['month','typeFilter','cat','search'].forEach(id=>$(id).addEventListener('input',render));document.querySelectorAll('[data-chest]').forEach(btn=>btn.onclick=()=>openChest(btn.dataset.chest));document.querySelectorAll('.tabs button').forEach(btn=>btn.onclick=()=>setTab(btn.dataset.tab));document.querySelectorAll('[data-goto]').forEach(btn=>btn.onclick=()=>setTab(btn.dataset.goto));if(!$('month').value){$('month').value=new Date().toISOString().slice(0,7)}mountIcons();render();
+$('etype').addEventListener('change',syncEntryTypeUI);document.querySelectorAll('[data-entry-type]').forEach(b=>b.onclick=()=>{$('etype').value=b.dataset.entryType;syncEntryTypeUI()});$('dlg').addEventListener('click',e=>{if(e.target===$('dlg'))$('dlg').close()});$('ecat').addEventListener('change',renderQuickCats);
+$('save').onclick=()=>saveEntry(false);$('saveAgain').onclick=()=>saveEntry(true);$('closeDlg').onclick=()=>$('dlg').close();$('del').onclick=deleteEntry;$('csv').addEventListener('change',importCsvFiles);$('export').onclick=exportCsv;$('backup').onclick=backupJson;$('restore').addEventListener('change',restoreJson);$('clear').onclick=clearLocalData;$('saveSettings').onclick=saveSettings;$('addExpense').onclick=()=>openEdit('', 'expense');$('addIncome').onclick=()=>openEdit('', 'income');$('fab').onclick=()=>openEdit('', 'expense');$('bottomAdd').onclick=()=>openEdit('', 'expense');['month','typeFilter','cat','search'].forEach(id=>$(id).addEventListener('input',render));document.querySelectorAll('[data-chest]').forEach(btn=>btn.onclick=()=>openChest(btn.dataset.chest));document.querySelectorAll('.tabs button').forEach(btn=>btn.onclick=()=>setTab(btn.dataset.tab));document.querySelectorAll('[data-goto]').forEach(btn=>btn.onclick=()=>setTab(btn.dataset.goto));if(!$('month').value){$('month').value=new Date().toISOString().slice(0,7)}mountIcons();render();
 </script>
 </body>
 </html>
