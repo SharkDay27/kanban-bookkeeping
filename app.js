@@ -404,11 +404,11 @@ function runExploration(){
   names.forEach(function(n){xpBySinner[n]=sinnerExplorationXp(n,xp,{area,kind,success:resultSuccess});const res=awardSinnerExp(n,xpBySinner[n]);if(res.after>res.before)levelUps.push(n+' Lv.'+res.after)});
   if(levelUps.length)reward+=(reward?'；':'')+'升級：'+levelUps.join('、');
   const dialogue=typeof generateExplorationDialogue==='function'?generateExplorationDialogue(names,kind,ctx):[];
-  ex.lastResult={at:new Date().toISOString(),areaId:area.id,area:area.name,names:names,kind:kind,title:title,detail:detail,reward:reward,stamp:stamp,xp:xp,dialogue:dialogue,combat:combat,eventId:ctx.eventId,dialogueVersion:3,xpBySinner:xpBySinner};
+  ex.lastResult={at:new Date().toISOString(),areaId:area.id,area:area.name,names:names,kind:kind,title:title,detail:detail,reward:reward,stamp:stamp,xp:xp,dialogue:dialogue,combat:combat,eventId:ctx.eventId,dialogueVersion:4,xpBySinner:xpBySinner};
   ex.logs=Array.isArray(ex.logs)?ex.logs:[];
   ex.logs.unshift({
     at:ex.lastResult.at,areaId:area.id,area:area.name,names:[...names],kind:kind,title:title,detail:detail,
-    reward:reward,stamp:stamp,xp:xp,dialogue:Array.isArray(dialogue)?dialogue:[],combat:combat,eventId:ctx.eventId,dialogueVersion:3,xpBySinner:xpBySinner
+    reward:reward,stamp:stamp,xp:xp,dialogue:Array.isArray(dialogue)?dialogue:[],combat:combat,eventId:ctx.eventId,dialogueVersion:4,xpBySinner:xpBySinner
   });
   ex.logs=ex.logs.slice(0,100);
   // spent 已增加，重新依記帳筆數校正剩餘行動點數。

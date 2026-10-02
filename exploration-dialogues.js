@@ -1,5 +1,5 @@
 (function(){
- const VERSION=3;
+ const VERSION=4;
  const speech=(speaker,text)=>({speaker,text,kind:'speech'});
  const action=(speaker,text)=>({speaker,text,kind:'action'});
  const pick=arr=>arr[Math.floor(Math.random()*arr.length)];
@@ -192,6 +192,20 @@
  '奧提斯':'奧提斯試過扣具，將不穩的部位做上標記。',
  '格里高爾':'格里高爾伸展了一下肩膀，試著把裝備的帶子調到不勒手臂的位置。'
  };
+ const RETREAT_ACTION={
+ '李箱':'李箱收起尚未寫完的記錄，沿著自己留下的標記返回。',
+ '浮士德':'浮士德在終端標出異常位置，轉入已確認的通道。',
+ '堂吉訶德':'堂吉訶德急忙轉身，差點踩住自己的背包帶；她提起袋子追上搭檔。',
+ '良秀':'良秀以刀鞘擋開伸到通道邊的碎片，沒有再回頭。',
+ '默爾索':'默爾索固定好背包，以穩定的步速離開異常範圍。',
+ '鴻璐':'鴻璐還朝異常的方向望了一眼，隨即跟上搭檔。',
+ '希斯克利夫':'希斯克利夫扯回勾住的袋子，轉身快步走開。',
+ '以實瑪利':'以實瑪利數過來時的轉角，確認搭檔跟上後才繼續走。',
+ '羅佳':'羅佳把回收袋往肩上一甩，伸手示意搭檔一起走。',
+ '辛克萊':'辛克萊握緊背包帶，避開身後的動靜，緊跟搭檔。',
+ '奧提斯':'奧提斯指向撤離通道，留在最後確認沒有東西追來。',
+ '格里高爾':'格里高爾抹去額角的汗，拖著有些沉的步子退回通道。'
+ };
  const EVENT_ACTION={
  'sealed-door':{
  '李箱':'李箱停在牆邊，等下一次撞擊響起才落筆。','浮士德':'浮士德量過門縫，指向側邊的通道。','堂吉訶德':'堂吉訶德快步上前，手已伸到門把旁，又在撞擊聲中停住。','良秀':'良秀側過頭聽了一次，抬起刀鞘攔住搭檔。','默爾索':'默爾索抵住門把，確認它沒有向外鬆動。','鴻璐':'鴻璐俯身望向門縫，隨即換到撞擊碰不到的位置。','希斯克利夫':'希斯克利夫把靠近門邊的雜物踢開，朝旁邊的通道偏了偏頭。','以實瑪利':'以實瑪利拉開與門的距離，先查看通道拐角。','羅佳':'羅佳挑起眉，繞到門邊試著找能看進去的縫隙。','辛克萊':'辛克萊在下一聲撞擊響起時縮了縮肩，讓開了正對門的位置。','奧提斯':'奧提斯示意搭檔退到牆側，自己留意兩端通道。','格里高爾':'格里高爾揉了揉耳朵，沿牆走向旁邊的出口。'},
@@ -210,7 +224,7 @@
   const has=n=>names.includes(n);
   if(kind==='event'){
    const id=ctx.eventId;
-   if(ctx.success===false)return [speech(first,WITHDRAW[first]),action(second,EVENT_ACTION[id]?.[second]||second+'收起物品，沿來路撤回。')];
+   if(ctx.success===false)return [speech(first,WITHDRAW[first]),action(second,RETREAT_ACTION[second])];
    if(id==='false-radio'&&has('良秀')){
     const other=names.find(n=>n!=='良秀');return [speech(other,pick(EVENT[id][other])),action('良秀',EVENT_ACTION[id]['良秀'])];
    }
@@ -227,7 +241,7 @@
    if(a?.hp<=0&&b?.hp<=0)return [action(first,'兩人相繼倒下，現場通訊中斷。')];
    if(a?.hp<=0||b?.hp<=0){const fallen=a?.hp<=0?first:second,standing=fallen===first?second:first;return [action(fallen,fallen+'倒下後沒有回應。'),action(standing,standing+'移到同伴身旁，向終端回報位置並請求支援。')];}
    if(has('良秀')&&/時間|時序|時鐘|時間性|temporal/i.test([ctx.abnormalityType,ctx.abnormality].join(' ')))return [speech('良秀','又少了一瞬。別跟它的節奏走。'),action('良秀','良秀察覺動作之間缺失的時間，錯開那一拍出刀，然後將搭檔帶離異常的節點。')];
-   if(!ctx.success)return [speech(first,WITHDRAW[first]),action(second,second+'沿來時的通道退開，停止追擊。')];
+   if(!ctx.success)return [speech(first,WITHDRAW[first]),action(second,RETREAT_ACTION[second])];
    return [speech(first,COMBAT_WIN[first]),speech(second,CONDITION_REPLY[second][b?.damage>0?0:1])];
   }
   if(kind==='gear'&&has('羅佳')&&has('格里高爾'))return [speech('羅佳','看著還不錯嘛。格雷格，我試一下？'),action('羅佳',GEAR['羅佳']),speech('格里高爾','先等等，帶子都裂了。別剛套上就摔一跤。')];
