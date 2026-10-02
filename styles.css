@@ -1539,3 +1539,90 @@ dialog#dlg .entry-wide{
 @media(max-width:800px){
   .sinner-stat-guide{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
+
+
+/* ===== 2026-10 visual consolidation ===== */
+.money-overview{margin-top:10px;padding:0!important;overflow:hidden}
+.money-overview>summary{list-style:none}
+.money-overview>summary::-webkit-details-marker{display:none}
+.money-overview-head{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  min-height:42px;padding:8px 12px;cursor:pointer;border-left:4px solid #68796c;
+  background:linear-gradient(90deg,rgba(91,116,96,.10),rgba(17,18,21,.96));
+}
+.money-overview-title{font-size:13px;font-weight:900;margin-top:2px}
+.money-overview-chevron{width:26px;height:26px;display:grid;place-items:center;border:1px solid #50535b;transition:.18s transform}
+.money-overview[open] .money-overview-chevron{transform:rotate(180deg)}
+.compact-summary{
+  grid-template-columns:repeat(6,minmax(0,1fr))!important;
+  gap:6px!important;padding:8px!important;margin:0!important;
+}
+.compact-summary .stat{min-height:82px!important;padding:10px 11px!important}
+.compact-summary .stat .k{font-size:9px!important}
+.compact-summary .stat .v{font-size:20px!important;line-height:1.05!important;margin-top:7px!important}
+.compact-summary .stat .s{font-size:8px!important;margin-top:7px!important}
+
+.tabs-directory-head{
+  min-height:50px!important;padding:8px 12px!important;margin-top:10px!important;
+}
+.tabs-directory-title{font-size:16px!important}
+.tabs-directory-head .archive-id{font-size:7px!important}
+.tabs-directory-current{font-size:10px!important}
+.tabs-directory-toggle{gap:7px!important}
+.tabs-directory-chevron{width:28px!important;height:28px!important}
+.tabs.zone-tabs{padding:7px!important;gap:6px!important}
+.tabs.zone-tabs button{min-height:46px!important;padding:7px 8px!important;font-size:12px!important}
+
+.section.active{margin-top:8px!important}
+.main-grid{gap:9px!important}
+.panel{padding:12px}
+.archive-header{margin-bottom:8px}
+.archive-title{font-size:16px}
+.sub{line-height:1.45}
+
+/* Record system */
+.record-console{padding:10px 11px!important;margin-bottom:9px}
+.record-mode-switch{display:flex;gap:6px;margin-top:8px}
+.record-mode-switch button{
+  min-height:36px;padding:7px 12px;border:1px solid #4b4e56;background:#15161a;color:#a6a199;font-weight:900
+}
+.record-mode-switch button.active{border-color:#915058;background:#2a1b1e;color:#f0e7dd;box-shadow:inset 3px 0 0 #a9565e}
+.record-filters{margin-top:8px!important;gap:6px!important}
+.record-filters[hidden]{display:none!important}
+.exploration-record-card{padding:10px 11px;margin-bottom:7px}
+.exploration-record-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.exploration-record-title{font-size:13px;font-weight:900}
+.exploration-record-meta{font-size:8px;color:#9d9991;margin-top:4px}
+.exploration-record-detail{font-size:10px;line-height:1.55;margin-top:7px}
+.exploration-record-reward{font-size:9px;color:#d5bc72;margin-top:6px}
+.record-kind-badge{font-size:8px;padding:4px 6px;border:1px solid #53565e;color:#aaa69d;white-space:nowrap}
+
+/* Rarity system: common < uncommon < rare < epic < legendary */
+.rarity-common{--rarity:#9a9da3!important}
+.rarity-uncommon{--rarity:#4cbf72!important}
+.rarity-rare{--rarity:#4f91df!important}
+.rarity-epic{--rarity:#a969df!important}
+.rarity-legendary{--rarity:#e39a3b!important}
+.equipment-card-v2[class*="rarity-"],.pack-item[class*="rarity-"],.shop-item[class*="rarity-"]{
+  border-color:color-mix(in srgb,var(--rarity) 70%,#41434a)!important;
+  box-shadow:inset 4px 0 0 color-mix(in srgb,var(--rarity) 80%,transparent);
+}
+.equipment-card-v2[class*="rarity-"] strong,.pack-item[class*="rarity-"] strong,.shop-item[class*="rarity-"] .shop-item-name,.rarity-label{
+  color:var(--rarity)!important
+}
+.rarity-legendary{
+  background-image:linear-gradient(100deg,rgba(190,97,36,.10),rgba(227,154,59,.06),transparent)!important
+}
+
+@media(max-width:1200px){
+  .compact-summary{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+}
+@media(max-width:700px){
+  .compact-summary{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .compact-summary .stat{min-height:76px!important}
+  .compact-summary .stat .v{font-size:18px!important}
+  .tabs-directory-head{min-height:46px!important}
+  .tabs.zone-tabs{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+  .tabs.zone-tabs button{min-height:42px!important;font-size:11px!important}
+  .record-mode-switch button{flex:1}
+}
