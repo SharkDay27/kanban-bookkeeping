@@ -219,24 +219,67 @@
     <div class="backpack-grid">
       <div class="wood panel backpack-status-panel">
         <div class="archive-header">
-          <div><div class="archive-id">PERSONNEL // FIELD-STATUS</div><div class="archive-title">背包 / FIELD PACK</div></div>
+          <div><div class="archive-id">FIELD // SUPPLY-STORAGE</div><div class="archive-title">背包 / FIELD PACK</div></div>
           <div class="archive-stamp">READY</div>
         </div>
-        <div class="sub">裝備、消耗品與收容材料集中於此。使用者生命低於 45% 時，如有瓶裝水會自動飲用 1 瓶補血。</div>
-        <div class="backpack-hp-card">
-          <div class="row"><div><div class="k">使用者生命</div><div class="backpack-hp-number" id="backpackHpNumber">100 / 100</div></div><div id="backpackHpState" class="class-chip">STABLE</div></div>
-          <div class="operator-hp backpack-hp"><div id="backpackHpFill"></div><span id="backpackHpText">100 / 100</span></div>
-          <div class="backpack-combat-log" id="backpackCombatLog">尚無受擊紀錄。</div>
-        </div>
+        <div class="sub">探索補給集中於此。罪人狀態過低時，系統會視庫存自動使用瓶裝水或小型治療藥水。</div>
         <div class="archive-header backpack-subhead">
-          <div><div class="archive-id">CONSUMABLE // AUTO-USE ENABLED</div><div class="archive-title">消耗品</div></div>
+          <div><div class="archive-id">CONSUMABLE // AUTO-USE</div><div class="archive-title">消耗品</div></div>
         </div>
         <div id="backpackConsumables" class="backpack-items"></div>
+      </div>
+
+      <div class="wood panel">
+        <div class="archive-header">
+          <div><div class="archive-id">FIELD // SINNER-GEAR</div><div class="archive-title">探索裝備</div></div>
+          <div class="archive-stamp">ASSIGNABLE</div>
+        </div>
+        <div class="sub">探索取得的裝備可在「罪人管理」中分配給個別罪人。</div>
+        <div id="backpackFieldGear" class="backpack-items"></div>
+      </div>
+
+      <div class="wood panel">
+        <div class="archive-header">
+          <div><div class="archive-id">MANAGER // SUPPORT-GEAR</div><div class="archive-title">管理支援裝備</div></div>
+          <div class="archive-stamp">3 SLOTS</div>
+        </div>
+        <div class="sub">既有 RPG 支援裝備仍可裝備／卸下，效果作用於 EXP、寶箱與其他既有系統。</div>
+        <div id="backpackEquipment" class="backpack-items backpack-equipment-list"></div>
+      </div>
+
+      <div class="wood panel backpack-material-panel">
+        <div class="archive-header">
+          <div><div class="archive-id">STORAGE // MATERIALS</div><div class="archive-title">材料與其他物品</div></div>
+          <div class="archive-stamp">STORED</div>
+        </div>
+        <div class="sub">收容相關掉落物與其他物品會保存在此。</div>
+        <div id="backpackMaterials" class="backpack-items"></div>
       </div>
     </div>
   </section>
 
-  
+  <section id="bestiary" class="section">
+    <div class="wood panel">
+      <div class="archive-header">
+        <div><div class="archive-id">ARCHIVE // ABNORMALITY-CATALOG</div><div class="archive-title">怪異圖鑑 / CONTAINMENT INDEX</div></div>
+        <div class="archive-stamp">CATALOG</div>
+      </div>
+      <div class="sub">探索中遭遇的怪異會自動登錄。達成指定擊殺次數後，才會標記為「已收容」。</div>
+      <div id="bestiaryGrid" class="bestiary-grid" style="margin-top:12px"></div>
+    </div>
+  </section>
+
+  <section id="progress" class="section">
+    <div class="wood panel">
+      <div class="archive-header">
+        <div><div class="archive-id">RECORD // ACHIEVEMENTS</div><div class="archive-title">成就系統</div></div>
+        <div class="archive-stamp">MILESTONE</div>
+      </div>
+      <div class="sub">完成里程碑會自動解鎖並獲得金幣；探索與收容進度也會列入判定。</div>
+      <div id="achievementGrid" class="achievement-grid"></div>
+    </div>
+  </section>
+
   <section id="commentary" class="section">
     <div class="wood panel">
       <div class="archive-header">
@@ -364,6 +407,6 @@
 </dialog>
 
 <script src="dialogues.js?v=20261002z"></script>
-<script src="app.js?v=20261002o"></script>
+<script src="app.js?v=20261002q"></script>
 </body>
 </html>
