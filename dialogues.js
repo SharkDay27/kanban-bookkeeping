@@ -914,7 +914,7 @@ function generateSinnerComment(entry){
   const meta={createdAt:new Date().toISOString(),category:entry.category,amountTier:amountTier(entry),amount:entry.amount,contexts:contexts};
   if(roll<0.01){const order=[...SINNERS].sort(function(){return Math.random()-.5});return {...meta,kind:'all',lines:interactiveSinnerLines(order,entry)}};
   const first=SINNERS[Math.floor(Math.random()*SINNERS.length)];
-  if(first.name==='良秀'&&Math.random()<0.58)return {...meta,kind:'araya',lines:ryoshuArayaInteraction(entry)};
+  if(first.name==='良秀'&&Math.random()<0.82)return {...meta,kind:'araya',lines:ryoshuArayaInteraction(entry)};
   if(roll<0.08){
     let second=SINNERS[Math.floor(Math.random()*SINNERS.length)];
     while(second.name===first.name)second=SINNERS[Math.floor(Math.random()*SINNERS.length)];
