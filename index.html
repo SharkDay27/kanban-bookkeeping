@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="終端記錄">
 <title>RPG 化記帳工具</title>
-<link rel="stylesheet" href="styles.css?v=20261002h">
+<link rel="stylesheet" href="styles.css?v=20261002i">
 </head>
 <body>
 <div class="wrap">
@@ -38,16 +38,17 @@
   </div>
 
   <div class="currency-console wood panel" id="currencyConsole">
-    <div class="currency-current">
-      <div class="currency-eyebrow">PRIMARY CURRENCY / 主要幣別</div>
-      <div class="currency-display"><span id="currencySymbol">NT$</span><strong id="currencyCode">TWD</strong><span id="currencyName">新台幣</span></div>
-      <div class="currency-note">帳本金額統一以所選幣別顯示；切換幣別不會自動換算既有數字。</div>
-    </div>
-    <div class="currency-picks" role="group" aria-label="選擇主要幣別">
-      <button type="button" class="currency-pick" data-currency="TWD"><b>NT$</b><span>TWD</span><small>台幣</small></button>
-      <button type="button" class="currency-pick" data-currency="CNY"><b>CN¥</b><span>CNY</span><small>人民幣</small></button>
-      <button type="button" class="currency-pick" data-currency="JPY"><b>JP¥</b><span>JPY</span><small>日幣</small></button>
-      <button type="button" class="currency-pick" data-currency="USD"><b>US$</b><span>USD</span><small>美金</small></button>
+    <div class="currency-compact">
+      <div>
+        <div class="currency-eyebrow">PRIMARY CURRENCY / 主要幣別</div>
+        <div class="currency-note">僅切換顯示單位，不自動換算既有金額。</div>
+      </div>
+      <select id="currencySelect" class="wood currency-select" aria-label="選擇主要幣別">
+        <option value="TWD">NT$ · TWD · 台幣</option>
+        <option value="CNY">CN¥ · CNY · 人民幣</option>
+        <option value="JPY">JP¥ · JPY · 日幣</option>
+        <option value="USD">US$ · USD · 美金</option>
+      </select>
     </div>
   </div>
 
@@ -339,6 +340,6 @@
 </dialog>
 
 <script src="dialogues.js?v=20261002f"></script>
-<script src="app.js?v=20261002h"></script>
+<script src="app.js?v=20261002i"></script>
 </body>
 </html>
