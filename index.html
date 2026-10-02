@@ -10,7 +10,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="終端記錄">
 <title>RPG 化記帳工具</title>
-<link rel="stylesheet" href="styles.css?v=20261002zc">
+<link rel="stylesheet" href="styles.css?v=20261002ze">
+<script id="kb-theme-boot">try{document.documentElement.dataset.theme=localStorage.getItem('kb-theme')||'dark'}catch(e){}</script>
 </head>
 <body>
 <script>
@@ -30,9 +31,12 @@ window.addEventListener('pageshow',function(){
         <div class="title">RPG 化記帳工具</div>
       </div>
     </div>
+    <div class="top-tools">
+      <div class="theme-switch wood" role="group" aria-label="外觀切換"><button type="button" data-theme-option="dark" class="active">深色</button><button type="button" data-theme-option="light">淺色</button></div>
     <div class="language-switch wood" role="group" aria-label="語言切換">
       <button type="button" data-language="zh-Hant" class="active">繁體</button>
       <button type="button" data-language="zh-Hans">简体</button>
+    </div>
     </div>
   </div>
 
@@ -270,45 +274,15 @@ window.addEventListener('pageshow',function(){
   </section>
 
   <section id="backpack" class="section">
-    <div class="backpack-grid">
-      <div class="wood panel backpack-status-panel">
-        <div class="archive-header">
-          <div><div class="archive-id">FIELD // SUPPLY-STORAGE</div><div class="archive-title">背包 / FIELD PACK</div></div>
-          <div class="archive-stamp">READY</div>
-        </div>
-        <div class="sub">查看目前持有的補給品、探索裝備、管理支援裝備與材料；裝備卡會直接標示屬性與實際效果。</div>
-        <div class="archive-header backpack-subhead">
-          <div><div class="archive-id">CONSUMABLE // AUTO-USE</div><div class="archive-title">消耗品</div></div>
-        </div>
-        <div id="backpackConsumables" class="backpack-items"></div>
-      </div>
-
-      <div class="wood panel">
-        <div class="archive-header">
-          <div><div class="archive-id">FIELD // SINNER-GEAR</div><div class="archive-title">探索裝備</div></div>
-          <div class="archive-stamp">ASSIGNABLE</div>
-        </div>
-        <div class="sub">探索取得的裝備可在「罪人管理」中分配給個別罪人。</div>
-        <div id="backpackFieldGear" class="backpack-items"></div>
-      </div>
-
-      <div class="wood panel">
-        <div class="archive-header">
-          <div><div class="archive-id">MANAGER // SUPPORT-GEAR</div><div class="archive-title">管理支援裝備</div></div>
-          <div class="archive-stamp">3 SLOTS</div>
-        </div>
-        <div class="sub">既有 RPG 支援裝備仍可裝備／卸下，效果作用於 EXP、寶箱與其他既有系統。</div>
-        <div id="backpackEquipment" class="backpack-items backpack-equipment-list"></div>
-      </div>
-
-      <div class="wood panel backpack-material-panel">
-        <div class="archive-header">
-          <div><div class="archive-id">STORAGE // MATERIALS</div><div class="archive-title">材料與其他物品</div></div>
-          <div class="archive-stamp">STORED</div>
-        </div>
-        <div class="sub">收容相關掉落物與其他物品會保存在此。</div>
-        <div id="backpackMaterials" class="backpack-items"></div>
-      </div>
+    <div class="wood panel backpack-intro">
+      <div class="archive-header"><div><div class="archive-id">FIELD // SUPPLY-STORAGE</div><div class="archive-title">背包 / FIELD PACK</div></div><div class="archive-stamp">READY</div></div>
+      <div class="sub">依類別整理目前持有物。點擊標題可展開或收起；裝備卡只保留用途、實際屬性與售價，避免重複說明。</div>
+    </div>
+    <div class="backpack-grid collapsible-pack">
+      <details class="wood panel backpack-category" open><summary class="backpack-category-head"><div><div class="archive-id">CONSUMABLE // AUTO-USE</div><div class="archive-title">消耗品</div></div><span class="backpack-category-chevron">⌄</span></summary><div class="backpack-category-body"><div id="backpackConsumables" class="backpack-items"></div></div></details>
+      <details class="wood panel backpack-category" open><summary class="backpack-category-head"><div><div class="archive-id">FIELD // SINNER-GEAR</div><div class="archive-title">探索裝備</div></div><span class="backpack-category-chevron">⌄</span></summary><div class="backpack-category-body"><div class="sub">可在「罪人管理」中分配；已配置裝備無法於商店出售。</div><div id="backpackFieldGear" class="backpack-items"></div></div></details>
+      <details class="wood panel backpack-category"><summary class="backpack-category-head"><div><div class="archive-id">MANAGER // SUPPORT-GEAR</div><div class="archive-title">管理支援裝備</div></div><span class="backpack-category-chevron">⌄</span></summary><div class="backpack-category-body"><div class="sub">最多同時裝備 3 件；已裝備的支援裝備無法出售。</div><div id="backpackEquipment" class="backpack-items backpack-equipment-list"></div></div></details>
+      <details class="wood panel backpack-category backpack-material-panel"><summary class="backpack-category-head"><div><div class="archive-id">STORAGE // MATERIALS</div><div class="archive-title">材料與其他物品</div></div><span class="backpack-category-chevron">⌄</span></summary><div class="backpack-category-body"><div class="sub">怪異掉落與其他可回收物，可在探索商店換成金幣。</div><div id="backpackMaterials" class="backpack-items"></div></div></details>
     </div>
   </section>
 
@@ -466,19 +440,23 @@ window.addEventListener('pageshow',function(){
   </form>
 </dialog>
 
-<script src="sinners.js?v=20261002a"></script>
+<script src="sinners.js?v=20261002c"></script>
 <script src="dialogues.js?v=20261002ae"></script>
 <script src="exploration-dialogues.js?v=20261002b"></script>
-<script src="app.js?v=20261002zi"></script>\n<script src="item-rarity.js?v=20261002a"></script>\n<script src="records.js?v=20261002a"></script>
+<script src="app.js?v=20261002zj"></script>
+<script src="item-rarity.js?v=20261002b"></script>
+<script src="equipment.js?v=20261002d"></script>
+<script src="item-economy.js?v=20261002a"></script>
+<script src="records.js?v=20261002a"></script>
 <script src="sinner-management.js?v=20261002c"></script>
 <script src="bestiary.js?v=20261002a"></script>
 <script src="exploration.js?v=20261002c"></script>
-<script src="exploration-shop.js?v=20261002c"></script>
-<script src="equipment.js?v=20261002b"></script>
-<script src="backpack.js?v=20261002a"></script>
+<script src="exploration-shop.js?v=20261002e"></script>
+<script src="backpack.js?v=20261002c"></script>
 <script src="achievements.js?v=20261002b"></script>
 <script src="quests.js?v=20261002a"></script>
 <script src="statistics.js?v=20261002a"></script>
 <script src="manager-progress.js?v=20261002a"></script>
+<script src="theme.js?v=20261002a"></script>
 </body>
 </html>
