@@ -265,7 +265,7 @@ function renderCurrencySelector(){
 function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
 function toast(msg){const t=$('toast');t.textContent=localizeText(msg);t.style.display='block';clearTimeout(toast._t);toast._t=setTimeout(()=>t.style.display='none',2400)}
 function saveLocal(){localStorage.setItem(KEY,JSON.stringify(state))}
-function defaultState(){return {entries:[],profile:{initialAmount:0,name:'但丁',currency:'TWD',language:'zh-Hant'},rpg:{xp:0,gold:0,chests:{wood:0,silver:0,gold:0},inventory:[],equipped:[],consumables:{water:3,potion:0},player:{hp:100,maxHp:100,lastCombat:'尚無受擊紀錄。'},lastContainment:null,achievements:[],monthlyBosses:{},rewardLog:'開始記錄來啟動管理流程。',streakMilestones:[]},exploration:null,daily:{}}}
+function defaultState(){return {entries:[],profile:{initialAmount:0,name:'但丁',currency:'TWD',language:'zh-Hant'},rpg:{xp:0,gold:0,itemBoxes:0,chests:{wood:0,silver:0,gold:0},inventory:[],equipped:[],consumables:{water:3,potion:0},player:{hp:100,maxHp:100,lastCombat:'尚無受擊紀錄。'},lastContainment:null,achievements:[],monthlyBosses:{},rewardLog:'開始記錄來啟動管理流程。',streakMilestones:[]},exploration:null,daily:{}}}
 function normalizeEntry(x){return {...x,type:x.type||'expense',category:x.category||'其他',amount:Number(x.amount||0),date:x.date||today(),payment:x.payment||'現金',store:x.store||'未命名紀錄',items:Array.isArray(x.items)?x.items:[],note:x.note||''}}
 function migrate(old){const s=defaultState();
   if(Array.isArray(old)){s.entries=old.map(v=>normalizeEntry(v));return s}
@@ -276,7 +276,8 @@ function migrate(old){const s=defaultState();
     s.rpg.inventory=Array.isArray(old.rpg.inventory)?old.rpg.inventory:[];
     s.rpg.rewardLog=old.rpg.rewardLog||old.rpg.lastReward||s.rpg.rewardLog;
     if(old.rpg.chests)s.rpg.chests={wood:Number(old.rpg.chests.wood||0),silver:Number(old.rpg.chests.silver||0),gold:Number(old.rpg.chests.gold||0)};
-    else{const opened=Number(old.rpg.openedChests||0);const earned=Math.max(0,Math.floor(s.rpg.xp/100)-opened);s.rpg.chests.wood=earned}
+    else s.rpg.chests={wood:0,silver:0,gold:0};
+    s.rpg.itemBoxes=Number(old.rpg.itemBoxes!=null?old.rpg.itemBoxes:(s.rpg.chests.wood+s.rpg.chests.silver+s.rpg.chests.gold));
     s.rpg.streakMilestones=Array.isArray(old.rpg.streakMilestones)?old.rpg.streakMilestones:[];
     s.rpg.equipped=Array.isArray(old.rpg.equipped)?old.rpg.equipped:[];
     s.rpg.achievements=Array.isArray(old.rpg.achievements)?old.rpg.achievements:[];
@@ -323,7 +324,7 @@ function sinnerLevel(data){return Math.max(1,Math.floor(Number(data&&data.exp||0
 function ensureExplorationState(){
   if(!state.exploration){
     const sinners={};
-    Object.keys(SINNER_FIELD_PROFILES).forEach(function(name){sinners[name]={exp:0,condition:100,gear:''}});
+    Object.keys(SINNER_FIELD_PROFILES).forEach(function(name){sinners[name]={exp:0,hp:100,maxHp:100,gear:''}});
     state.exploration={
       actions:state.entries.length,
       earned:state.entries.length,
@@ -350,7 +351,8 @@ function ensureExplorationState(){
   state.exploration.sinners=state.exploration.sinners||{};
   Object.keys(SINNER_FIELD_PROFILES).forEach(function(name){
     const old=state.exploration.sinners[name]||{};
-    state.exploration.sinners[name]={exp:Number(old.exp||0),condition:Math.max(0,Math.min(100,Number(old.condition??100))),gear:old.gear||''};
+    const maxHp=Math.max(1,Number(old.maxHp||100)),legacyHp=old.hp!=null?old.hp:(old.condition!=null?old.condition:maxHp);
+    state.exploration.sinners[name]={exp:Number(old.exp||0),hp:Math.max(0,Math.min(maxHp,Number(legacyHp))),maxHp:maxHp,gear:old.gear||''};
   });
 }
 function grantExplorationActions(n){
@@ -366,7 +368,7 @@ function sinnerEffectiveStats(name){
   if(gear)Object.keys(gear.stats).forEach(function(k){stats[k]=(stats[k]||0)+gear.stats[k]});
   const lvBonus=Math.floor((lv-1)/2);
   Object.keys(stats).forEach(function(k){stats[k]+=lvBonus});
-  if(data.condition<50)Object.keys(stats).forEach(function(k){stats[k]=Math.max(1,stats[k]-1)});
+  if(data.hp/data.maxHp<0.5)Object.keys(stats).forEach(function(k){stats[k]=Math.max(1,stats[k]-1)});
   return stats;
 }
 function unlockedFieldSkills(name){
@@ -392,19 +394,57 @@ function teamFieldPower(names,area){
   return total-area.level*2;
 }
 function maybeAutoHealSinner(name){
-  const data=state.exploration.sinners[name];
-  ensurePlayerState();
-  if(data.condition<=45&&(state.rpg.consumables.water||0)>0){
+  const data=state.exploration.sinners[name];ensurePlayerState();
+  if(data.hp<=0)return {amount:0,item:''};
+  const ratio=data.hp/data.maxHp;
+  if(ratio<=0.45&&(state.rpg.consumables.water||0)>0){
     state.rpg.consumables.water--;
-    const before=data.condition;data.condition=Math.min(100,data.condition+25);
-    return {amount:data.condition-before,item:'瓶裝水'};
+    const before=data.hp;data.hp=Math.min(data.maxHp,data.hp+25);
+    return {amount:data.hp-before,item:'瓶裝水'};
   }
-  if(data.condition<=20&&(state.rpg.consumables.potion||0)>0){
+  if(ratio<=0.20&&(state.rpg.consumables.potion||0)>0){
     state.rpg.consumables.potion--;
-    const before=data.condition;data.condition=Math.min(100,data.condition+45);
-    return {amount:data.condition-before,item:'小型治療藥水'};
+    const before=data.hp;data.hp=Math.min(data.maxHp,data.hp+45);
+    return {amount:data.hp-before,item:'小型治療藥水'};
   }
   return {amount:0,item:''};
+}
+function reviveSinner(name){
+  ensureExplorationState();const ex=state.exploration,data=ex.sinners[name];
+  if(!data||data.hp>0)return;
+  if(ex.actions<=0){toast('沒有可用行動點數，無法復活');return}
+  ex.spent++;ex.actions=Math.max(0,state.entries.length-ex.spent);
+  data.hp=Math.max(1,Math.round(data.maxHp*0.5));
+  ex.logs=Array.isArray(ex.logs)?ex.logs:[];
+  ex.logs.unshift({at:new Date().toISOString(),area:'LCB 巴士',names:[name],kind:'revive',title:'罪人復活：'+name,detail:'消耗 1 次探索行動，恢復至 '+data.hp+' / '+data.maxHp+' HP。',reward:'',stamp:'REVIVED',xp:0,dialogue:[]});
+  saveLocal();try{renderExploration();renderSinnerManagement()}catch(e){console.error(e)}
+  toast(name+' 已復活');
+}
+function sinnerCombatDamage(name,ab,area){
+  const data=state.exploration.sinners[name],st=sinnerEffectiveStats(name),lv=sinnerLevel(data),skills=unlockedFieldSkills(name);
+  let mult=1,flat=0,notes=[];
+  if(name==='良秀'){mult+=.22;notes.push('弱點切割');if(lv>=3&&ab.level>=5)mult+=.12}
+  if(name==='希斯克利夫'){mult+=.25;notes.push('強襲突破');if(lv>=6&&area.risk==='EXTREME')mult+=.12}
+  if(name==='堂吉訶德'){mult+=.14;notes.push('先鋒突入')}
+  if(name==='默爾索'){mult+=.10;flat+=2;notes.push('制壓固定')}
+  if(name==='以實瑪利'){mult+=.12;notes.push('追跡判讀')}
+  if(name==='奧提斯'){mult+=.08;notes.push('戰術指揮')}
+  if(name==='李箱'&&Math.random()<.22){mult+=.25;notes.push('軌跡讀取')}
+  if(name==='浮士德'){flat+=Math.floor(st.observe/3);notes.push('情報演算')}
+  if(name==='辛克萊'&&lv>=6){mult+=.10;notes.push('決意突破')}
+  const raw=(st.combat*2.1)+(st.observe*.55)+(lv*1.7)+flat+(Math.random()*6);
+  return {damage:Math.max(1,Math.round(raw*mult)),notes:notes};
+}
+function sinnerIncomingDamage(name,ab,killed){
+  const data=state.exploration.sinners[name],st=sinnerEffectiveStats(name);
+  let chance=killed?.28:.72;
+  if(name==='鴻璐')chance-=.08;
+  if(Math.random()>chance)return 0;
+  let base=5+ab.level*2+Math.floor(Math.random()*7)-Math.floor(st.stability*.65);
+  if(name==='默爾索')base=Math.round(base*.7);
+  if(name==='格里高爾')base=Math.round(base*.78);
+  if(name==='以實瑪利')base=Math.round(base*.88);
+  return Math.max(1,base);
 }
 function fieldGearAssignedElsewhere(gearId,name){
   return Object.entries(state.exploration.sinners).some(function(pair){return pair[0]!==name&&pair[1].gear===gearId});
@@ -441,6 +481,7 @@ function runExploration(){
   if(ex.actions<=0){toast('沒有可用探索行動');return}
   const names=(ex.selected||[]).filter(function(n){return SINNER_FIELD_PROFILES[n]});
   if(names.length!==2||names[0]===names[1]){toast('請選擇兩名不同罪人');return}
+  if(names.some(function(n){return ex.sinners[n].hp<=0})){toast('隊伍中有倒下的罪人，請先復活');return}
   const area=EXPLORATION_AREAS.find(function(x){return x.id===ex.areaId})||EXPLORATION_AREAS[0];
   ex.actions--;ex.spent++;ex.runs++;
   const kind=explorationEventKind();
@@ -450,30 +491,39 @@ function runExploration(){
   if(kind==='abnormality'){
     const id=area.abnos[Math.floor(Math.random()*area.abnos.length)],ab=ABNORMALITY_CATALOG[id];
     if(!ex.seenAbnormalities.includes(id))ex.seenAbnormalities.push(id);
-    const power=teamFieldPower(names,area);
-    const target=22+ab.level*5;
-    const roll=power+Math.random()*20;
-    resultSuccess=roll>=target;
     const prog=ex.abnormalityProgress[id]||{kills:0,contained:false};
-    if(resultSuccess){
+    const maxHp=30+ab.level*12,attacks=[],damageTotal=0;
+    let total=0;
+    names.forEach(function(n){
+      const hit=sinnerCombatDamage(n,ab,area);total+=hit.damage;attacks.push({name:n,damage:hit.damage,notes:hit.notes});
+    });
+    const remaining=Math.max(0,maxHp-total),killed=remaining===0;
+    const injuries=[];
+    names.forEach(function(n){
+      const dmg=sinnerIncomingDamage(n,ab,killed),data=ex.sinners[n];
+      if(dmg>0){data.hp=Math.max(0,data.hp-dmg);const healed=maybeAutoHealSinner(n);injuries.push({name:n,damage:dmg,hp:data.hp,maxHp:data.maxHp,healed:healed});}
+      else injuries.push({name:n,damage:0,hp:data.hp,maxHp:data.maxHp,healed:{amount:0,item:''}});
+    });
+    resultSuccess=killed;
+    if(killed){
       prog.kills++;
-      title='怪異遭遇：'+ab.name;
-      detail='兩名罪人完成一次有效制壓。收容進度 '+Math.min(prog.kills,ab.kills)+' / '+ab.kills+'。';
+      title='怪異制壓：'+ab.name;
+      detail='怪異 HP '+maxHp+' → 0。'+attacks.map(function(x){return x.name+' '+x.damage+' 傷害'+(x.notes.length?'（'+x.notes.join('、')+'）':'')}).join('；')+'。收容進度 '+Math.min(prog.kills,ab.kills)+' / '+ab.kills+'。';
       xp=34+ab.level*3;
-      if(prog.kills>=ab.kills&&!prog.contained){
-        prog.contained=true;state.rpg.chests.silver++;
-        reward='正式收容完成，追加銀箱 ×1';
-        stamp='CONTAINED';
-      }else{reward='怪異擊殺計數 +1';stamp='SUPPRESSED'}
+      if(prog.kills>=ab.kills&&!prog.contained){prog.contained=true;state.rpg.itemBoxes=(state.rpg.itemBoxes||0)+1;reward='正式收容完成，道具箱 ×1';stamp='CONTAINED'}
+      else{reward='有效制壓 +1';stamp='SUPPRESSED'}
     }else{
-      title='怪異遭遇失利：'+ab.name;
-      const injury=8+ab.level*2;
-      names.forEach(function(n){ex.sinners[n].condition=Math.max(0,ex.sinners[n].condition-injury);const healed=maybeAutoHealSinner(n);if(healed.amount)reward+=(reward?'；':'')+n+' 自動使用'+healed.item+' +'+healed.amount});
-      detail='未能形成有效制壓。兩名罪人狀態各 -'+injury+'。';
-      xp=14+ab.level;stamp='WITHDRAW';
+      title='怪異交戰：'+ab.name;
+      detail='怪異 HP '+maxHp+' → '+remaining+'。'+attacks.map(function(x){return x.name+' '+x.damage+' 傷害'+(x.notes.length?'（'+x.notes.join('、')+'）':'')}).join('；')+'。怪異未被擊倒，本次不增加收容擊殺數。';
+      xp=16+ab.level;stamp='ENGAGED';
     }
+    const injuryText=injuries.map(function(x){
+      return x.name+(x.damage?' 受到 '+x.damage+' 傷害，HP '+x.hp+' / '+x.maxHp:' 未受傷')+
+        (x.healed.amount?'，自動使用'+x.healed.item+' +'+x.healed.amount:'')+(x.hp<=0?'【倒下】':'');
+    }).join('；');
+    detail+=' '+injuryText+'。';
     ex.abnormalityProgress[id]=prog;
-    ctx.abnormality=ab.name;ctx.success=resultSuccess;
+    ctx.abnormality=ab.name;ctx.abnormalityId=id;ctx.abnormalityType=ab.type;ctx.success=resultSuccess;ctx.attacks=attacks;ctx.injuries=injuries;ctx.remaining=remaining;ctx.maxHp=maxHp;
   }else if(kind==='event'){
     const ev=EXPLORATION_EVENTS[Math.floor(Math.random()*EXPLORATION_EVENTS.length)];
     const power=teamFieldPower(names,area)+Math.random()*18;
@@ -481,7 +531,7 @@ function runExploration(){
     title='隨機事件：'+ev.name;detail=ev.desc;
     if(resultSuccess){reward='安全通過；獲得額外探索資料';xp=24+area.level*2;stamp='RESOLVED'}
     else{detail+=' 判斷失誤，探索隊提前撤離。';xp=12;stamp='INCIDENT'}
-    ctx.event=ev.name;ctx.success=resultSuccess;
+    ctx.event=ev.name;ctx.eventId=ev.id;ctx.success=resultSuccess;
   }else if(kind==='supply'){
     title='補給發現';reward=pickExplorationLoot();detail='在區域內找到可回收補給。';xp=16+area.level;stamp='SUPPLY';
   }else{
@@ -532,10 +582,11 @@ function renderExploration(){
   const picker=$('explorationTeamPicker');
   if(picker){
     picker.innerHTML=Object.keys(SINNER_FIELD_PROFILES).map(function(name){
-      const on=ex.selected.includes(name),data=ex.sinners[name],lv=sinnerLevel(data),profile=SINNER_FIELD_PROFILES[name];
-      return '<button type="button" class="team-sinner wood '+(on?'active':'')+'" data-team-sinner="'+esc(name)+'">'+
-        '<div class="team-sinner-head"><strong>'+esc(name)+'</strong><span>Lv.'+lv+'</span></div>'+
-        '<div class="team-sinner-meta">'+esc(profile.specialty)+' · '+data.condition+'%</div></button>';
+      const on=ex.selected.includes(name),data=ex.sinners[name],lv=sinnerLevel(data),profile=SINNER_FIELD_PROFILES[name],down=data.hp<=0;
+      const color=(typeof sinnerColorForSpeaker==='function'?sinnerColorForSpeaker(name):'#d7d2c7');
+      return '<button type="button" class="team-sinner wood '+(on?'active ':'')+(down?'down':'')+'" data-team-sinner="'+esc(name)+'" '+(down?'disabled':'')+'>'+
+        '<div class="team-sinner-head"><strong style="color:'+color+'">'+esc(name)+'</strong><span>Lv.'+lv+'</span></div>'+
+        '<div class="team-sinner-meta">'+esc(profile.specialty)+' · HP '+data.hp+'/'+data.maxHp+(down?' · DOWN':'')+'</div></button>';
     }).join('');
     picker.querySelectorAll('[data-team-sinner]').forEach(function(btn){btn.onclick=function(){
       const n=btn.dataset.teamSinner,idx=ex.selected.indexOf(n);
@@ -570,7 +621,7 @@ function renderExploration(){
         '<div class="exploration-log-meta">'+esc(log.area||'未知區域')+' / '+esc((log.names||[]).join('＋'))+' / EXP +'+Number(log.xp||0)+'</div>'+
         '<div class="exploration-log-detail">'+esc(log.detail||'')+'</div>'+
         (log.reward?'<div class="exploration-log-reward">REWARD / '+esc(log.reward)+'</div>':'')+
-        (Array.isArray(log.dialogue)&&log.dialogue.length?'<div class="exploration-log-dialogue">'+log.dialogue.map(function(line){return '<div><b>'+esc(line.speaker)+'</b> '+esc(line.text)+'</div>'}).join('')+'</div>':'')+
+        (Array.isArray(log.dialogue)&&log.dialogue.length?'<div class="exploration-log-dialogue">'+log.dialogue.map(function(line){const color=(typeof sinnerColorForSpeaker==='function'?sinnerColorForSpeaker(line.speaker):'#d08b91');return '<div><b style="color:'+color+'">'+esc(line.speaker)+'</b> '+esc(line.text)+'</div>'}).join('')+'</div>':'')+
       '</article>';
     }).join(''):'<div class="empty">尚無探索紀錄。</div>';
   }
@@ -692,7 +743,14 @@ function checkAchievements(){
   }
 }
 
-function grantXp(xp,reason){const e=equipmentEffects(),bonus=e.expBonus+(reason.includes('每日執行指令')?e.questXpBonus:0),gain=Math.max(1,Math.round(xp*(1+bonus)));state.rpg.xp+=gain;state.rpg.rewardLog=reason+'\nEXP +'+gain}
+function grantXp(xp,reason){
+  const e=equipmentEffects(),bonus=e.expBonus+(reason.includes('每日執行指令')?e.questXpBonus:0);
+  const gain=Math.max(1,Math.round(xp*(1+bonus))),beforeLv=Math.floor(state.rpg.xp/100)+1;
+  state.rpg.xp+=gain;
+  const afterLv=Math.floor(state.rpg.xp/100)+1,levelUps=Math.max(0,afterLv-beforeLv);
+  if(levelUps>0)state.rpg.itemBoxes=(state.rpg.itemBoxes||0)+levelUps;
+  state.rpg.rewardLog=reason+'\nEXP +'+gain+(levelUps?'\n經理升級 ×'+levelUps+'，獲得道具箱 ×'+levelUps:'');
+}
 function ensurePlayerState(){
   state.rpg.player=state.rpg.player||{hp:100,maxHp:100,lastCombat:'尚無受擊紀錄。'};
   state.rpg.player.maxHp=Math.max(1,Number(state.rpg.player.maxHp||100));
@@ -771,24 +829,45 @@ function damageMonster(amount,allowCounter=true){
   };
   return {damage:actual,counter:Number(counter.damage||0),healed:Number(counter.healed||0),defeated:!!m.defeated,drop:drop};
 }
-function checkStreakMilestones(){const s=computeStreak();const ms=[{n:3,type:'wood',count:1},{n:7,type:'silver',count:1},{n:14,type:'silver',count:2},{n:30,type:'gold',count:1}];for(const m of ms){if(s.current>=m.n&&!state.rpg.streakMilestones.includes(m.n)){state.rpg.streakMilestones.push(m.n);state.rpg.chests[m.type]+=m.count;state.rpg.rewardLog=`連續記錄 ${m.n} 天達成！\n獲得 ${m.count} 個${m.type==='wood'?'木':m.type==='silver'?'銀':'金'}寶箱。`;}}}
+function checkStreakMilestones(){
+  const st=computeStreak(),ms=[{n:3,count:1},{n:7,count:1},{n:14,count:2},{n:30,count:3}];
+  for(const m of ms){
+    if(st.current>=m.n&&!state.rpg.streakMilestones.includes(m.n)){
+      state.rpg.streakMilestones.push(m.n);
+      state.rpg.itemBoxes=(state.rpg.itemBoxes||0)+m.count;
+      state.rpg.rewardLog='連續記錄 '+m.n+' 天達成！\n獲得道具箱 ×'+m.count+'。';
+    }
+  }
+}
 function checkQuests(){const d=today();ensureDaily(d);const ds=dayStats(d);QUESTS.forEach(q=>{const progress=q.id==='q3'?ds.cats:ds.count;const claimed=state.daily[d].questClaims[q.id];if(progress>=q.goal&&!claimed){state.daily[d].questClaims[q.id]=true;grantXp(q.rewardXp,`完成每日執行指令：${q.name}`)}});checkStreakMilestones();checkAchievements()}
-function openChest(type){
-  if((state.rpg.chests[type]||0)<=0){toast('沒有這種寶箱');return}
-  state.rpg.chests[type]--;
-  const tables={
-    wood:{g:[8,20],loot:['瓶裝水','小型治療藥水','銅幣袋','史萊姆凝膠']},
-    silver:{g:[20,45],loot:['銀色羽毛筆','見習短劍','幸運硬幣']},
-    gold:{g:[50,90],loot:['黃金算盤','商人斗篷','王者徽章']}
-  };
-  const t=tables[type],loot=t.loot[Math.floor(Math.random()*t.loot.length)];
-  const baseGold=t.g[0]+Math.floor(Math.random()*(t.g[1]-t.g[0]+1)),gold=Math.round(baseGold*(1+equipmentEffects().goldBonus));
-  state.rpg.gold+=gold;ensurePlayerState();
-  if(loot==='瓶裝水')state.rpg.consumables.water++;
-  else if(loot==='小型治療藥水')state.rpg.consumables.potion++;
-  else{state.rpg.inventory.unshift(loot);state.rpg.inventory=state.rpg.inventory.slice(0,32)}
-  state.rpg.rewardLog=`開啟${type==='wood'?'木':type==='silver'?'銀':'金'}寶箱！\n獲得 ${loot} 與 ${gold} 金幣。`;
-  saveLocal();render();toast(`獲得 ${loot}`);
+function openItemBox(){
+  if((state.rpg.itemBoxes||0)<=0){toast('沒有道具箱');return}
+  state.rpg.itemBoxes--;
+  ensurePlayerState();ensureExplorationState();
+  const roll=Math.random();
+  let reward='';
+  if(roll<0.40){
+    const water=1+Math.floor(Math.random()*3),potion=Math.random()<0.35?1:0;
+    state.rpg.consumables.water+=water;state.rpg.consumables.potion+=potion;
+    reward='補給：瓶裝水 ×'+water+(potion?'、小型治療藥水 ×1':'');
+  }else if(roll<0.65){
+    const gold=30+Math.floor(Math.random()*71);state.rpg.gold+=gold;reward='金幣 ×'+gold;
+  }else if(roll<0.83){
+    const ids=Object.keys(FIELD_GEAR),unowned=ids.filter(function(id){return !state.exploration.fieldGear.includes(id)});
+    if(unowned.length){const id=unowned[Math.floor(Math.random()*unowned.length)];state.exploration.fieldGear.push(id);reward='探索裝備：'+FIELD_GEAR[id].name}
+    else{const gold=80+Math.floor(Math.random()*41);state.rpg.gold+=gold;reward='探索裝備已齊全，轉換為金幣 ×'+gold}
+  }else if(roll<0.93){
+    const pool=Object.keys(EQUIPMENT_EFFECTS),unowned=pool.filter(function(name){return !state.rpg.inventory.includes(name)});
+    if(unowned.length){const loot=unowned[Math.floor(Math.random()*unowned.length)];state.rpg.inventory.unshift(loot);reward='管理支援裝備：'+loot}
+    else{state.rpg.consumables.potion+=2;reward='小型治療藥水 ×2'}
+  }else if(roll<0.98){
+    state.rpg.itemBoxes+=1;state.rpg.gold+=100;reward='額外道具箱 ×1 ＋ 金幣 ×100';
+  }else{
+    state.rpg.gold+=200;state.rpg.consumables.potion+=2;state.rpg.consumables.water+=3;
+    reward='稀有補給包：金幣 ×200、治療藥水 ×2、瓶裝水 ×3';
+  }
+  state.rpg.rewardLog='開啟道具箱！\n獲得 '+reward+'。';
+  saveLocal();try{render()}catch(e){console.error(e)}toast('獲得 '+reward);
 }
 function monsterSprite(shape,locked=false){
   const base=locked?'#3b3d43':'#c7c3b8', edge=locked?'#24252a':'#666870', red=locked?'#44464c':'#b52d2d';
@@ -836,7 +915,7 @@ function renderRpg(){
   $('xpText').textContent=cur+' / 100 EXP';
   $('xpFill').style.width=cur+'%';$('xpPct').textContent=cur+'%';
   $('gold').textContent=state.rpg.gold;
-  $('woodChest').textContent=state.rpg.chests.wood||0;$('silverChest').textContent=state.rpg.chests.silver||0;$('goldChest').textContent=state.rpg.chests.gold||0;
+  if($('itemBoxCount'))$('itemBoxCount').textContent=state.rpg.itemBoxes||0;
   $('rewardLog').textContent=state.rpg.rewardLog;
   const ds=dayStats(today());
   if($('streakBig'))$('streakBig').textContent=computeStreak().current;
@@ -1136,7 +1215,18 @@ function setTab(id){
 }
 function drawSprite(kind){
   if(kind==='star')return `<svg viewBox="0 0 64 64" width="44" height="44" aria-hidden="true"><circle cx="32" cy="32" r="23" fill="#1c1d22" stroke="#b52d2d" stroke-width="4"/><path d="M32 16l4 12 12 4-12 4-4 12-4-12-12-4 12-4z" fill="#d6d2c7"/></svg>`;
-  if(kind==='hero')return `<svg viewBox="0 0 64 64" width="72" height="72"><rect x="14" y="8" width="36" height="20" rx="2" fill="#d8d3c7" stroke="#5c5d64" stroke-width="3"/><rect x="18" y="28" width="28" height="22" rx="2" fill="#2a2b31" stroke="#7a7b84" stroke-width="3"/><circle cx="26" cy="20" r="2.6" fill="#141519"/><circle cx="38" cy="20" r="2.6" fill="#141519"/><path d="M25 37h14" stroke="#b52d2d" stroke-width="3"/><path d="M18 12h28" stroke="#8c8d96" stroke-width="3"/></svg>`;
+  if(kind==='hero')return `<svg viewBox="0 0 80 80" width="74" height="74" aria-label="但丁時鐘頭像">
+    <rect x="28" y="4" width="24" height="10" rx="2" fill="#303138" stroke="#777983" stroke-width="3"/>
+    <circle cx="40" cy="40" r="28" fill="#202126" stroke="#8e3f45" stroke-width="5"/>
+    <circle cx="40" cy="40" r="21" fill="#d7d0bf" stroke="#5d5f67" stroke-width="3"/>
+    <g stroke="#37383e" stroke-width="2">
+      <path d="M40 21v5M40 54v5M21 40h5M54 40h5"/>
+      <path d="M27 27l4 4M49 49l4 4M53 27l-4 4M31 49l-4 4"/>
+    </g>
+    <circle cx="40" cy="40" r="3.5" fill="#8e3f45"/>
+    <path d="M40 40V27M40 40l10 7" stroke="#8e3f45" stroke-width="3.5" stroke-linecap="round"/>
+    <path d="M26 65l-8 9M54 65l8 9" stroke="#6f7078" stroke-width="4" stroke-linecap="round"/>
+  </svg>`;
   if(kind==='slime')return `<svg viewBox="0 0 64 64" width="70" height="70"><path d="M14 40c0-15 9-24 18-24s18 9 18 24c0 7-5 12-11 12H25c-6 0-11-5-11-12z" fill="#c7c3b8" stroke="#666870" stroke-width="3"/><circle cx="25" cy="35" r="3" fill="#1b1c20"/><circle cx="39" cy="35" r="3" fill="#1b1c20"/><path d="M26 44c4 3 8 3 12 0" stroke="#b52d2d" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg>`;
   return ''
 }
@@ -1166,4 +1256,4 @@ function mountIcons(){
 if($('mainMenuToggle'))$('mainMenuToggle').onclick=toggleMainMenu;
 document.querySelectorAll('[data-language]').forEach(function(btn){btn.onclick=function(){setLanguage(btn.dataset.language)}});if($('currencySelect'))$('currencySelect').addEventListener('change',function(){setCurrency(this.value)});
 $('etype').addEventListener('change',syncEntryTypeUI);document.querySelectorAll('[data-entry-type]').forEach(b=>b.onclick=()=>{$('etype').value=b.dataset.entryType;syncEntryTypeUI()});$('dlg').addEventListener('click',e=>{if(e.target===$('dlg'))$('dlg').close()});$('ecat').addEventListener('change',renderQuickCats);
-$('save').onclick=()=>saveEntry(false);$('saveAgain').onclick=()=>saveEntry(true);$('closeDlg').onclick=()=>$('dlg').close();$('closeCommentDlg').onclick=()=>$('commentDlg').close();$('commentViewTime').onclick=()=>setCommentaryView('time');$('commentViewSinner').onclick=()=>setCommentaryView('sinner');$('goCommentArchive').onclick=()=>{$('commentDlg').close();setTab('commentary')};$('del').onclick=deleteEntry;$('csv').addEventListener('change',importCsvFiles);$('export').onclick=exportCsv;$('backup').onclick=backupJson;$('restore').addEventListener('change',restoreJson);$('clear').onclick=clearLocalData;$('saveSettings').onclick=saveSettings;if($('exploreBtn'))$('exploreBtn').onclick=runExploration;$('addExpense').onclick=()=>openEdit('', 'expense');$('addIncome').onclick=()=>openEdit('', 'income');$('fab').onclick=()=>openEdit('', 'expense');$('bottomAdd').onclick=()=>openEdit('', 'expense');['month','typeFilter','cat','search'].forEach(id=>$(id).addEventListener('input',render));document.querySelectorAll('[data-chest]').forEach(btn=>btn.onclick=()=>openChest(btn.dataset.chest));document.querySelectorAll('.tabs button').forEach(btn=>btn.onclick=()=>setTab(btn.dataset.tab));document.querySelectorAll('[data-goto]').forEach(btn=>btn.onclick=()=>setTab(btn.dataset.goto));if(!$('month').value){$('month').value=new Date().toISOString().slice(0,7)}mountIcons();render();setupIphoneSafariInput();setupLanguageObserver();
+$('save').onclick=()=>saveEntry(false);$('saveAgain').onclick=()=>saveEntry(true);$('closeDlg').onclick=()=>$('dlg').close();$('closeCommentDlg').onclick=()=>$('commentDlg').close();$('commentViewTime').onclick=()=>setCommentaryView('time');$('commentViewSinner').onclick=()=>setCommentaryView('sinner');$('goCommentArchive').onclick=()=>{$('commentDlg').close();setTab('commentary')};$('del').onclick=deleteEntry;$('csv').addEventListener('change',importCsvFiles);$('export').onclick=exportCsv;$('backup').onclick=backupJson;$('restore').addEventListener('change',restoreJson);$('clear').onclick=clearLocalData;$('saveSettings').onclick=saveSettings;if($('exploreBtn'))$('exploreBtn').onclick=runExploration;$('addExpense').onclick=()=>openEdit('', 'expense');$('addIncome').onclick=()=>openEdit('', 'income');$('fab').onclick=()=>openEdit('', 'expense');$('bottomAdd').onclick=()=>openEdit('', 'expense');['month','typeFilter','cat','search'].forEach(id=>$(id).addEventListener('input',render));if($('openItemBox'))$('openItemBox').onclick=openItemBox;document.querySelectorAll('.tabs button').forEach(btn=>btn.onclick=()=>setTab(btn.dataset.tab));document.querySelectorAll('[data-goto]').forEach(btn=>btn.onclick=()=>setTab(btn.dataset.goto));if(!$('month').value){$('month').value=new Date().toISOString().slice(0,7)}mountIcons();render();setupIphoneSafariInput();setupLanguageObserver();
