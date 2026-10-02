@@ -4,6 +4,7 @@
       if(typeof ensureExplorationState==='function')ensureExplorationState();
       if(typeof renderExploration==='function')renderExploration();
       if(typeof renderSinnerManagement==='function')renderSinnerManagement();
+      if(typeof renderExplorationShop==='function')renderExplorationShop();
     }catch(err){
       var box=document.getElementById('exploreResult');
       if(box)box.textContent='探索系統載入失敗：'+(err&&err.message?err.message:String(err));
