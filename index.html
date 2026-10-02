@@ -574,6 +574,36 @@ const MONSTER_CATALOG=[
  {id:'M-007',name:'廢線聚合體',risk:'HIGH',hp:132,note:'由失效線路與未結案紀錄形成。',shape:'wire'},
  {id:'M-008',name:'白面觀測者',risk:'HIGH',hp:150,note:'僅在長期連續作業期間出現。',shape:'observer'}
 ];
+
+const EQUIPMENT_EFFECTS={
+ '銀色羽毛筆':{desc:'記帳 EXP +20%',expBonus:.20},
+ '見習短劍':{desc:'每日怪物傷害 +3',monsterDamage:3},
+ '幸運硬幣':{desc:'開箱金幣 +20%',goldBonus:.20},
+ '黃金算盤':{desc:'每日指令 EXP +15%',questXpBonus:.15},
+ '商人斗篷':{desc:'開箱金幣 +25%',goldBonus:.25},
+ '王者徽章':{desc:'月度 BOSS 傷害 +5',bossDamage:5},
+ '管理者徽章':{desc:'所有戰鬥傷害 +3',allDamage:3}
+};
+const MONSTER_DROPS={
+ 'M-001':'史萊姆凝膠','M-002':'鐵殼碎片','M-003':'紅線紙片','M-004':'齒輪牙片',
+ 'M-005':'失真鱗粉','M-006':'黑箱扣件','M-007':'廢線束','M-008':'白面鏡片'
+};
+const BOSS_CATALOG=[
+ {id:'B-001',name:'月蝕管理者',hp:520,shape:'observer',reward:'管理者徽章'},
+ {id:'B-002',name:'赤鐘處刑機',hp:580,shape:'hound',reward:'王者徽章'},
+ {id:'B-003',name:'封存黑匣',hp:640,shape:'mimic',reward:'黃金算盤'},
+ {id:'B-004',name:'失序觀測塔',hp:700,shape:'wire',reward:'商人斗篷'}
+];
+const ACHIEVEMENTS=[
+ {id:'A-001',name:'第一份檔案',desc:'建立第 1 筆記錄',gold:10},
+ {id:'A-002',name:'穩定記錄者',desc:'累積 10 筆記錄',gold:20},
+ {id:'A-003',name:'檔案室常客',desc:'累積 50 筆記錄',gold:50},
+ {id:'A-004',name:'七日連續作業',desc:'連續記錄達 7 天',gold:40},
+ {id:'A-005',name:'異常處置員',desc:'累積擊敗 5 次每日怪物',gold:50},
+ {id:'A-006',name:'完全武裝',desc:'同時裝備 3 件裝備',gold:30},
+ {id:'A-007',name:'月度鎮壓',desc:'擊敗至少 1 隻月度 BOSS',gold:100},
+ {id:'A-008',name:'正向結算',desc:'任一月份收入大於支出',gold:60}
+];
 const QUESTS=[
  {id:'q1',name:'今日第一筆',desc:'今天新增至少 1 筆記錄',goal:1,rewardXp:10},
  {id:'q2',name:'完整記錄',desc:'今天新增至少 3 筆記錄',goal:3,rewardXp:20},
@@ -586,7 +616,7 @@ function money(n){return '$'+Math.round(Number(n)||0).toLocaleString('zh-TW')}
 function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
 function toast(msg){const t=$('toast');t.textContent=msg;t.style.display='block';clearTimeout(toast._t);toast._t=setTimeout(()=>t.style.display='none',2400)}
 function saveLocal(){localStorage.setItem(KEY,JSON.stringify(state))}
-function defaultState(){return {entries:[],profile:{initialAmount:0,name:'帳本終端者',salaryDay:0,salaryAdvance:1},rpg:{xp:0,gold:0,chests:{wood:0,silver:0,gold:0},inventory:[],rewardLog:'開始記錄來啟動管理流程。',streakMilestones:[]},daily:{}}}
+function defaultState(){return {entries:[],profile:{initialAmount:0,name:'帳本終端者',salaryDay:0,salaryAdvance:1},rpg:{xp:0,gold:0,chests:{wood:0,silver:0,gold:0},inventory:[],equipped:[],achievements:[],monthlyBosses:{},rewardLog:'開始記錄來啟動管理流程。',streakMilestones:[]},daily:{}}}
 function normalizeEntry(x){return {...x,type:x.type||'expense',category:x.category||'其他',amount:Number(x.amount||0),date:x.date||today(),payment:x.payment||'未設定',store:x.store||'未命名紀錄',items:Array.isArray(x.items)?x.items:[],note:x.note||''}}
 function migrate(old){const s=defaultState();
   if(Array.isArray(old)){s.entries=old.map(v=>normalizeEntry(v));return s}
@@ -598,7 +628,7 @@ function migrate(old){const s=defaultState();
     s.rpg.rewardLog=old.rpg.rewardLog||old.rpg.lastReward||s.rpg.rewardLog;
     if(old.rpg.chests)s.rpg.chests={wood:Number(old.rpg.chests.wood||0),silver:Number(old.rpg.chests.silver||0),gold:Number(old.rpg.chests.gold||0)};
     else{const opened=Number(old.rpg.openedChests||0);const earned=Math.max(0,Math.floor(s.rpg.xp/100)-opened);s.rpg.chests.wood=earned}
-    s.rpg.streakMilestones=Array.isArray(old.rpg.streakMilestones)?old.rpg.streakMilestones:[];
+    s.rpg.streakMilestones=Array.isArray(old.rpg.streakMilestones)?old.rpg.streakMilestones:[];s.rpg.equipped=Array.isArray(old.rpg.equipped)?old.rpg.equipped:[];s.rpg.achievements=Array.isArray(old.rpg.achievements)?old.rpg.achievements:[];s.rpg.monthlyBosses=old.rpg.monthlyBosses||{};
   }
   s.daily=old.daily||{};
   return s;
@@ -625,11 +655,98 @@ function ensureDaily(d){
   if(!state.daily[d].questClaims)state.daily[d].questClaims={}
 }
 function computeStreak(){const dates=[...new Set(state.entries.map(x=>x.date))].sort();if(!dates.length)return {current:0,best:0};let best=1,run=1,bestEnding=dates[0],runEnding=dates[0];for(let i=1;i<dates.length;i++){const a=new Date(dates[i-1]+'T00:00:00'),b=new Date(dates[i]+'T00:00:00'),diff=Math.round((b-a)/86400000);if(diff===1){run++;runEnding=dates[i];if(run>best){best=run;bestEnding=runEnding}}else if(diff>1){run=1;runEnding=dates[i]}}let current=0;let last=dates[dates.length-1];let td=today();let yd=new Date();yd.setDate(yd.getDate()-1);const y=yd.toISOString().slice(0,10);if(last===td||last===y){current=run;let tempRun=1;for(let i=dates.length-1;i>0;i--){const a=new Date(dates[i-1]+'T00:00:00'),b=new Date(dates[i]+'T00:00:00'),diff=Math.round((b-a)/86400000);if(diff===1)tempRun++;else break}current=tempRun}return {current,best}}
-function grantXp(xp,reason){state.rpg.xp+=xp;state.rpg.rewardLog=`${reason}\nEXP +${xp}`}
-function damageMonster(amount){const d=today();ensureDaily(d);const m=state.daily[d].monster;if(m.defeated)return;m.hp=Math.max(0,m.hp-amount);if(m.hp===0){m.defeated=true;state.rpg.gold+=20;state.rpg.chests.wood+=1;state.rpg.rewardLog='你擊敗了今日史萊姆！\n獲得 20 金幣與 1 個木箱。'}}
+
+function equipmentEffects(){
+  const out={expBonus:0,questXpBonus:0,goldBonus:0,monsterDamage:0,bossDamage:0,allDamage:0};
+  (state.rpg.equipped||[]).forEach(function(name){
+    const e=EQUIPMENT_EFFECTS[name];
+    if(e)Object.keys(out).forEach(function(k){out[k]+=Number(e[k]||0)});
+  });
+  return out;
+}
+function toggleEquip(name){
+  if(!EQUIPMENT_EFFECTS[name])return;
+  state.rpg.equipped=state.rpg.equipped||[];
+  const i=state.rpg.equipped.indexOf(name);
+  if(i>=0){state.rpg.equipped.splice(i,1);toast('已卸下 '+name)}
+  else if(state.rpg.equipped.length>=3){toast('最多同時裝備 3 件');return}
+  else{state.rpg.equipped.push(name);toast('已裝備 '+name)}
+  checkAchievements();saveLocal();render();
+}
+function currentMonth(){return today().slice(0,7)}
+function ensureMonthlyBoss(month){
+  month=month||currentMonth();
+  state.rpg.monthlyBosses=state.rpg.monthlyBosses||{};
+  if(!state.rpg.monthlyBosses[month]){
+    const idx=[...month].reduce(function(s,ch){return s+ch.charCodeAt(0)},0)%BOSS_CATALOG.length;
+    const b=BOSS_CATALOG[idx];
+    state.rpg.monthlyBosses[month]={id:b.id,name:b.name,maxHp:b.hp,hp:b.hp,defeated:false};
+  }
+  return state.rpg.monthlyBosses[month];
+}
+function damageBoss(base){
+  const b=ensureMonthlyBoss();
+  if(b.defeated)return;
+  const e=equipmentEffects();
+  const dmg=Math.max(1,Math.round(base+e.bossDamage+e.allDamage));
+  b.hp=Math.max(0,b.hp-dmg);
+  if(b.hp===0&&!b.defeated){
+    b.defeated=true;
+    const spec=BOSS_CATALOG.find(function(x){return x.id===b.id})||BOSS_CATALOG[0];
+    state.rpg.gold+=100;
+    state.rpg.chests.gold+=1;
+    if(!state.rpg.inventory.includes(spec.reward))state.rpg.inventory.unshift(spec.reward);
+    state.rpg.rewardLog='月度 BOSS 鎮壓完成！\n獲得 100 金幣、1 個金箱與 '+spec.reward+'。';
+  }
+}
+function anyPositiveMonth(){
+  const m={};
+  state.entries.forEach(function(x){
+    const k=x.date.slice(0,7);
+    if(!m[k])m[k]={income:0,expense:0};
+    m[k][x.type==='income'?'income':'expense']+=x.amount;
+  });
+  return Object.values(m).some(function(x){return x.income>x.expense});
+}
+function defeatedMonsterCount(){
+  let n=0;
+  Object.values(state.daily||{}).forEach(function(d){if(d&&d.monster&&d.monster.defeated)n++});
+  return n;
+}
+function defeatedBossCount(){
+  return Object.values(state.rpg.monthlyBosses||{}).filter(function(b){return b.defeated}).length;
+}
+function achievementMet(id){
+  const st=computeStreak();
+  if(id==='A-001')return state.entries.length>=1;
+  if(id==='A-002')return state.entries.length>=10;
+  if(id==='A-003')return state.entries.length>=50;
+  if(id==='A-004')return st.best>=7;
+  if(id==='A-005')return defeatedMonsterCount()>=5;
+  if(id==='A-006')return (state.rpg.equipped||[]).length>=3;
+  if(id==='A-007')return defeatedBossCount()>=1;
+  if(id==='A-008')return anyPositiveMonth();
+  return false;
+}
+function checkAchievements(){
+  state.rpg.achievements=state.rpg.achievements||[];
+  const fresh=[];
+  ACHIEVEMENTS.forEach(function(a){
+    if(achievementMet(a.id)&&!state.rpg.achievements.includes(a.id)){
+      state.rpg.achievements.push(a.id);state.rpg.gold+=a.gold;fresh.push(a);
+    }
+  });
+  if(fresh.length){
+    state.rpg.rewardLog='成就解鎖：'+fresh.map(function(x){return x.name}).join('、')+'\n獲得 '+fresh.reduce(function(s,x){return s+x.gold},0)+' 金幣。';
+    saveLocal();
+  }
+}
+
+function grantXp(xp,reason){const e=equipmentEffects(),bonus=e.expBonus+(reason.includes('每日執行指令')?e.questXpBonus:0),gain=Math.max(1,Math.round(xp*(1+bonus)));state.rpg.xp+=gain;state.rpg.rewardLog=reason+'\nEXP +'+gain}
+function damageMonster(amount){const d=today();ensureDaily(d);const m=state.daily[d].monster;if(m.defeated)return;const e=equipmentEffects(),dmg=Math.max(1,Math.round(amount+e.monsterDamage+e.allDamage));m.hp=Math.max(0,m.hp-dmg);if(m.hp===0){m.defeated=true;state.rpg.gold+=20;state.rpg.chests.wood+=1;const drop=MONSTER_DROPS[m.id];if(drop&&!state.rpg.inventory.includes(drop))state.rpg.inventory.unshift(drop);state.rpg.rewardLog='每日收容單位處置完成！\n獲得 20 金幣、1 個木箱'+(drop?' 與 '+drop:'')+'。'}}
 function checkStreakMilestones(){const s=computeStreak();const ms=[{n:3,type:'wood',count:1},{n:7,type:'silver',count:1},{n:14,type:'silver',count:2},{n:30,type:'gold',count:1}];for(const m of ms){if(s.current>=m.n&&!state.rpg.streakMilestones.includes(m.n)){state.rpg.streakMilestones.push(m.n);state.rpg.chests[m.type]+=m.count;state.rpg.rewardLog=`連續記錄 ${m.n} 天達成！\n獲得 ${m.count} 個${m.type==='wood'?'木':m.type==='silver'?'銀':'金'}寶箱。`;}}}
-function checkQuests(){const d=today();ensureDaily(d);const ds=dayStats(d);QUESTS.forEach(q=>{const progress=q.id==='q3'?ds.cats:ds.count;const claimed=state.daily[d].questClaims[q.id];if(progress>=q.goal&&!claimed){state.daily[d].questClaims[q.id]=true;grantXp(q.rewardXp,`完成每日執行指令：${q.name}`);damageMonster(10)}});checkStreakMilestones()}
-function openChest(type){if((state.rpg.chests[type]||0)<=0){toast('沒有這種寶箱');return}state.rpg.chests[type]--;const tables={wood:{g:[8,20],loot:['小型治療藥水','銅幣袋','史萊姆凝膠']},silver:{g:[20,45],loot:['銀色羽毛筆','見習短劍','幸運硬幣']},gold:{g:[50,90],loot:['黃金算盤','商人斗篷','王者徽章']}};const t=tables[type],loot=t.loot[Math.floor(Math.random()*t.loot.length)],gold=t.g[0]+Math.floor(Math.random()*(t.g[1]-t.g[0]+1));state.rpg.gold+=gold;state.rpg.inventory.unshift(loot);state.rpg.inventory=state.rpg.inventory.slice(0,16);state.rpg.rewardLog=`開啟${type==='wood'?'木':type==='silver'?'銀':'金'}寶箱！\n獲得 ${loot} 與 ${gold} 金幣。`;saveLocal();render();toast(`獲得 ${loot}`)}
+function checkQuests(){const d=today();ensureDaily(d);const ds=dayStats(d);QUESTS.forEach(q=>{const progress=q.id==='q3'?ds.cats:ds.count;const claimed=state.daily[d].questClaims[q.id];if(progress>=q.goal&&!claimed){state.daily[d].questClaims[q.id]=true;grantXp(q.rewardXp,`完成每日執行指令：${q.name}`);damageMonster(10);damageBoss(15)}});checkStreakMilestones();checkAchievements()}
+function openChest(type){if((state.rpg.chests[type]||0)<=0){toast('沒有這種寶箱');return}state.rpg.chests[type]--;const tables={wood:{g:[8,20],loot:['小型治療藥水','銅幣袋','史萊姆凝膠']},silver:{g:[20,45],loot:['銀色羽毛筆','見習短劍','幸運硬幣']},gold:{g:[50,90],loot:['黃金算盤','商人斗篷','王者徽章']}};const t=tables[type],loot=t.loot[Math.floor(Math.random()*t.loot.length)],baseGold=t.g[0]+Math.floor(Math.random()*(t.g[1]-t.g[0]+1)),gold=Math.round(baseGold*(1+equipmentEffects().goldBonus));state.rpg.gold+=gold;state.rpg.inventory.unshift(loot);state.rpg.inventory=state.rpg.inventory.slice(0,16);state.rpg.rewardLog=`開啟${type==='wood'?'木':type==='silver'?'銀':'金'}寶箱！\n獲得 ${loot} 與 ${gold} 金幣。`;saveLocal();render();toast(`獲得 ${loot}`)}
 function monsterSprite(shape,locked=false){
   const base=locked?'#3b3d43':'#c7c3b8', edge=locked?'#24252a':'#666870', red=locked?'#44464c':'#b52d2d';
   if(shape==='worm')return `<svg viewBox="0 0 80 60" width="86" height="70"><path d="M12 38c7-18 18-25 31-18 10 5 14 15 25 14-5 14-17 18-30 13-12-5-18-2-26 4z" fill="${base}" stroke="${edge}" stroke-width="3"/><circle cx="53" cy="29" r="3" fill="${red}"/></svg>`;
