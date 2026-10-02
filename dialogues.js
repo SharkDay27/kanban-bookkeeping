@@ -12,6 +12,29 @@ const SINNERS=[
  {id:'12',name:'奧提斯',address:'執行經理'},
  {id:'13',name:'格里高爾',address:'經理'}
 ];
+const SINNER_COLORS={
+  '李箱':'#5f86b8',
+  '浮士德':'#63c6d4',
+  '堂吉訶德':'#e0bd4f',
+  '良秀':'#d34f57',
+  '默爾索':'#6b8ba6',
+  '鴻璐':'#5ec9c8',
+  '希斯克利夫':'#8a6bb7',
+  '以實瑪利':'#d88749',
+  '羅佳':'#c8617b',
+  '辛克萊':'#79a95a',
+  '奧提斯':'#8e9a55',
+  '格里高爾':'#9a7358',
+  '阿賴耶':'#e59aa9',
+  '阿賴耶識':'#b78691'
+};
+function sinnerColorForSpeaker(speaker){
+  const s=String(speaker||'');
+  for(const name of Object.keys(SINNER_COLORS)){
+    if(s.includes(name))return SINNER_COLORS[name];
+  }
+  return '#c9c5bb';
+}
 const COMMENT_POOLS={
  '李箱':{
   expense:[
