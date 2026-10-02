@@ -75,11 +75,38 @@ const QUESTS=[
 let state=load();
 function $(id){return document.getElementById(id)}
 function today(){return new Date().toISOString().slice(0,10)}
-function money(n){return '$'+Math.round(Number(n)||0).toLocaleString('zh-TW')}
+const CURRENCIES={
+ TWD:{code:'TWD',symbol:'NT$',name:'新台幣',locale:'zh-TW',digits:0},
+ CNY:{code:'CNY',symbol:'CN¥',name:'人民幣',locale:'zh-CN',digits:2},
+ JPY:{code:'JPY',symbol:'JP¥',name:'日幣',locale:'ja-JP',digits:0},
+ USD:{code:'USD',symbol:'US$',name:'美金',locale:'en-US',digits:2}
+};
+function currentCurrency(){return CURRENCIES[(state&&state.profile&&state.profile.currency)||'TWD']||CURRENCIES.TWD}
+function money(n){
+ const c=currentCurrency(),v=Number(n)||0;
+ return c.symbol+v.toLocaleString(c.locale,{minimumFractionDigits:0,maximumFractionDigits:c.digits});
+}
+function setCurrency(code){
+ if(!CURRENCIES[code])return;
+ state.profile.currency=code;
+ saveLocal();
+ render();
+ toast('主要幣別已切換為 '+CURRENCIES[code].code+' / '+CURRENCIES[code].name);
+}
+function renderCurrencySelector(){
+ const c=currentCurrency();
+ if($('currencySymbol'))$('currencySymbol').textContent=c.symbol;
+ if($('currencyCode'))$('currencyCode').textContent=c.code;
+ if($('currencyName'))$('currencyName').textContent=c.name;
+ document.querySelectorAll('[data-currency]').forEach(function(btn){
+   btn.classList.toggle('active',btn.dataset.currency===c.code);
+   btn.setAttribute('aria-pressed',btn.dataset.currency===c.code?'true':'false');
+ });
+}
 function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
 function toast(msg){const t=$('toast');t.textContent=msg;t.style.display='block';clearTimeout(toast._t);toast._t=setTimeout(()=>t.style.display='none',2400)}
 function saveLocal(){localStorage.setItem(KEY,JSON.stringify(state))}
-function defaultState(){return {entries:[],profile:{initialAmount:0,name:'帳本終端者',salaryDay:0,salaryAdvance:1},rpg:{xp:0,gold:0,chests:{wood:0,silver:0,gold:0},inventory:[],equipped:[],achievements:[],monthlyBosses:{},rewardLog:'開始記錄來啟動管理流程。',streakMilestones:[]},daily:{}}}
+function defaultState(){return {entries:[],profile:{initialAmount:0,name:'帳本終端者',salaryDay:0,salaryAdvance:1,currency:'TWD'},rpg:{xp:0,gold:0,chests:{wood:0,silver:0,gold:0},inventory:[],equipped:[],achievements:[],monthlyBosses:{},rewardLog:'開始記錄來啟動管理流程。',streakMilestones:[]},daily:{}}}
 function normalizeEntry(x){return {...x,type:x.type||'expense',category:x.category||'其他',amount:Number(x.amount||0),date:x.date||today(),payment:x.payment||'未設定',store:x.store||'未命名紀錄',items:Array.isArray(x.items)?x.items:[],note:x.note||''}}
 function migrate(old){const s=defaultState();
   if(Array.isArray(old)){s.entries=old.map(v=>normalizeEntry(v));return s}
@@ -306,7 +333,7 @@ function renderSummary(){const expense=state.entries.filter(x=>x.type==='expense
 function renderQuests(){ensureDaily(today());const ds=dayStats(today());$('questList').innerHTML=QUESTS.map(q=>{const p=q.id==='q3'?ds.cats:ds.count,done=p>=q.goal,claim=state.daily[today()].questClaims[q.id];return `<div class="quest wood panel ${done?'done':''}"><div class="row"><div class="quest-name">${done?'✓ ':'◇ '}${q.name}</div><div class="quest-reward">+${q.rewardXp} EXP</div></div><div class="quest-desc">${q.desc}</div><div class="quest-progress"><div style="width:${Math.min(100,Math.round(p/q.goal*100))}%"></div></div><div class="quest-desc">${Math.min(p,q.goal)} / ${q.goal}${claim?'・已領取':''}</div></div>`}).join('')}
 function filtered(){const m=$('month').value,t=$('typeFilter').value,c=$('cat').value,q=$('search').value.trim().toLowerCase();return state.entries.filter(x=>(!m||x.date.startsWith(m))&&(!t||x.type===t)&&(!c||x.category===c)&&(!q||[x.store,x.note,x.invoice,x.category,...(x.items||[]).map(i=>i.name)].join(' ').toLowerCase().includes(q))).sort((a,b)=>b.date.localeCompare(a.date)||b.amount-a.amount)}
 function renderBoard(){const rows=filtered(),groups={};rows.forEach(x=>(groups[x.date]??=[]).push(x));const dates=Object.keys(groups).sort().reverse();if(!dates.length){$('board').innerHTML='<div class="empty wood panel">目前沒有資料。先新增一筆收入或支出吧！</div>';return}$('board').innerHTML='<div class="board">'+dates.map(date=>{const items=groups[date],expense=items.filter(x=>x.type==='expense').reduce((s,x)=>s+x.amount,0),income=items.filter(x=>x.type==='income').reduce((s,x)=>s+x.amount,0),net=income-expense;return `<section class="day wood panel"><div class="dayhead"><div><div style="font-weight:900">${date}</div><div class="s">${items.length} 筆紀錄</div></div><div style="text-align:right"><div class="daytotal">支出 ${money(expense)}</div><div class="daynet ${net<0?'minus':'plus'}">淨額 ${money(net)}</div></div></div>${items.map(entry=>`<article class="card wood transaction-card type-${entry.type}" style="${categoryStyle(entry.category||'其他')}"><div class="row"><div class="store">${esc(entry.store)}</div><div class="amt ${entry.type}">${entry.type==='income'?'+ ':''}${money(entry.amount)}</div></div><div class="badges"><span class="badge ${entry.type}">${entry.type==='income'?'收入':'支出'}</span><span class="badge category-badge" style="${categoryStyle(entry.category||'其他')}">${esc(entry.category||'其他')}</span><span class="badge">${esc(entry.payment||'未設定')}</span></div><div class="items">${(entry.items||[]).slice(0,3).map(i=>esc(i.name)).join('、')||esc(entry.note||'—')}</div>${entry.comment&&entry.comment.lines&&entry.comment.lines.length?`<div class="entry-comment-preview"><b>${esc(entry.comment.lines[0].speaker)}</b>：${esc(entry.comment.lines[0].text)}</div>`:''}<div class="card-actions"><button class="mini-btn" data-edit="${entry.id}">編輯</button></div></article>`).join('')}</section>`}).join('')+'</div>';document.querySelectorAll('[data-edit]').forEach(btn=>btn.onclick=()=>openEdit(btn.dataset.edit))}
-function render(){backfillMissingComments();refreshFilters();renderSummary();renderRpg();renderQuests();renderBoard();renderCharts();renderBestiary();renderBoss();checkAchievements();renderProgress();renderCommentaryArchive();renderSalaryReminder();$('initialInput').value=state.profile.initialAmount||'';$('playerName').value=state.profile.name||'帳本終端者';$('salaryDay').value=state.profile.salaryDay||'';$('salaryAdvance').value=String(state.profile.salaryAdvance??1)}
+function render(){backfillMissingComments();refreshFilters();renderCurrencySelector();renderSummary();renderRpg();renderQuests();renderBoard();renderCharts();renderBestiary();renderBoss();checkAchievements();renderProgress();renderCommentaryArchive();renderSalaryReminder();$('initialInput').value=state.profile.initialAmount||'';$('playerName').value=state.profile.name||'帳本終端者';$('salaryDay').value=state.profile.salaryDay||'';$('salaryAdvance').value=String(state.profile.salaryAdvance??1)}
 
 function renderCommentLines(comment){
   if(!comment||!Array.isArray(comment.lines))return '';
@@ -543,5 +570,6 @@ function mapIcon(kind){
   return `<div style="display:grid;place-items:center">${icons[kind]||icons.book}</div>`
 }
 function mountIcons(){$('logo').innerHTML=drawSprite('star');$('heroIcon').innerHTML=drawSprite('hero');$('monsterIcon').innerHTML=drawSprite('slime');$('salaryNpc').innerHTML=npcSprite('fairy');$('npcClerk').innerHTML=npcSprite('clerk');$('npcMerchant').innerHTML=npcSprite('merchant');$('npcFairy').innerHTML=npcSprite('fairy');}
+document.querySelectorAll('[data-currency]').forEach(function(btn){btn.onclick=function(){setCurrency(btn.dataset.currency)}});
 $('etype').addEventListener('change',syncEntryTypeUI);document.querySelectorAll('[data-entry-type]').forEach(b=>b.onclick=()=>{$('etype').value=b.dataset.entryType;syncEntryTypeUI()});$('dlg').addEventListener('click',e=>{if(e.target===$('dlg'))$('dlg').close()});$('ecat').addEventListener('change',renderQuickCats);
 $('save').onclick=()=>saveEntry(false);$('saveAgain').onclick=()=>saveEntry(true);$('closeDlg').onclick=()=>$('dlg').close();$('closeCommentDlg').onclick=()=>$('commentDlg').close();$('commentViewTime').onclick=()=>setCommentaryView('time');$('commentViewSinner').onclick=()=>setCommentaryView('sinner');$('goCommentArchive').onclick=()=>{$('commentDlg').close();setTab('commentary')};$('del').onclick=deleteEntry;$('csv').addEventListener('change',importCsvFiles);$('export').onclick=exportCsv;$('backup').onclick=backupJson;$('restore').addEventListener('change',restoreJson);$('clear').onclick=clearLocalData;$('saveSettings').onclick=saveSettings;$('addExpense').onclick=()=>openEdit('', 'expense');$('addIncome').onclick=()=>openEdit('', 'income');$('fab').onclick=()=>openEdit('', 'expense');$('bottomAdd').onclick=()=>openEdit('', 'expense');['month','typeFilter','cat','search'].forEach(id=>$(id).addEventListener('input',render));document.querySelectorAll('[data-chest]').forEach(btn=>btn.onclick=()=>openChest(btn.dataset.chest));document.querySelectorAll('.tabs button').forEach(btn=>btn.onclick=()=>setTab(btn.dataset.tab));document.querySelectorAll('[data-goto]').forEach(btn=>btn.onclick=()=>setTab(btn.dataset.goto));if(!$('month').value){$('month').value=new Date().toISOString().slice(0,7)}mountIcons();render();setupIphoneSafariInput();
