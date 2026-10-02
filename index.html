@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="終端記錄">
 <title>RPG 化記帳工具</title>
-<link rel="stylesheet" href="styles.css?v=20261002l">
+<link rel="stylesheet" href="styles.css?v=20261002m">
 </head>
 <body>
 <div class="wrap">
@@ -104,7 +104,7 @@
 
       <div class="wood panel containment-frame">
         <div class="archive-header"><div><div class="archive-id">CONTAINMENT // DAILY-ENTITY</div><div class="archive-title">今日收容單位</div></div><div class="archive-stamp">OBSERVE</div></div>
-        <div class="sub">新增紀錄將視為一次作業；完成指令時追加處置效果。</div><div class="classification-row"><span class="class-chip red">RISK / LOW</span><span class="class-chip">STATUS / MONITORED</span><span class="class-chip">SHIFT / DAILY</span></div>
+        <div class="sub">新增紀錄將視為一次作業；完成指令時追加處置效果。</div><div class="classification-row"><span class="class-chip red" id="monsterRisk">RISK / LOW</span><span class="class-chip">STATUS / MONITORED</span><span class="class-chip">SHIFT / DAILY</span></div>
         <div class="monster">
           <div class="monster-icon" id="monsterIcon"></div>
           <div>
@@ -116,6 +116,14 @@
               <div class="row"><span class="k">OPERATOR HP / 使用者生命</span><span id="operatorHpState" class="monster-meta">STABLE</span></div>
               <div class="operator-hp"><div id="operatorHpFill"></div><span id="operatorHpText">100 / 100</span></div>
               <div class="monster-meta" id="combatLog">收容單位目前沒有造成傷害。</div>
+            </div>
+            <div class="containment-feedback" id="containmentFeedback">
+              <div class="containment-feedback-head">
+                <span>WORK RESULT / 處置回饋</span>
+                <span id="containmentFeedbackCode">STANDBY</span>
+              </div>
+              <div class="containment-feedback-main" id="containmentFeedbackMain">等待下一次作業。</div>
+              <div class="containment-feedback-detail" id="containmentFeedbackDetail">新增記錄後，這裡會顯示造成傷害、反擊、補血與掉落結果。</div>
             </div>
           </div>
         </div>
@@ -327,6 +335,6 @@
 </dialog>
 
 <script src="dialogues.js?v=20261002y"></script>
-<script src="app.js?v=20261002l"></script>
+<script src="app.js?v=20261002m"></script>
 </body>
 </html>
