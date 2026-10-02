@@ -1,5 +1,5 @@
 (function(){
- const VERSION=5;
+ const VERSION=6;
  const speech=(speaker,text)=>({speaker,text,kind:'speech'});
  const action=(speaker,text)=>({speaker,text,kind:'action'});
  const pick=arr=>arr[Math.floor(Math.random()*arr.length)];
@@ -270,13 +270,35 @@
   ()=>[speech(first,WITHDRAW[first]),action(second,RETREAT_ACTION[second])],
   ()=>[action(second,RETREAT_ACTION[second]),speech(first,WITHDRAW[first]),action(first,RETREAT_ACTION[first])]
  ])();
+
+ const RECOVERY_FAILURE={
+ supply:{'李箱':'外殼尚在，內容卻已無從回收。且退開吧。','浮士德':'包裝已破損。不要再接觸，放棄回收。','堂吉訶德':'可惜了……先退！別站在箱架旁！','良秀':'破了。扔下。','默爾索':'無法回收。離開倒塌範圍。','鴻璐':'原來下面已經壞了。這袋不能帶回去了吧。','希斯克利夫':'嘖，都爛了。別再伸手。','以實瑪利':'放下，先退開。這份不能用了。','羅佳':'哎，白忙一場。先別撿，架子還在晃。','辛克萊':'底下全破了……我們先退開吧。','奧提斯':'停止回收。離開箱架下方。','格里高爾':'行了，別撿了。再弄下去要把人也搭進去。'},
+ gear:{'李箱':'它已落入無法觸及之處。吾等不必一併追去。','浮士德':'固定架已斷裂。不要再嘗試取出裝備。','堂吉訶德':'差一點便能拿到了！……不，先別靠過去！','良秀':'別追。退。','默爾索':'無法安全取出。停止拆卸。','鴻璐':'掉到下面去了。看著不遠，但好像夠不到呢。','希斯克利夫':'該死，扣子早就爛了。別伸手去掏。','以實瑪利':'別下去。下面的支架也在鬆動。','羅佳':'就差這麼一下。好啦，不拿了，先退。','辛克萊':'掉下去了……下面還在動，我們別靠近吧。','奧提斯':'放棄回收。禁止進入坍塌區。','格里高爾':'這下可好。別往下鑽了，這東西不值得。'}
+ };
+ const HURT_ACTION={
+ '李箱':'李箱按住傷處，停了片刻才跟上搭檔。','浮士德':'浮士德查看傷口，避開受傷的位置重新固定背包。','堂吉訶德':'堂吉訶德倒吸一口氣，抬手想示意無礙，動作卻比剛才慢了。','良秀':'良秀瞥了眼傷口，用衣料按住傷處，目光仍留在異常處。','默爾索':'默爾索按住傷處，改用另一隻手固定背包。','鴻璐':'鴻璐看了眼傷口，原本想往前探的腳步收了回來。','希斯克利夫':'希斯克利夫咬緊牙，扯過衣角壓住傷處。','以實瑪利':'以實瑪利先壓住傷口，又看了眼搭檔的位置才往回走。','羅佳':'羅佳吸了口氣，按住傷處，這回沒有再伸手去撿。','辛克萊':'辛克萊低頭查看傷處，握住背包帶慢慢退開。','奧提斯':'奧提斯按住傷口，以空出的手指向撤離通道。','格里高爾':'格里高爾皺著眉摸了摸傷處，嘆口氣沿來路返回。'
+ };
+ function fieldFailureScene(first,second,kind,ctx){
+  const line=kind==='event'?WITHDRAW[first]:RECOVERY_FAILURE[kind][first];
+  const react=name=>action(name,(ctx.injuries||[]).some(i=>i.name===name&&i.damage>0)?HURT_ACTION[name]:RETREAT_ACTION[name]);
+  const incident=()=>action(first,ctx.failureReason||'異常突然擴大，隊伍未能完成這次行動。');
+  return pick([
+   ()=>[speech(first,line),react(second)],
+   ()=>[incident(),speech(first,line),react(second)],
+   ()=>[incident(),react(second),speech(first,line),react(first)]
+  ])();
+ }
  window.generateExplorationDialogue=function(names,kind,ctx){
   if(!Array.isArray(names)||names.length!==2||names[0]===names[1])return [];
   ctx=ctx||{};const [first,second]=names;
   const has=n=>names.includes(n);
+  if(kind==='enemy')return [];
+  const fallen=names.filter(n=>(ctx.injuries||[]).some(i=>i.name===n&&i.hp<=0));
+  if(fallen.length===2)return [action(first,'兩人相繼倒下，現場通訊中斷。')];
+  if(fallen.length===1){const standing=names.find(n=>n!==fallen[0]);return [action(fallen[0],fallen[0]+'倒下後沒有回應。'),action(standing,standing+'退到同伴身旁，向終端回報位置並請求支援。')];}
+  if(ctx.success===false&&['event','supply','gear'].includes(kind))return fieldFailureScene(first,second,kind,ctx);
   if(kind==='event'){
    const id=ctx.eventId;
-   if(ctx.success===false)return withdrawal(first,second);
    const authored=pairScene(names,kind,ctx);if(authored)return authored;
    if(id==='false-radio'&&has('良秀')){
     const other=names.find(n=>n!=='良秀');return pick([()=>[speech(other,pick(EVENT[id][other])),action('良秀',EVENT_ACTION[id]['良秀'])],()=>[action(other,EVENT_ACTION[id][other]),action('良秀',EVENT_ACTION[id]['良秀'])]])();
@@ -286,6 +308,8 @@
     return lines.concat(speech('希斯克利夫','嘖，別看這種破玩意。'),action('希斯克利夫',EVENT_ACTION[id]['希斯克利夫']));
    }
    if(['mirror-corridor','abandoned-meal'].includes(id)&&has('良秀'))return [speech('良秀',id==='mirror-corridor'?'慢了半拍。不是倒影，是時間。':'熱氣沒散。這裡的時間停了。'),action('良秀','良秀在刀鞘上敲出兩次間隔，察覺回聲的節奏不對，隨即把搭檔攔在異常範圍之外。')];
+   const ev=EXPLORATION_EVENTS.find(e=>e.id===id);
+   if(ev?.theme)return newFieldEventScene(names,ev);
    const opening=EVENT[id]?.[first];if(!opening)return [];
    return pick([
     ()=>[speech(first,pick(opening)),action(second,EVENT_ACTION[id][second])],
@@ -325,7 +349,7 @@
   const update=l=>{
    if(!l||l.dialogueVersion===VERSION||!(l.names||[]).length||l.kind==='revive')return false;
    const ev=EXPLORATION_EVENTS.find(e=>String(l.title).includes(e.name));
-   const ctx={eventId:l.eventId||ev?.id,success:l.combat?.result?.success??!['INCIDENT','ENGAGED','DEFEAT'].includes(l.stamp),abnormality:l.combat?.enemy?.name,abnormalityType:l.combat?.enemy?.type,injuries:(l.combat?.allies||[]).map(a=>({name:a.name,hp:a.hp,damage:a.taken}))};
+   const ctx={eventId:l.eventId||ev?.id,success:l.combat?.result?.success??!['INCIDENT','ENGAGED','DEFEAT'].includes(l.stamp),abnormality:l.combat?.enemy?.name,abnormalityType:l.combat?.enemy?.type,failureReason:l.failureReason,injuries:l.injuries?.length?l.injuries:(l.combat?.allies||[]).map(a=>({name:a.name,hp:a.hp,damage:a.taken}))};
    l.dialogue=window.generateExplorationDialogue(l.names,l.kind,ctx);l.dialogueVersion=VERSION;return true;
   };
   let changed=false;(ex.logs||[]).forEach(l=>{if(update(l))changed=true});

@@ -2555,3 +2555,27 @@ button:focus-visible,select:focus-visible{outline:3px solid #6096b0!important;ou
 .record-kind-badge.status-victory,.archive-stamp.status-victory{background:#e3f1e8!important;color:#35684c!important;border-color:#92baa3!important}
 .record-kind-badge.status-defeat,.archive-stamp.status-defeat{background:#f6e4e7!important;color:#8b4b57!important;border-color:#caa2ac!important}
 @media(max-width:600px){#bestiaryGrid .bestiary-region .catalog-text-grid{grid-template-columns:1fr!important}.catalog-switch{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.catalog-switch button{padding:9px 5px;font-size:13px}}
+
+/* Undiscovered files stay unreadable while the unlock instruction remains crisp. */
+.catalog-unknown{position:relative;min-height:220px!important;background:#f0f6f9!important;border:1px dashed #adc7d4!important}
+.catalog-obscured{filter:blur(5px);opacity:.48;user-select:none;pointer-events:none;color:#78929f;padding:8px 0;line-height:1.8}
+.catalog-obscured h3{font-size:17px;margin:8px 0}
+.catalog-obscured p{font-size:12px;margin:7px 0}
+.catalog-unknown-label{position:absolute;inset:76px 12px 15px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:10px;background:rgba(241,247,250,.66);color:#496a7c;text-align:center;line-height:1.65}
+.catalog-unknown-label strong{font-size:16px;letter-spacing:2px}
+.catalog-unknown-label span{font-size:12px;max-width:190px}
+.achievement-card.hard{border-color:#cfb98b!important;border-left:4px solid #b39864!important;background:#fbf8f0!important}
+.achievement-card.hard.unlocked{background:#f5f7ec!important}
+.achievement-difficulty{display:inline-block;padding:3px 8px;border:1px solid #d2bc91;border-radius:4px;background:#f4ebd9;color:#765c30;font-size:11px;margin-bottom:8px}
+.achievement-medals{background:#f7fafb;border:1px solid #b9d2df;padding:18px;margin:18px 0}
+.achievement-medals h3{font-size:17px;color:#355d71;margin:0 0 8px}
+.achievement-medals>p{font-size:13px;color:#506e7f;line-height:1.7;margin:0 0 16px}
+.medal-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px}
+.achievement-medal{display:flex;flex-direction:column;align-items:center;gap:9px;padding:14px 10px;text-align:center;border:1px solid #ddcca8;background:#fbf6e9;color:#6e5429;min-width:0}
+.medal-emblem{width:62px;height:62px;display:grid;place-items:center;border:3px double #b7985a;border-radius:50%;outline:1px solid #c6b07d;outline-offset:3px;background:#f2e4c1;font:bold 22px Georgia,serif;color:#705521;flex-shrink:0}
+.achievement-medal strong{font-size:14px;line-height:1.5}
+.achievement-medal span:last-child{font-size:11px;color:#6e644b;line-height:1.5}
+.medal-empty{padding:12px 0;color:#536f7e;font-size:13px}
+.achievement-badge-preview{display:flex;align-items:center;gap:10px;margin:12px 0 4px;padding:10px;border:1px dashed #d4c294;background:#fcf9f0;color:#6e5429;font-size:12px;line-height:1.6}
+.achievement-badge-preview .medal-emblem{width:36px;height:36px;font-size:14px;outline:none;border-width:2px}
+@media(max-width:600px){.medal-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.achievement-medals{padding:14px}.achievement-category-filter{flex-wrap:wrap}}

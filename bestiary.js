@@ -3,11 +3,12 @@
  const safe=v=>typeof esc==='function'?esc(v):String(v||'');
  const group=(code,name,meta,cards)=>'<section class="bestiary-region"><div class="bestiary-region-head"><div><div class="archive-id">'+safe(code)+'</div><div class="bestiary-region-name">'+safe(name)+'</div></div><div class="bestiary-region-meta">'+safe(meta)+'</div></div><div class="bestiary-grid catalog-text-grid">'+cards+'</div></section>';
  function card({id,name,status,done,known=true,type,description,footer}){
+  if(!known)return '<article class="bestiary-card wood catalog-text-card catalog-unknown" aria-label="未接觸的圖鑑條目，探索後解鎖"><div class="catalog-card-head"><span class="bestiary-code">未登錄</span><span class="bestiary-status unknown">未遭遇</span></div><div class="catalog-obscured" aria-hidden="true"><h3>尚未辨識的檔案</h3><p>訊號不完整 · 資料等待確認</p><p>未確認內容　未確認內容</p><p>尚無足夠的現場記錄</p></div><div class="catalog-unknown-label"><strong>未知檔案</strong><span>探索此區域，接觸後揭露內容</span></div></article>';
   return '<article class="bestiary-card wood catalog-text-card '+(known?'':'locked')+'"><div class="catalog-card-head"><span class="bestiary-code">'+safe(id)+'</span><span class="bestiary-status '+(done?'done':known?'':'unknown')+'">'+safe(status)+'</span></div><h3 class="bestiary-name">'+safe(name)+'</h3><div class="catalog-type">'+safe(type)+'</div><p class="catalog-description">'+safe(description)+'</p><div class="catalog-footer">'+safe(footer)+'</div></article>';
  }
  function abnormalityGroups(ex){return EXPLORATION_AREAS.map(area=>{
   const observed=area.abnos.filter(id=>ex.seenAbnormalities.includes(id)||ex.abnormalityProgress[id]?.contained).length,contained=area.abnos.filter(id=>ex.abnormalityProgress[id]?.contained).length;
-  const cards=area.abnos.map(id=>{const ab=ABNORMALITY_CATALOG[id],p=ex.abnormalityProgress[id]||{kills:0},known=ex.seenAbnormalities.includes(id)||p.contained;return card({id:known?id:'未登錄',name:known?ab.name:'未確認怪異',known,done:p.contained,status:p.contained?'已收容':known?'已觀測':'未遭遇',type:known?ab.type+' · Lv.'+ab.level:'探索後登錄',description:known?ab.note:'尚未在此區域遭遇；探索後會補齊資料。',footer:known?'制壓 '+Math.min(p.kills,ab.kills)+' / '+ab.kills:'制壓進度尚未確認'});}).join('');
+  const cards=area.abnos.map(id=>{const ab=ABNORMALITY_CATALOG[id],p=ex.abnormalityProgress[id]||{kills:0},known=ex.seenAbnormalities.includes(id)||!!p.contained;return card({id:known?id:'未登錄',name:known?ab.name:'未確認怪異',known,done:p.contained,status:p.contained?'已收容':known?'已觀測':'未遭遇',type:known?ab.type+' · Lv.'+ab.level:'探索後登錄',description:known?ab.note:'尚未在此區域遭遇；探索後會補齊資料。',footer:known?'制壓 '+Math.min(p.kills,ab.kills)+' / '+ab.kills:'制壓進度尚未確認'});}).join('');
   return group('AREA // '+area.id.toUpperCase(),area.name,'已觀測 '+observed+' / '+area.abnos.length+' · 已收容 '+contained,cards);
  }).join('')}
  function enemyGroups(ex){
@@ -18,9 +19,11 @@
   }).join(''))).join('');
  }
  function eventGroups(ex){
-  const cards=EXPLORATION_EVENTS.map((ev,i)=>{const p=ex.eventProgress[ev.id]||{encounters:0,resolved:0},known=p.encounters>0;return card({id:'EV-'+String(i+1).padStart(3,'0'),name:known?ev.name:'未確認事件',known,status:known?'已登錄':'未遭遇',type:'隨機事件 · 全區域',description:known?ev.desc:'探索中遇到後自動登錄事件內容。',footer:known?'遭遇 '+p.encounters+' 次 · 解決 '+p.resolved+' 次':'尚無事件紀錄'});}).join('');
+  const eventCards=(events)=>events.map(ev=>{const i=EXPLORATION_EVENTS.indexOf(ev),p=ex.eventProgress[ev.id]||{encounters:0,resolved:0},known=p.encounters>0;return card({id:'EV-'+String(i+1).padStart(3,'0'),name:ev.name,known,status:known?'已登錄':'未遭遇',type:'隨機事件 · '+(ev.area&&ev.area!=='any'?'地區限定':'全區域'),description:ev.desc,footer:'遭遇 '+p.encounters+' 次 · 成功 '+p.resolved+' 次 · 失敗 '+(p.failures||0)+' 次'});}).join('');
+  const common=group('EVENT // COMMON','泛用事件','所有區域都可能遭遇 · 成功與失敗皆會登錄',eventCards(EXPLORATION_EVENTS.filter(e=>!e.area||e.area==='any')));
+  const regional=EXPLORATION_AREAS.map(a=>group('EVENT // '+a.id.toUpperCase(),a.name,'地區限定事件',eventCards(EXPLORATION_EVENTS.filter(e=>e.area===a.id)))).join('');
   const shopCards=EXPLORATION_AREAS.map(a=>{const info=window.EXPLORATION_SHOP_CATALOG[a.id],p=ex.eventProgress['shop-'+a.id]||{encounters:0},known=p.encounters>0;return card({id:'SHOP // '+a.id.toUpperCase(),name:known?info.name:'未確認商店',known,status:known?'已登錄':'未遭遇',type:'隨機商店 · '+a.name,description:known?info.flavor:'在此區域探索，有機會遇到臨時商販。',footer:known?'遭遇 '+p.encounters+' 次 · 可買賣探索物資':'遇到商店後補齊資料'});}).join('');
-  return group('EVENT // FIELD','探索隨機事件','遭遇後登錄，解決次數持續累積',cards)+group('EVENT // SHOP','區域商店','各區域的隨機商店',shopCards);
+  return common+regional+group('EVENT // SHOP','區域商店','各區域的隨機商店',shopCards);
  }
  function render(){
   const grid=document.getElementById('bestiaryGrid');if(!grid)return;

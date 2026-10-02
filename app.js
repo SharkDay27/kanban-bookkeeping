@@ -112,7 +112,8 @@ const EXPLORATION_EVENTS=[
  {id:'false-radio',name:'錯頻廣播',desc:'通訊器傳來並不存在的第三名隊員聲音。'},
  {id:'abandoned-meal',name:'仍溫熱的餐桌',desc:'無人區域裡出現剛擺好的兩套餐點。'},
  {id:'mirror-corridor',name:'錯位鏡廊',desc:'鏡中的兩名罪人比本人慢了半拍才轉頭。'},
- {id:'red-file',name:'紅色封存檔',desc:'地面上有一份標著兩名探索者姓名的未來日期檔案。'}
+ {id:'red-file',name:'紅色封存檔',desc:'地面上有一份標著兩名探索者姓名的未來日期檔案。'},
+ ...EXTRA_EXPLORATION_EVENTS
 ];
 let state=load();ensureExplorationState();
 function $(id){return document.getElementById(id)}
@@ -239,7 +240,7 @@ function renderCurrencySelector(){
 function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
 function toast(msg){const t=$('toast');t.textContent=localizeText(msg);t.style.display='block';clearTimeout(toast._t);toast._t=setTimeout(()=>t.style.display='none',2400)}
 function saveLocal(){localStorage.setItem(KEY,JSON.stringify(state))}
-function defaultState(){return {entries:[],profile:{initialAmount:0,name:'但丁',currency:'TWD',language:'zh-Hant'},rpg:{xp:0,gold:0,itemBoxes:0,chests:{wood:0,silver:0,gold:0},inventory:[],equipped:[],consumables:{water:3,potion:0},player:{hp:100,maxHp:100,lastCombat:'尚無受擊紀錄。'},lastContainment:null,achievements:[],monthlyBosses:{},rewardLog:'開始記錄來啟動管理流程。',streakMilestones:[]},exploration:null,daily:{}}}
+function defaultState(){return {entries:[],profile:{initialAmount:0,name:'但丁',currency:'TWD',language:'zh-Hant'},rpg:{xp:0,gold:0,itemBoxes:0,chests:{wood:0,silver:0,gold:0},inventory:[],equipped:[],consumables:{water:3,potion:0},player:{hp:100,maxHp:100,lastCombat:'尚無受擊紀錄。'},lastContainment:null,achievements:[],achievementBadges:[],monthlyBosses:{},rewardLog:'開始記錄來啟動管理流程。',streakMilestones:[]},exploration:null,daily:{}}}
 function normalizeEntry(x){return {...x,type:x.type||'expense',category:CATEGORY_MIGRATION[x.category]||x.category||'其他',amount:Number(x.amount||0),date:x.date||today(),payment:x.payment||'現金',store:x.store||'未命名紀錄',items:Array.isArray(x.items)?x.items:[],note:x.note||''}}
 function migrate(old){const s=defaultState();
   if(Array.isArray(old)){s.entries=old.map(v=>normalizeEntry(v));return s}
@@ -255,6 +256,7 @@ function migrate(old){const s=defaultState();
     s.rpg.streakMilestones=Array.isArray(old.rpg.streakMilestones)?old.rpg.streakMilestones:[];
     s.rpg.equipped=Array.isArray(old.rpg.equipped)?old.rpg.equipped:[];
     s.rpg.achievements=Array.isArray(old.rpg.achievements)?old.rpg.achievements:[];
+    s.rpg.achievementBadges=Array.isArray(old.rpg.achievementBadges)?old.rpg.achievementBadges.filter(b=>b&&typeof b.id==='string').map(b=>({id:b.id,earnedAt:typeof b.earnedAt==='string'?b.earnedAt:''})):[];
     s.rpg.monthlyBosses=old.rpg.monthlyBosses||{};
     s.rpg.player={...s.rpg.player,...(old.rpg.player||{})};
     s.rpg.lastContainment=old.rpg.lastContainment||null;
@@ -379,19 +381,26 @@ function runExploration(){
     };
     ctx.abnormality=ab.name;ctx.abnormalityId=id;ctx.abnormalityType=ab.type;ctx.success=resultSuccess;ctx.attacks=attacks;ctx.injuries=injuries;ctx.remaining=remaining;ctx.maxHp=maxHp;
   }else if(kind==='event'){
-    const ev=EXPLORATION_EVENTS[Math.floor(Math.random()*EXPLORATION_EVENTS.length)];
-    const manager=equipmentEffects();
-    const power=teamFieldPower(names,area)+(manager.eventBonus||0)*40+Math.random()*18;
-    resultSuccess=power>20+area.level*4;
+    const pool=explorationEventsForArea(area.id),ev=pool[Math.floor(Math.random()*pool.length)];
+    resultSuccess=resolveFieldAttempt(names,area,kind,ev).success;
     title='隨機事件：'+ev.name;detail=ev.desc;
-    if(resultSuccess){ex.stats.eventsResolved++;reward='安全通過；獲得額外探索資料';stamp='RESOLVED'}
-    else{detail+=' 判斷失誤，探索隊提前撤離。';stamp='INCIDENT'}
-    const eventProgress=ex.eventProgress[ev.id]||(ex.eventProgress[ev.id]={encounters:0,resolved:0});eventProgress.encounters++;if(resultSuccess)eventProgress.resolved++;
+    if(resultSuccess){ex.stats.eventsResolved++;reward='安全通過；獲得額外探索資料';detail+=' '+(ev.success||'確認異常範圍後，隊伍安全通過。');stamp='RESOLVED'}
+    else{ctx.failureReason=ev.failure||'異常突然擴大，隊伍未能通過，只得沿來路撤離。';detail+=' '+ctx.failureReason;ctx.hazard=ev.hazard||'異常波及的現場殘骸';stamp='INCIDENT'}
+    const eventProgress=ex.eventProgress[ev.id]||(ex.eventProgress[ev.id]={encounters:0,resolved:0,failures:0});eventProgress.encounters++;if(resultSuccess)eventProgress.resolved++;else eventProgress.failures=(eventProgress.failures||0)+1;
+    if(resultSuccess){ex.stats.eventsResolvedByArea[area.id]=(ex.stats.eventsResolvedByArea[area.id]||0)+1;}
     ctx.event=ev.name;ctx.eventId=ev.id;ctx.success=resultSuccess;
   }else if(kind==='supply'){
-    title='補給發現';reward=pickExplorationLoot();
-    const extraChance=names.reduce((sum,n)=>sum+(sinnerSkillEffects(n,{area}).extraLootChance||0),0);
-    if(extraChance&&Math.random()<extraChance)reward+='；順手牽來：'+pickExplorationLoot();detail='在區域內找到可回收補給。';stamp='SUPPLY';
+    title='補給回收';resultSuccess=resolveFieldAttempt(names,area,kind).success;
+    if(resultSuccess){
+      reward=pickExplorationLoot();
+      const extraChance=names.reduce((sum,n)=>sum+(sinnerSkillEffects(n,{area}).extraLootChance||0),0);
+      if(extraChance&&Math.random()<extraChance)reward+='；順手牽來：'+pickExplorationLoot();
+      detail='確認封裝完好後，帶回可使用的補給。';stamp='SUPPLY';ex.stats.supplyRecovered++;
+    }else{
+      ctx.failureReason='補給箱的支架突然傾倒，破損包裝無法回收。';ctx.hazard='傾倒的箱架';
+      detail=ctx.failureReason;reward='未取得補給';stamp='INCIDENT';ex.stats.supplyFailures++;
+    }
+    ctx.success=resultSuccess;
   }else if(kind==='shop'){
     const shop=typeof createExplorationShop==='function'?createExplorationShop(area,names):null;
     title='隨機事件：'+(shop?shop.name:'臨時補給商');
@@ -403,7 +412,15 @@ function runExploration(){
     if(shop){const key='shop-'+area.id;const p=ex.eventProgress[key]||(ex.eventProgress[key]={encounters:0,resolved:0});p.encounters++;}
     ctx.shopName=shop?shop.name:'臨時補給商';ctx.success=true;
   }else{
-    title='裝備回收';reward=pickFieldGear();detail='發現可供罪人配置的探索裝備。';stamp='GEAR';
+    title='裝備回收';resultSuccess=resolveFieldAttempt(names,area,'gear').success;
+    if(resultSuccess){reward=pickFieldGear();detail='完成拆卸與檢查，帶回可配置的探索裝備。';stamp='GEAR';ex.stats.gearRecovered++;}
+    else{ctx.failureReason='固定扣在拆卸時斷裂，裝備跌入無法接近的殘骸下。';ctx.hazard='斷裂的固定架';detail=ctx.failureReason;reward='未取得裝備';stamp='INCIDENT';ex.stats.gearFailures++;}
+    ctx.success=resultSuccess;
+  }
+  if(!resultSuccess&&['event','supply','gear'].includes(kind)){
+    ctx.injuries=fieldFailureInjuries(names,area);
+    if(ctx.injuries.length){detail+=' '+ctx.hazard+'波及隊伍。'+fieldInjuryDescription(ctx.injuries)+'。';ex.stats.fieldIncidentsWithInjury++;}
+    else detail+=' 隊伍及時退開，未受傷。';
   }
 
   const managerEffects=equipmentEffects();
@@ -414,11 +431,11 @@ function runExploration(){
   names.forEach(function(n){xpBySinner[n]=sinnerExplorationXp(n,xp,{area,kind,success:resultSuccess});if(xpBySinner[n]>0){const res=awardSinnerExp(n,xpBySinner[n]);if(res.after>res.before)levelUps.push(n+' Lv.'+res.after)}});
   if(levelUps.length)reward+=(reward?'；':'')+'升級：'+levelUps.join('、');
   const dialogue=kind==='enemy'?[]:typeof generateExplorationDialogue==='function'?generateExplorationDialogue(names,kind,ctx):[];
-  ex.lastResult={at:new Date().toISOString(),areaId:area.id,area:area.name,names:names,kind:kind,title:title,detail:detail,reward:reward,stamp:stamp,xp:xp,dialogue:dialogue,combat:combat,eventId:ctx.eventId,enemyId:ctx.enemyId,dialogueVersion:5,xpBySinner:xpBySinner};
+  ex.lastResult={at:new Date().toISOString(),areaId:area.id,area:area.name,names:names,kind:kind,title:title,detail:detail,reward:reward,stamp:stamp,xp:xp,dialogue:dialogue,combat:combat,eventId:ctx.eventId,enemyId:ctx.enemyId,dialogueVersion:6,xpBySinner:xpBySinner,injuries:ctx.injuries||[],failureReason:ctx.failureReason||''};
   ex.logs=Array.isArray(ex.logs)?ex.logs:[];
   ex.logs.unshift({
     at:ex.lastResult.at,areaId:area.id,area:area.name,names:[...names],kind:kind,title:title,detail:detail,
-    reward:reward,stamp:stamp,xp:xp,dialogue:Array.isArray(dialogue)?dialogue:[],combat:combat,eventId:ctx.eventId,enemyId:ctx.enemyId,dialogueVersion:5,xpBySinner:xpBySinner
+    reward:reward,stamp:stamp,xp:xp,dialogue:Array.isArray(dialogue)?dialogue:[],combat:combat,eventId:ctx.eventId,enemyId:ctx.enemyId,dialogueVersion:6,xpBySinner:xpBySinner,injuries:ctx.injuries||[],failureReason:ctx.failureReason||''
   });
   ex.logs=ex.logs.slice(0,100);
   // spent 已增加，重新依記帳筆數校正剩餘行動點數。

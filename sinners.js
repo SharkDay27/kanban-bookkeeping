@@ -90,6 +90,10 @@ function ensureExplorationState(){
   state.exploration.stats=state.exploration.stats||{};
   state.exploration.stats.visited=Array.isArray(state.exploration.stats.visited)?state.exploration.stats.visited: [...new Set(state.exploration.logs.map(l=>l.areaId).filter(Boolean))];
   ['eventsResolved','shopPurchases'].forEach(k=>{if(state.exploration.stats[k]==null)state.exploration.stats[k]=state.exploration.logs.filter(l=>k==='eventsResolved'?l.kind==='event'&&l.stamp==='RESOLVED':l.kind==='shop'&&String(l.reward).includes('購入')).length});
+  const fieldStats=state.exploration.stats;
+  if(!fieldStats.eventsResolvedByArea){fieldStats.eventsResolvedByArea={};state.exploration.logs.filter(l=>l.kind==='event'&&l.stamp==='RESOLVED').forEach(l=>{if(l.areaId)fieldStats.eventsResolvedByArea[l.areaId]=(fieldStats.eventsResolvedByArea[l.areaId]||0)+1;});}
+  ['supplyRecovered','gearRecovered','supplyFailures','gearFailures','fieldIncidentsWithInjury'].forEach(k=>{if(fieldStats[k]==null)fieldStats[k]=0;});
+  Object.values(state.exploration.eventProgress).forEach(p=>{if(p.failures==null)p.failures=Math.max(0,(p.encounters||0)-(p.resolved||0));});
   state.exploration.runs=Math.max(0,Number(state.exploration.runs||0));
   state.exploration.selected=Array.isArray(state.exploration.selected)?state.exploration.selected.slice(0,2):['李箱','浮士德'];
   state.exploration.fieldGear=Array.isArray(state.exploration.fieldGear)?state.exploration.fieldGear:[];
