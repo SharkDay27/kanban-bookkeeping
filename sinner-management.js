@@ -47,7 +47,7 @@
               unavailable=fieldGearAssignedElsewhere(id,name);
             }
             return '<option value="'+safeEsc(id)+'" '+(selected?'selected':'')+' '+(unavailable&&!selected?'disabled':'')+'>'+
-              safeEsc(FIELD_GEAR[id].name)+(unavailable&&!selected?'（已配置）':'')+'</option>';
+              safeEsc(FIELD_GEAR[id].name)+'（使用 '+fieldGearCounts(id).used+' / 未使用 '+fieldGearCounts(id).unused+'）'+'</option>';
           })
         ).join('');
 
@@ -75,7 +75,7 @@
             var unlocked=lv>=Number(skill.lv||1);
             return '<div class="sinner-skill '+(unlocked?'unlocked':'locked')+'">'+
               '<b>Lv.'+Number(skill.lv||1)+' / '+safeEsc(skill.name||'技能')+'</b>'+
-              '<span>'+safeEsc(unlocked?(skill.desc||'已解鎖'):'尚未解鎖')+'</span></div>';
+              '<span>'+safeEsc((unlocked?'已生效 · ':'待解鎖 · ')+(skill.desc||''))+'</span></div>';
           }).join('')+'</div>'+
         '</article>';
       }).join('');

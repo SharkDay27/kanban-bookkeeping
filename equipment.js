@@ -16,6 +16,7 @@
 
   function attrs(item){
     const out=[];
+    if(item.allDamage)out.push('全隊基礎戰鬥傷害 +'+item.allDamage);
     if(item.expBonus)out.push('記帳 EXP +'+Math.round(item.expBonus*100)+'%');
     if(item.questXpBonus)out.push('任務 EXP +'+Math.round(item.questXpBonus*100)+'%');
     if(item.goldBonus)out.push('金幣收益 +'+Math.round(item.goldBonus*100)+'%');

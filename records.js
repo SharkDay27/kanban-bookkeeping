@@ -46,17 +46,18 @@
     if(typeof ensureExplorationState==='function')ensureExplorationState();
     const area=el('exploreRecordArea')?el('exploreRecordArea').value:'',kind=el('exploreRecordKind')?el('exploreRecordKind').value:'',
       q=(el('exploreRecordSearch')?el('exploreRecordSearch').value:'').trim().toLowerCase();
-    return (state.exploration&&state.exploration.logs||[]).filter(function(log){
+    const ex=state.exploration||{},source=mode==='events'?(ex.logs||[]).filter(l=>l.kind==='event'||l.kind==='shop').concat(ex.eventLogs||[]):ex.logs||[];
+    return source.filter(function(log){
       const matchArea=!area||log.areaId===area;
       const matchKind=!kind||log.kind===kind;
       const hay=[log.area,log.title,log.detail,log.reward].concat(log.names||[]).join(' ').toLowerCase();
       return matchArea&&matchKind&&(!q||hay.includes(q));
-    });
+    }).sort((a,b)=>String(b.at||'').localeCompare(String(a.at||'')));
   }
   function renderExploration(){
     const box=el('board');if(!box)return;
     const rows=exploreRows();
-    if(!rows.length){box.innerHTML='<div class="empty wood panel">目前沒有符合條件的探索紀錄。</div>';return}
+    if(!rows.length){box.innerHTML='<div class="empty wood panel">目前沒有符合條件的紀錄。</div>';return}
     box.innerHTML=rows.map(function(log){
       const names=(log.names||[]).map(function(n){const color=typeof sinnerColorForSpeaker==='function'?sinnerColorForSpeaker(n):'#c9c5bb';return '<span style="color:'+color+';font-weight:900">'+safe(n)+'</span>'}).join(' ＋ ');
       const combat=log.combat&&typeof renderCombatBreakdown==='function'?renderCombatBreakdown(log.combat):'';
@@ -69,10 +70,10 @@
     const book=el('bookkeepingFilters'),explore=el('explorationRecordFilters');
     document.querySelectorAll('[data-record-mode]').forEach(function(btn){btn.classList.toggle('active',btn.dataset.recordMode===mode)});
     if(book)book.hidden=mode!=='bookkeeping';
-    if(explore)explore.hidden=mode!=='exploration';
+    if(explore)explore.hidden=mode==='bookkeeping';
     if(mode==='bookkeeping')renderBookkeeping();else{refreshExploreAreas();renderExploration()}
   }
-  function setMode(next){mode=next==='exploration'?'exploration':'bookkeeping';render()}
+  function setMode(next){mode=['exploration','events'].includes(next)?next:'bookkeeping';const kind=el('exploreRecordKind');if(kind){const options=mode==='events'?{event:'隨機事件',shop:'商店發現',purchase:'商店購入',sale:'商店出售',box:'道具箱'}:{abnormality:'怪異戰鬥',event:'隨機事件',supply:'補給',gear:'裝備',shop:'商店',revive:'復活'};kind.innerHTML='<option value="">所有性質</option>'+Object.entries(options).map(([k,v])=>'<option value="'+k+'">'+v+'</option>').join('');}render()}
   document.addEventListener('click',function(ev){const btn=ev.target&&ev.target.closest?ev.target.closest('[data-record-mode]'):null;if(btn)setMode(btn.dataset.recordMode)});
   ['month','typeFilter','cat','search','exploreRecordArea','exploreRecordKind','exploreRecordSearch'].forEach(function(id){
     const node=el(id);if(node){node.addEventListener('input',render);node.addEventListener('change',render)}

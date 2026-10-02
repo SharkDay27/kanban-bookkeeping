@@ -77,6 +77,10 @@ function ensureExplorationState(){
   state.exploration.actions=Math.max(0,state.exploration.earned-state.exploration.spent);
   state.exploration.logs=Array.isArray(state.exploration.logs)?state.exploration.logs:[];
   state.exploration.activeShop=state.exploration.activeShop||null;
+  state.exploration.encounters=state.exploration.encounters||Object.fromEntries((state.exploration.seenAbnormalities||[]).map(id=>[id,1]));
+  state.exploration.stats=state.exploration.stats||{};
+  state.exploration.stats.visited=Array.isArray(state.exploration.stats.visited)?state.exploration.stats.visited: [...new Set(state.exploration.logs.map(l=>l.areaId).filter(Boolean))];
+  ['eventsResolved','shopPurchases'].forEach(k=>{if(state.exploration.stats[k]==null)state.exploration.stats[k]=state.exploration.logs.filter(l=>k==='eventsResolved'?l.kind==='event'&&l.stamp==='RESOLVED':l.kind==='shop'&&String(l.reward).includes('購入')).length});
   state.exploration.runs=Math.max(0,Number(state.exploration.runs||0));
   state.exploration.selected=Array.isArray(state.exploration.selected)?state.exploration.selected.slice(0,2):['李箱','浮士德'];
   state.exploration.fieldGear=Array.isArray(state.exploration.fieldGear)?state.exploration.fieldGear:[];
@@ -94,10 +98,12 @@ function grantExplorationActions(n){
   ensureExplorationState();
   return state.exploration.actions;
 }
-function sinnerEffectiveStats(name){
+function sinnerEffectiveStats(name,ctx={}){
   ensureExplorationState();
   const profile=SINNER_FIELD_PROFILES[name],data=state.exploration.sinners[name],lv=sinnerLevel(data);
   const stats={...profile.stats};
+  const effects=sinnerSkillEffects(name,ctx);
+  Object.keys(stats).forEach(k=>stats[k]+=effects[k]||0);
   const gear=FIELD_GEAR[data.gear];
   if(gear)Object.keys(gear.stats).forEach(function(k){stats[k]=(stats[k]||0)+gear.stats[k]});
   const lvBonus=Math.floor((lv-1)/2);
@@ -117,15 +123,12 @@ function awardSinnerExp(name,amount){
   return {before:before,after:after,gained:amount};
 }
 function teamFieldPower(names,area){
-  let total=0;
-  names.forEach(function(name){
-    const st=sinnerEffectiveStats(name),lv=sinnerLevel(state.exploration.sinners[name]);
-    total+=st.combat*1.1+st.observe+st.mobility*.7+st.stability*.9+lv*1.5;
-    if(name==='奧提斯')total+=2;
-    if(name==='以實瑪利')total+=1.5;
-    if(name==='浮士德')total+=1.5;
-  });
-  return total-area.level*2;
+ const stats=names.map(n=>sinnerEffectiveStats(n,{area}));let total=0,relief=0;
+ names.forEach((name,i)=>{const st=stats[i],ef=sinnerSkillEffects(name,{area}),lv=sinnerLevel(state.exploration.sinners[name]);
+  total+=st.combat*1.1+st.observe+st.mobility*.7+st.stability*.9+lv*1.5+(ef.eventPower||0)+(names.length===2?ef.teamPower||0:0);
+  if(names.length===2&&ef.disparityBonus){const other=stats[1-i];total+=Object.keys(st).reduce((sum,k)=>sum+Math.abs(st[k]-other[k]),0)*ef.disparityBonus;}
+  relief+=ef.levelPenaltyRelief||0;
+ });return total-area.level*2*(1-relief/names.length);
 }
 function maybeAutoHealSinner(name){
   const data=state.exploration.sinners[name];ensurePlayerState();
@@ -155,35 +158,26 @@ function reviveSinner(name){
   toast(name+' 已復活');
 }
 function sinnerCombatDamage(name,ab,area){
-  const data=state.exploration.sinners[name],st=sinnerEffectiveStats(name),lv=sinnerLevel(data),skills=unlockedFieldSkills(name);
-  let mult=1,flat=0,notes=[];
-  if(name==='良秀'){mult+=.22;notes.push('弱點切割');if(lv>=3&&ab.level>=5)mult+=.12}
-  if(name==='希斯克利夫'){mult+=.25;notes.push('強襲突破');if(lv>=6&&area.risk==='EXTREME')mult+=.12}
-  if(name==='堂吉訶德'){mult+=.14;notes.push('先鋒突入')}
-  if(name==='默爾索'){mult+=.10;flat+=2;notes.push('制壓固定')}
-  if(name==='以實瑪利'){mult+=.12;notes.push('追跡判讀')}
-  if(name==='奧提斯'){mult+=.08;notes.push('戰術指揮')}
-  if(name==='李箱'&&Math.random()<.22){mult+=.25;notes.push('軌跡讀取')}
-  if(name==='浮士德'){flat+=Math.floor(st.observe/3);notes.push('情報演算')}
-  if(name==='辛克萊'&&lv>=6){mult+=.10;notes.push('決意突破')}
-  const manager=equipmentEffects();
-  if(manager.allDamage){flat+=manager.allDamage;notes.push('管理支援 +'+manager.allDamage)}
-  const raw=(st.combat*2.1)+(st.observe*.55)+(lv*1.7)+flat+(Math.random()*6);
-  return {damage:Math.max(1,Math.round(raw*mult)),notes:notes};
+ const st=sinnerEffectiveStats(name,{ab,area}),lv=sinnerLevel(state.exploration.sinners[name]),ef=sinnerSkillEffects(name,{ab,area});
+ const support=equipmentEffects().allDamage||0,flat=(ef.flatDamage||0)+support;
+ const notes=unlockedFieldSkills(name).filter(s=>Object.keys(s.effects||{}).some(k=>['damageBonus','flatDamage','highLevelDamage','temporalObserve','combat','observe'].includes(k))&&(!s.when||sinnerSkillEffects(name,{ab,area})[Object.keys(s.effects)[0]]>0)).map(s=>s.name);
+ if(support)notes.push('管理支援 +'+support);
+ const raw=st.combat*2.1+st.observe*.55+lv*1.7+flat+Math.random()*6;
+ return {damage:Math.max(1,Math.round(raw*(1+(ef.damageBonus||0)))),notes};
 }
 function sinnerIncomingDamage(name,ab,killed){
-  const data=state.exploration.sinners[name],st=sinnerEffectiveStats(name);
-  let chance=killed?.28:.72;
-  if(name==='鴻璐')chance-=.08;
-  if(Math.random()>chance)return 0;
-  let base=5+ab.level*2+Math.floor(Math.random()*7)-Math.floor(st.stability*.65);
-  if(name==='默爾索')base=Math.round(base*.7);
-  if(name==='格里高爾')base=Math.round(base*.78);
-  if(name==='以實瑪利')base=Math.round(base*.88);
-  return Math.max(1,base);
+ const st=sinnerEffectiveStats(name,{ab}),ef=sinnerSkillEffects(name,{ab});
+ if(Math.random()>(killed?.28:.72))return 0;
+ const base=5+ab.level*2+Math.floor(Math.random()*7)-Math.floor(st.stability*.65);
+ return Math.max(1,Math.round(base*(1-Math.min(.6,ef.damageReduction||0))));
+}
+function fieldGearCounts(id){
+ const total=(state.exploration.fieldGear||[]).filter(g=>g===id).length;
+ const users=Object.entries(state.exploration.sinners||{}).filter(([n,d])=>d.gear===id).map(([n])=>n);
+ return {total,used:users.length,unused:Math.max(0,total-users.length),users};
 }
 function fieldGearAssignedElsewhere(gearId,name){
-  return Object.entries(state.exploration.sinners).some(function(pair){return pair[0]!==name&&pair[1].gear===gearId});
+ const c=fieldGearCounts(gearId);return c.used-(state.exploration.sinners[name]?.gear===gearId?1:0)>=c.total;
 }
 function assignFieldGear(name,gearId){
   ensureExplorationState();

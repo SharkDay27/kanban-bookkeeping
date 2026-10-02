@@ -1,8 +1,8 @@
 (function(){
-  function pick(arr){return arr[Math.floor(Math.random()*arr.length)]}
-  function speech(name,text){return {speaker:name,text:text,visibility:'public',kind:'speech'}}
-  function action(name,text){return {speaker:name,text:text,visibility:'public',kind:'action'}}
-
+ const VERSION=3;
+ const speech=(speaker,text)=>({speaker,text,kind:'speech'});
+ const action=(speaker,text)=>({speaker,text,kind:'action'});
+ const pick=arr=>arr[Math.floor(Math.random()*arr.length)];
   const EVENT={
     'sealed-door':{
       '李箱':['撞擊的間隔沒有變。先別開，讓它再重複一次。'],
@@ -76,80 +76,6 @@
     }
   };
 
-  // Replies contribute a next step tied to the event. Agreement alone never extends a scene.
-  const EVENT_REPLY={
-    'sealed-door':{
-      '李箱':'門先留在原處。把撞擊的間隔記下來，繞過去後再比對。',
-      '浮士德':'從旁邊的通道走。門後的聲音不值得用兩個人去驗證。',
-      '堂吉訶德':'吾來守住後方！汝先看看旁邊是否還有通道。',
-      '良秀':'繞。別站門前。',
-      '默爾索':'我守住門前。你確認後方通道。',
-      '鴻璐':'那我們走遠一點再聽？我想知道它還會不會撞同一個位置。',
-      '希斯克利夫':'你找路，我盯著這扇門。要走就叫我。',
-      '以實瑪利':'左邊還有路。我去確認，你先離門遠一點。',
-      '羅佳':'那就別給它開門服務了。走吧，換條路。',
-      '辛克萊':'我去看旁邊的通道。你也退開些，門框好像在晃。',
-      '奧提斯':'從側面撤開。我留在後方監視門板。',
-      '格里高爾':'後面還能退。我們別留在這裡等它把門撞開。'
-    },
-    'false-radio':{
-      '李箱':'把音量關掉吧。即便它繼續說，也不必由我們聽完。',
-      '浮士德':'切斷外放之後別試著重新連線。先用手勢走完這段。',
-      '堂吉訶德':'汝看得見吾的手勢嗎？那便不必再聽這東西了！',
-      '良秀':'關了。看人。',
-      '默爾索':'通訊器已靜音。接下來保持視線接觸。',
-      '鴻璐':'那我把它收起來。你要叫我，直接拍一下肩膀就好。',
-      '希斯克利夫':'我就在你旁邊。那破機器裡再傳出我的聲音也別理。',
-      '以實瑪利':'把它收進包裡。真有事我會碰你的手臂，不會用通訊叫你。',
-      '羅佳':'機器裡的就讓它自己聊吧。我看著你走。',
-      '辛克萊':'我把外放關了。接下來我會看著你的手勢。',
-      '奧提斯':'改用手勢。轉彎前先確認同伴已跟上。',
-      '格里高爾':'關了也好。至少現在不用猜哪個聲音是真的。'
-    },
-    'abandoned-meal':{
-      '李箱':'就讓它留在桌上吧。吾等不必成為這頓飯等待的人。',
-      '浮士德':'記下位置就夠了。餐點和餐具都留在原處。',
-      '堂吉訶德':'吾、吾沒有打算吃！只是聞一聞……走吧，離它遠些。',
-      '良秀':'不吃。走。',
-      '默爾索':'不搬動餐桌。從另一側通過。',
-      '鴻璐':'真可惜，看起來還挺用心的。那就留給原本的客人吧。',
-      '希斯克利夫':'別看了，越聞越餓。找個離這桌遠點的地方走。',
-      '以實瑪利':'別讓衣服碰到桌面。我們從靠牆那邊過去。',
-      '羅佳':'這頓就算了。回去以後再找點真的能吃的吧。',
-      '辛克萊':'我不碰它。這邊還有空間，我們繞過去。',
-      '奧提斯':'標記位置後離開，不攜帶任何餐具或食物。',
-      '格里高爾':'走吧。再站下去，肚子都要替它說服我了。'
-    },
-    'mirror-corridor':{
-      '李箱':'我們看著彼此走。讓鏡中之人自己決定要往哪裡去。',
-      '浮士德':'不要跟著鏡像調整步伐。看實際通道的邊界。',
-      '堂吉訶德':'吾盯著汝的背影！汝也別突然離開吾的視線！',
-      '良秀':'看我。別看它。',
-      '默爾索':'保持兩步距離。我會在每個轉角停下確認你的位置。',
-      '鴻璐':'那我看著你。鏡子裡那個再怎麼招手，我也不跟它走。',
-      '希斯克利夫':'我盯著你走。那東西再學，也別想把我帶偏。',
-      '以實瑪利':'你走靠牆那邊。我看著你，轉彎時先等我一下。',
-      '羅佳':'來，靠近一點。至少真的你不會隔著玻璃跟我說話。',
-      '辛克萊':'我看著你。到了轉角，能不能先停一下等我？',
-      '奧提斯':'由我帶路。每個轉角以手勢確認，別追隨鏡像。',
-      '格里高爾':'你走慢一點，我跟著。這回我可不想落單。'
-    },
-    'red-file':{
-      '李箱':'把它合上。接下來的路，還是由我們自己走。',
-      '浮士德':'封存後再檢查其他物件。別用裡面的敘述解釋每一件事。',
-      '堂吉訶德':'那便收起來！吾可不願照著一份怪文件過日子！',
-      '良秀':'封好。別念。',
-      '默爾索':'檔案單獨封存。不與一般探索資料混放。',
-      '鴻璐':'那就不往下看了。知道了反而老是會惦記著它。',
-      '希斯克利夫':'塞回袋子裡。該往哪走，我們自己看。',
-      '以實瑪利':'別再翻了。我們先按原本的路線走。',
-      '羅佳':'把它包好吧。不然我可能真的會忍不住看最後一頁。',
-      '辛克萊':'我不看了。收起來以後，我們還是照原本的計畫走吧。',
-      '奧提斯':'放入隔離袋。回程前不再開啟。',
-      '格里高爾':'收好吧。光看見自己的名字就夠不舒服了。'
-    }
-  };
-
   const FOUND={
     supply:{
       '李箱':'封口尚完整。至少它未被此地先行取用。',
@@ -194,34 +120,6 @@
       '格里高爾':'先看看缺什麼吧。難得碰到，也不能全買。'
     }
   };
-  const SHOP_REPLY={
-    '李箱':'吾查看存量，你看價格便好。',
-    '浮士德':'我核對現有物資。你先別離開攤位附近。',
-    '堂吉訶德':'吾來查看後方！汝慢慢核對便是。',
-    '良秀':'你挑。我看後面。',
-    '默爾索':'我負責周邊警戒。你核對商品。',
-    '鴻璐':'那我看看價牌。你也幫我確認一下哪些用得上。',
-    '希斯克利夫':'你看東西，我看後面。這裡可不是逛街的地方。',
-    '以實瑪利':'我核對存量。你留意攤子外面，別讓人繞到背後。',
-    '羅佳':'那你清點，我來看價錢。多買的就算了。',
-    '辛克萊':'我來清點背包。你先看商品，不用兩邊跑。',
-    '奧提斯':'我監視後方。你完成核對後通知我。',
-    '格里高爾':'我幫你看著後面。慢慢核對，別漏了價錢。'
-  };
-  const PACK_ACTION={
-    '李箱':'李箱打開回收袋，留出一處空位。',
-    '浮士德':'浮士德核對外觀後，將回收物與現有補給分開放好。',
-    '堂吉訶德':'堂吉訶德接過回收物，小心地放進袋裡。',
-    '良秀':'良秀檢查過外側，把回收物收進袋裡。',
-    '默爾索':'默爾索將回收物固定在袋內，確認不會在行進時滑動。',
-    '鴻璐':'鴻璐撐開袋口，讓搭檔把回收物放進去。',
-    '希斯克利夫':'希斯克利夫接過回收物，挪開背包裡礙事的東西。',
-    '以實瑪利':'以實瑪利查看另一側的封裝，才把回收物放好。',
-    '羅佳':'羅佳把袋子提近，空出位置接住回收物。',
-    '辛克萊':'辛克萊蹲下整理背包，替回收物留出空間。',
-    '奧提斯':'奧提斯檢查外包裝，將回收物單獨裝袋。',
-    '格里高爾':'格里高爾接過回收物，確認袋口扣緊後才起身。'
-  };
   const WITHDRAW={
     '李箱':'沿來路返回。此刻不必再求另一個答案。',
     '浮士德':'停止接觸。我們沿已確認的通道撤離。',
@@ -265,47 +163,88 @@
     '格里高爾':['還能走，就是有點疼。先換個地方吧。','我沒事。你先緩口氣，我看著後面。']
   };
 
-  // Retain stored reports, but omit old filler replies when displaying legacy scenes.
-  const LEGACY_FILLER=new Set(["先照你說的走。若有變化，再換一條路。", "你看到的和我看到的並不衝突。", "嗯，可以先這樣。剩下的等現場再給答案。", "我知道你的意思。先別把結論定死就好。", "好！那便照此行事！", "吾也看見那處不對勁了！", "行。你先來。", "嗯。這次你說得對。", "可以。按此執行。", "可行。條件改變再調整。", "原來你在意的是那裡。那我也再看看。", "可以呀，我也想看看它接下來會怎樣。", "行，就這麼辦。", "可以。真出問題再一起收拾。", "好，那先這樣。你別離我太遠。", "可以，但情況一變就撤，別硬撐。", "我知道你想繼續看，可先把退路留著，好嗎？", "對，我也覺得那裡不對。你先別碰，我去看另一邊。", "好啦，就先這麼來～", "可以啊，但別把唯一的退路堵死。", "好，我會注意那一點。", "嗯……這樣應該比較穩。", "可以執行。保持警戒。", "方案可行，但不要放鬆。", "行啊。先別把自己送進去就好。", "嗯，先這樣。真有怪事再改。", "媽媽不是沒在聽，她只是已經先去看下一步了。", "我覺得她剛才其實是在配合，只是不太會特地說出來。"]);
-  window.reviewExplorationDialogue=function(lines){
-    const seen=new Set();
-    return (Array.isArray(lines)?lines:[]).filter(function(line){
-      if(!line||!line.text||LEGACY_FILLER.has(line.text))return false;
-      const key=line.speaker+'|'+line.text;
-      if(seen.has(key))return false;
-      seen.add(key);return true;
-    });
-  };
 
-  window.generateExplorationDialogue=function(names,kind,ctx){
-    if(!Array.isArray(names)||names.length!==2||names[0]===names[1])return [];
-    ctx=ctx||{};
-    const first=names[0],second=names[1];
-    if(kind==='abnormality'){
-      const injuries=ctx.injuries||[],a=injuries.find(x=>x.name===first),b=injuries.find(x=>x.name===second);
-      const down=x=>x&&x.hp<=0;
-      if(down(a)&&down(b))return [action(first,'兩人相繼倒下，現場通訊中斷。')];
-      if(down(a)||down(b)){
-        const fallen=down(a)?first:second,standing=fallen===first?second:first;
-        return [action(fallen,fallen+'倒下後沒有回應。'),action(standing,standing+'退到倒下的同伴身旁，向終端回報位置並請求支援。')];
-      }
-      if(!ctx.success)return [speech(first,WITHDRAW[first]||'先撤離。'),action(second,second+'跟著退回來時的通道，不再追擊。')];
-      const reply=CONDITION_REPLY[second];
-      return [speech(first,COMBAT_WIN[first]||'先確認傷勢。'),speech(second,reply?reply[b&&b.damage>0?0:1]:'先離開這裡。')];
-    }
-    if(kind==='event'){
-      const event=ctx.eventId,opening=EVENT[event]&&EVENT[event][first];
-      if(ctx.success===false)return [speech(first,WITHDRAW[first]||'先撤離。'),action(second,second+'收起手邊的物件，跟著搭檔沿原路撤離。')];
-      if(!opening)return [action(first,first+'記下現場情況。')];
-      const reply=EVENT_REPLY[event]&&EVENT_REPLY[event][second];
-      return reply?[speech(first,pick(opening)),speech(second,reply)]:[speech(first,pick(opening))];
-    }
-    const source=FOUND[kind];
-    if(!source||!source[first])return [];
-    const opening=speech(first,source[first]);
-    if(kind==='shop')return SHOP_REPLY[second]?[opening,speech(second,SHOP_REPLY[second])]:[opening];
-    // A physical response can finish a discovery; it does not need another line of agreement.
-    if(kind==='gear')return [opening,action(second,second+'把裝備固定在回收袋裡，留待返回後檢查。')];
-    return PACK_ACTION[second]?[opening,action(second,PACK_ACTION[second])]:[opening];
+ const PACK={
+ '李箱':'李箱把散落的物件依次排開，留下一張標記才收進袋中。',
+ '浮士德':'浮士德逐項對照標籤，把破損的包裝另放一側。',
+ '堂吉訶德':'堂吉訶德一把抱起補給，袋口卻被勾住；她連忙換手，才把滑下的那份接住。',
+ '良秀':'良秀用刀鞘撥開外層碎片，挑出完好的物件。',
+ '默爾索':'默爾索把補給按大小堆好，重新調整背包的承重。',
+ '鴻璐':'鴻璐轉著手裡的包裝看了一圈，笑著遞給搭檔。',
+ '希斯克利夫':'希斯克利夫扯開卡住的袋口，把補給塞了進去。',
+ '以實瑪利':'以實瑪利翻到封口處查看，將滲漏的那份放回原處。',
+ '羅佳':'羅佳掂了掂補給袋，順手把最沉的一份拎到自己這邊。',
+ '辛克萊':'辛克萊先騰出背包裡的空位，接過物件時又確認了一遍數量。',
+ '奧提斯':'奧提斯清點完補給，打手勢示意搭檔收好後離開。',
+ '格里高爾':'格里高爾蹲下撿起滾遠的那份，拍掉灰塵，嘆口氣掛回袋邊。'
+ };
+ const GEAR={
+ '李箱':'李箱借著光查看裝備上的刻痕，在標籤背面記了幾個字。',
+ '浮士德':'浮士德翻開銘牌，核對型號後才鬆開固定扣。',
+ '堂吉訶德':'堂吉訶德興沖沖地提起裝備，差點撞上頭頂的管線，趕緊低下頭。',
+ '良秀':'良秀以指節敲了敲接縫，將裝備轉向光源檢查斷面。',
+ '默爾索':'默爾索拉緊裝備扣帶，確認負重後將它固定在背包外側。',
+ '鴻璐':'鴻璐好奇地轉動裝備上的小機關，還沒鬆手就又看向另一面。',
+ '希斯克利夫':'希斯克利夫抓住裝備晃了兩下，把鬆掉的扣子重新扣緊。',
+ '以實瑪利':'以實瑪利先找出磨損的位置，再把可用的那一件挑了出來。',
+ '羅佳':'羅佳比了比裝備的大小，已經伸手準備往身上套。',
+ '辛克萊':'辛克萊將裝備托在手裡，翻到背面找使用標示。',
+ '奧提斯':'奧提斯試過扣具，將不穩的部位做上標記。',
+ '格里高爾':'格里高爾伸展了一下肩膀，試著把裝備的帶子調到不勒手臂的位置。'
+ };
+ const EVENT_ACTION={
+ 'sealed-door':{
+ '李箱':'李箱停在牆邊，等下一次撞擊響起才落筆。','浮士德':'浮士德量過門縫，指向側邊的通道。','堂吉訶德':'堂吉訶德快步上前，手已伸到門把旁，又在撞擊聲中停住。','良秀':'良秀側過頭聽了一次，抬起刀鞘攔住搭檔。','默爾索':'默爾索抵住門把，確認它沒有向外鬆動。','鴻璐':'鴻璐俯身望向門縫，隨即換到撞擊碰不到的位置。','希斯克利夫':'希斯克利夫把靠近門邊的雜物踢開，朝旁邊的通道偏了偏頭。','以實瑪利':'以實瑪利拉開與門的距離，先查看通道拐角。','羅佳':'羅佳挑起眉，繞到門邊試著找能看進去的縫隙。','辛克萊':'辛克萊在下一聲撞擊響起時縮了縮肩，讓開了正對門的位置。','奧提斯':'奧提斯示意搭檔退到牆側，自己留意兩端通道。','格里高爾':'格里高爾揉了揉耳朵，沿牆走向旁邊的出口。'},
+ 'false-radio':{
+ '李箱':'李箱放下記錄筆，望向身旁實際站著的人。','浮士德':'浮士德取下耳機，檢查發訊端的指示燈。','堂吉訶德':'堂吉訶德差點喊出聲，捂住嘴後怒瞪著無線電。','良秀':'良秀伸手按下開關。無線電的雜音戛然而止。','默爾索':'默爾索切斷電源，收起耳機線。','鴻璐':'鴻璐把無線電翻了過來，指尖停在多亮了一格的燈上。','希斯克利夫':'希斯克利夫一把扯下耳機，把無線電塞回包裡。','以實瑪利':'以實瑪利壓住發話鍵的護蓋，改用手勢示意。','羅佳':'羅佳撇撇嘴，轉低音量，把它遞到搭檔眼前。','辛克萊':'辛克萊按住自己的喉嚨，沒有再對那道聲音作答。','奧提斯':'奧提斯關閉外放，抬手要求停止發話。','格里高爾':'格里高爾摘下耳機，呼出一口氣，把線繞好。'},
+ 'abandoned-meal':{
+ '李箱':'李箱望著始終沒有散去的蒸氣，沒有落座。','浮士德':'浮士德記下餐盤的位置，沒有碰動任何餐具。','堂吉訶德':'堂吉訶德已拉開椅子，聽見搭檔的聲音才停住，戀戀不捨地放開椅背。','良秀':'良秀以刀鞘碰了一下桌沿，目光停在沒有消散的熱氣上。','默爾索':'默爾索繞過餐桌，讓出足夠通行的空間。','鴻璐':'鴻璐俯身看了看餐點，又朝沒有人的廚房望去。','希斯克利夫':'希斯克利夫推回椅子，背過身去。','以實瑪利':'以實瑪利先拐到桌旁，查看通往廚房的門。','羅佳':'羅佳聞了聞香氣，手指停在叉子旁，還沒有拿起。','辛克萊':'辛克萊看著冒熱氣的餐盤，握緊了背包的帶子。','奧提斯':'奧提斯在桌外畫下記號，示意不要越過。','格里高爾':'格里高爾摸了摸肚子，無奈地移開目光。'},
+ 'mirror-corridor':{
+ '李箱':'李箱抬起右手，靜待鏡中那隻手追上來。','浮士德':'浮士德將實際的步數寫下，避開鏡中指向另一邊的手。','堂吉訶德':'堂吉訶德突然轉身，差點與搭檔撞在一起，立即讓開半步。','良秀':'良秀盯著鏡面，指尖在刀鞘上敲出穩定的間隔。','默爾索':'默爾索保持步距，讓搭檔一直留在視線內。','鴻璐':'鴻璐向鏡子揮了一下手，見倒影仍沒動，便收起了笑。','希斯克利夫':'希斯克利夫握緊武器，朝鏡中慢半拍的自己瞪了一眼。','以實瑪利':'以實瑪利伸手示意搭檔看向自己，沿牆摸到下一個轉角。','羅佳':'羅佳本想做個鬼臉，看到倒影先動了嘴角，便慢慢退開。','辛克萊':'辛克萊避開鏡中自己的視線，跟緊搭檔的腳步。','奧提斯':'奧提斯用實際的門框作記號，沒有理會鏡中的出口。','格里高爾':'格里高爾看了看自己的手臂，搖頭離開那面鏡子。'},
+ 'red-file':{
+ '李箱':'李箱用空白紙遮住尚未讀到的段落，合起文件。','浮士德':'浮士德將封面上的日期記下，把文件裝入隔離袋。','堂吉訶德':'堂吉訶德猛地合上文件，太用力的封面夾住了指尖；她甩了甩手。','良秀':'良秀以刀鞘壓住翻起的紙頁，沒再看下去。','默爾索':'默爾索將文件封好，另行標示為待檢查物。','鴻璐':'鴻璐翻到空白的背頁看了一眼，把文件交回搭檔。','希斯克利夫':'希斯克利夫合上文件，塞進袋子裡。','以實瑪利':'以實瑪利把文件翻扣在桌面，先看向實際的通道。','羅佳':'羅佳看了看標題，嘆口氣把它往回推。','辛克萊':'辛克萊的手指停在那行日期上，還沒翻到下一頁。','奧提斯':'奧提斯將文件單獨封存，避免隊伍繼續翻閱。','格里高爾':'格里高爾闔上文件，撓了撓後頸。'}
+ };
+ window.generateExplorationDialogue=function(names,kind,ctx){
+  if(!Array.isArray(names)||names.length!==2||names[0]===names[1])return [];
+  ctx=ctx||{};const [first,second]=names;
+  const has=n=>names.includes(n);
+  if(kind==='event'){
+   const id=ctx.eventId;
+   if(ctx.success===false)return [speech(first,WITHDRAW[first]),action(second,EVENT_ACTION[id]?.[second]||second+'收起物品，沿來路撤回。')];
+   if(id==='false-radio'&&has('良秀')){
+    const other=names.find(n=>n!=='良秀');return [speech(other,pick(EVENT[id][other])),action('良秀',EVENT_ACTION[id]['良秀'])];
+   }
+   if(id==='red-file'&&has('希斯克利夫')){
+    const lines=has('辛克萊')?[speech('辛克萊',pick(EVENT[id]['辛克萊']))]:[];
+    return lines.concat(speech('希斯克利夫','嘖，別看這種破玩意。'),action('希斯克利夫',EVENT_ACTION[id]['希斯克利夫']));
+   }
+   if(id==='abandoned-meal'&&has('羅佳')&&has('格里高爾'))return [speech('羅佳','還熱著呢，格雷格。要不要試一口？'),speech('格里高爾','等一下啊。這裡多久沒人了？'),action('羅佳',EVENT_ACTION[id]['羅佳'])];
+   if(['mirror-corridor','abandoned-meal'].includes(id)&&has('良秀'))return [speech('良秀',id==='mirror-corridor'?'慢了半拍。不是倒影，是時間。':'熱氣沒散。這裡的時間停了。'),action('良秀','良秀在刀鞘上敲出兩次間隔，察覺回聲的節奏不對，隨即把搭檔攔在異常範圍之外。')];
+   const opening=EVENT[id]?.[first];return opening?[speech(first,pick(opening)),action(second,EVENT_ACTION[id]?.[second]||second+'記下現場的變化。')]:[];
+  }
+  if(kind==='abnormality'){
+   const injury=n=>(ctx.injuries||[]).find(x=>x.name===n),a=injury(first),b=injury(second);
+   if(a?.hp<=0&&b?.hp<=0)return [action(first,'兩人相繼倒下，現場通訊中斷。')];
+   if(a?.hp<=0||b?.hp<=0){const fallen=a?.hp<=0?first:second,standing=fallen===first?second:first;return [action(fallen,fallen+'倒下後沒有回應。'),action(standing,standing+'移到同伴身旁，向終端回報位置並請求支援。')];}
+   if(has('良秀')&&/時間|時序|時鐘|時間性|temporal/i.test([ctx.abnormalityType,ctx.abnormality].join(' ')))return [speech('良秀','又少了一瞬。別跟它的節奏走。'),action('良秀','良秀察覺動作之間缺失的時間，錯開那一拍出刀，然後將搭檔帶離異常的節點。')];
+   if(!ctx.success)return [speech(first,WITHDRAW[first]),action(second,second+'沿來時的通道退開，停止追擊。')];
+   return [speech(first,COMBAT_WIN[first]),speech(second,CONDITION_REPLY[second][b?.damage>0?0:1])];
+  }
+  if(kind==='gear'&&has('羅佳')&&has('格里高爾'))return [speech('羅佳','看著還不錯嘛。格雷格，我試一下？'),action('羅佳',GEAR['羅佳']),speech('格里高爾','先等等，帶子都裂了。別剛套上就摔一跤。')];
+  if(kind==='gear')return [action(first,GEAR[first]),speech(second,FOUND.gear[second])];
+  if(kind==='supply')return [speech(first,FOUND.supply[first]),action(second,PACK[second])];
+  if(kind==='shop')return [speech(first,FOUND.shop[first])];
+  return [];
+ };
+ window.reviewExplorationDialogue=lines=>(Array.isArray(lines)?lines:[]).filter(l=>l&&l.text);
+ window.refreshExplorationDialogues=function(){
+  ensureExplorationState();const ex=state.exploration;
+  const update=l=>{
+   if(!l||l.dialogueVersion===VERSION||!(l.names||[]).length||l.kind==='revive')return false;
+   const ev=EXPLORATION_EVENTS.find(e=>String(l.title).includes(e.name));
+   const ctx={eventId:l.eventId||ev?.id,success:!['INCIDENT','ENGAGED'].includes(l.stamp),abnormality:l.combat?.enemy?.name,abnormalityType:l.combat?.enemy?.type,injuries:(l.combat?.allies||[]).map(a=>({name:a.name,hp:a.hp,damage:a.taken}))};
+   l.dialogue=window.generateExplorationDialogue(l.names,l.kind,ctx);l.dialogueVersion=VERSION;return true;
   };
+  let changed=false;(ex.logs||[]).forEach(l=>{if(update(l))changed=true});if(update(ex.lastResult))changed=true;return changed;
+ };
 })();

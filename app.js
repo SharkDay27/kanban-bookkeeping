@@ -1,27 +1,16 @@
 const KEY='kanban-bookkeeping-rpg-v4';
 const OLD_KEYS=['kanban-bookkeeping-rpg-v3','kanban-bookkeeping-rpg-v2','kanban-bookkeeping-rpg-v1','kanban-bookkeeping-safe-v1'];
-const EXPENSE_CATS=['餐飲','飲料','便利商店','交通','購物','訂閱/數位','娛樂','醫療','生活用品','其他'];
+const EXPENSE_CATS=['餐飲','飲料','交通','服飾','學習','日用品','訂閱','娛樂','醫療','其他'];
 const INCOME_CATS=['薪資','獎金','退款','零用錢','投資','禮金','其他收入'];
 const XP_PER_ENTRY=10;
-const CATEGORY_COLORS={
- '餐飲':{accent:'#c87548',border:'#70472f',bg:'#291d17',text:'#efc3a5',active:'#59331f'},
- '飲料':{accent:'#5b9cc7',border:'#355d76',bg:'#16232b',text:'#b8dff5',active:'#22475d'},
- '便利商店':{accent:'#4aa47a',border:'#32674f',bg:'#16251e',text:'#bce7d0',active:'#224f3a'},
- '交通':{accent:'#6d82c7',border:'#45547f',bg:'#1a1e2d',text:'#c7d1f5',active:'#2c396b'},
- '購物':{accent:'#b7659a',border:'#744163',bg:'#281925',text:'#efc0df',active:'#5b294a'},
- '訂閱/數位':{accent:'#8270c7',border:'#51467a',bg:'#1f1b2b',text:'#d5ccf4',active:'#3d3265'},
- '娛樂':{accent:'#b88345',border:'#76562f',bg:'#281f16',text:'#efd3a8',active:'#5b3e1e'},
- '醫療':{accent:'#b85b5b',border:'#733c3c',bg:'#291919',text:'#efc0c0',active:'#592828'},
- '生活用品':{accent:'#7f9560',border:'#50603d',bg:'#1e2419',text:'#d3e2bd',active:'#3c4a2b'},
- '其他':{accent:'#777b84',border:'#4b4e55',bg:'#1d1e22',text:'#d0d1d5',active:'#35373d'},
- '薪資':{accent:'#52a66e',border:'#386f4b',bg:'#17271c',text:'#c3efd0',active:'#28573a'},
- '獎金':{accent:'#c39b45',border:'#79632f',bg:'#2a2417',text:'#f2dfab',active:'#5d4b1f'},
- '退款':{accent:'#58a5a2',border:'#39706e',bg:'#172827',text:'#c1ecea',active:'#285957'},
- '零用錢':{accent:'#9c7cc2',border:'#66517e',bg:'#221d2a',text:'#dfcef2',active:'#4a3960'},
- '投資':{accent:'#4d91aa',border:'#356073',bg:'#17232a',text:'#bee2ef',active:'#284b59'},
- '禮金':{accent:'#c56c78',border:'#7b4650',bg:'#2b1a1e',text:'#f2c5cc',active:'#60303a'},
- '其他收入':{accent:'#689478',border:'#466453',bg:'#19241d',text:'#cbe0d2',active:'#34503e'}
-};
+const CATEGORY_COLORS=Object.fromEntries([
+ ['餐飲','#a85c39','#fae5d8'],['飲料','#346b91','#dfedf8'],['交通','#52669b','#e4e9fa'],
+ ['服飾','#995474','#f7e2ed'],['學習','#78619a','#ece6f7'],['日用品','#557b46','#e6f0df'],
+ ['訂閱','#735b9d','#e9e3f8'],['娛樂','#99701f','#fff0d4'],['醫療','#a05259','#f9e3e5'],['其他','#5f7480','#e9eff2'],
+ ['薪資','#397451','#ddf0e2'],['獎金','#946b22','#fbefd1'],['退款','#357a79','#e0f2ef'],['零用錢','#7d5e99','#eee3f6'],
+ ['投資','#39758b','#e0eff5'],['禮金','#a1576a','#f8e1e8'],['其他收入','#52765e','#e3efe5']
+].map(([name,accent,bg])=>[name,{accent,border:accent,bg,text:accent,active:bg}]));
+const CATEGORY_MIGRATION={'便利商店':'其他','購物':'其他','生活用品':'日用品','訂閱/數位':'訂閱'};
 function categoryStyle(cat){
   const p=CATEGORY_COLORS[cat]||CATEGORY_COLORS['其他'];
   return '--cat-accent:'+p.accent+';--cat-border:'+p.border+';--cat-bg:'+p.bg+';--cat-text:'+p.text+';--cat-active:'+p.active;
@@ -149,7 +138,7 @@ const HANS_PHRASES={
  '分類':'分类','日期、付款方式、備註（選填）':'日期、付款方式、备注（选填）','日期':'日期','付款方式':'付款方式',
  '備註':'备注','需要時再填即可':'需要时再填即可','取消':'取消','刪除':'删除','儲存並再記一筆':'保存并再记一笔','儲存':'保存',
  '現金':'现金','轉帳':'转账','信用卡':'信用卡','支付寶':'支付宝','微信':'微信','其他':'其他',
- '餐飲':'餐饮','飲料':'饮料','便利商店':'便利店','交通':'交通','購物':'购物','訂閱/數位':'订阅/数字',
+ '餐飲':'餐饮','飲料':'饮料','交通':'交通','服飾':'服饰','學習':'学习','日用品':'日用品','訂閱':'订阅',
  '娛樂':'娱乐','醫療':'医疗','生活用品':'生活用品','獎金':'奖金','退款':'退款','零用錢':'零用钱','投資':'投资',
  '禮金':'礼金','其他收入':'其他收入','所有分類':'所有分类','收入':'收入','支出':'支出',
  '罪人評議':'罪人评议','罪人評議記錄':'罪人评议记录','依時間':'按时间','依罪人':'按罪人','查看評議記錄':'查看评议记录',
@@ -251,7 +240,7 @@ function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&l
 function toast(msg){const t=$('toast');t.textContent=localizeText(msg);t.style.display='block';clearTimeout(toast._t);toast._t=setTimeout(()=>t.style.display='none',2400)}
 function saveLocal(){localStorage.setItem(KEY,JSON.stringify(state))}
 function defaultState(){return {entries:[],profile:{initialAmount:0,name:'但丁',currency:'TWD',language:'zh-Hant'},rpg:{xp:0,gold:0,itemBoxes:0,chests:{wood:0,silver:0,gold:0},inventory:[],equipped:[],consumables:{water:3,potion:0},player:{hp:100,maxHp:100,lastCombat:'尚無受擊紀錄。'},lastContainment:null,achievements:[],monthlyBosses:{},rewardLog:'開始記錄來啟動管理流程。',streakMilestones:[]},exploration:null,daily:{}}}
-function normalizeEntry(x){return {...x,type:x.type||'expense',category:x.category||'其他',amount:Number(x.amount||0),date:x.date||today(),payment:x.payment||'現金',store:x.store||'未命名紀錄',items:Array.isArray(x.items)?x.items:[],note:x.note||''}}
+function normalizeEntry(x){return {...x,type:x.type||'expense',category:CATEGORY_MIGRATION[x.category]||x.category||'其他',amount:Number(x.amount||0),date:x.date||today(),payment:x.payment||'現金',store:x.store||'未命名紀錄',items:Array.isArray(x.items)?x.items:[],note:x.note||''}}
 function migrate(old){const s=defaultState();
   if(Array.isArray(old)){s.entries=old.map(v=>normalizeEntry(v));return s}
   if(old?.entries)s.entries=old.entries.map(v=>normalizeEntry(v));
@@ -313,19 +302,14 @@ function pickExplorationLoot(){
   state.rpg.itemBoxes=(state.rpg.itemBoxes||0)+1;return '道具箱 ×1';
 }
 function pickFieldGear(){
-  ensureExplorationState();
-  const ids=Object.keys(FIELD_GEAR),unowned=ids.filter(function(id){return !state.exploration.fieldGear.includes(id)});
-  if(unowned.length){const id=unowned[Math.floor(Math.random()*unowned.length)];state.exploration.fieldGear.push(id);return FIELD_GEAR[id].name}
-  state.rpg.itemBoxes=(state.rpg.itemBoxes||0)+1;return '道具箱 ×1（重複裝備轉換）';
+ ensureExplorationState();const ids=Object.keys(FIELD_GEAR),id=ids[Math.floor(Math.random()*ids.length)];
+ state.exploration.fieldGear.push(id);return FIELD_GEAR[id].name+' ×1';
 }
-function explorationEventKind(){
-  const bonus=Math.min(.10,Number(equipmentEffects().lootBonus||0));
-  const r=Math.random();
-  if(r<.30-bonus*.35)return 'abnormality';
-  if(r<.54-bonus*.20)return 'event';
-  if(r<.72+bonus*.35)return 'supply';
-  if(r<.86+bonus*.65)return 'gear';
-  return 'shop';
+function explorationEventKind(names=state.exploration.selected,area=EXPLORATION_AREAS.find(a=>a.id===state.exploration.areaId)){
+ const weights=explorationSkillWeights(names,area),bonus=Math.min(.10,Number(equipmentEffects().lootBonus||0));
+ weights.supply+=bonus*100;weights.gear+=bonus*50;
+ let roll=Math.random()*Object.values(weights).reduce((s,n)=>s+n,0);
+ for(const [kind,w] of Object.entries(weights)){roll-=w;if(roll<0)return kind;}return 'shop';
 }
 function runExploration(){
   ensureExplorationState();
@@ -337,7 +321,8 @@ function runExploration(){
   const area=EXPLORATION_AREAS.find(function(x){return x.id===ex.areaId})||EXPLORATION_AREAS[0];
   ex.activeShop=null;
   ex.actions--;ex.spent++;ex.runs++;
-  const kind=explorationEventKind();
+  if(!ex.stats.visited.includes(area.id))ex.stats.visited.push(area.id);
+  const kind=explorationEventKind(names,area);
   let title='',detail='',reward='',stamp='FIELD',xp=18,ctx={area:area.name,kind:kind},combat=null;
   let resultSuccess=true;
 
@@ -348,7 +333,7 @@ function runExploration(){
     const maxHp=30+ab.level*12,attacks=[],damageTotal=0;
     let total=0;
     names.forEach(function(n){
-      const hit=sinnerCombatDamage(n,ab,area);total+=hit.damage;attacks.push({name:n,damage:hit.damage,notes:hit.notes});
+      const hit=sinnerCombatDamage(n,{...ab,id},area);total+=hit.damage;attacks.push({name:n,damage:hit.damage,notes:hit.notes});
     });
     const remaining=Math.max(0,maxHp-total),killed=remaining===0;
     const injuries=[];
@@ -376,6 +361,7 @@ function runExploration(){
     }).join('；');
     detail+=' '+injuryText+'。';
     ex.abnormalityProgress[id]=prog;
+    ex.encounters[id]=(ex.encounters[id]||0)+1;
     combat={
       enemy:{name:ab.name,maxHp:maxHp,remaining:remaining,level:ab.level,type:ab.type},
       allies:attacks.map(function(hit){
@@ -391,11 +377,13 @@ function runExploration(){
     const power=teamFieldPower(names,area)+(manager.eventBonus||0)*40+Math.random()*18;
     resultSuccess=power>20+area.level*4;
     title='隨機事件：'+ev.name;detail=ev.desc;
-    if(resultSuccess){reward='安全通過；獲得額外探索資料';xp=24+area.level*2;stamp='RESOLVED'}
+    if(resultSuccess){ex.stats.eventsResolved++;reward='安全通過；獲得額外探索資料';xp=24+area.level*2;stamp='RESOLVED'}
     else{detail+=' 判斷失誤，探索隊提前撤離。';xp=12;stamp='INCIDENT'}
     ctx.event=ev.name;ctx.eventId=ev.id;ctx.success=resultSuccess;
   }else if(kind==='supply'){
-    title='補給發現';reward=pickExplorationLoot();detail='在區域內找到可回收補給。';xp=16+area.level;stamp='SUPPLY';
+    title='補給發現';reward=pickExplorationLoot();
+    const extraChance=names.reduce((sum,n)=>sum+(sinnerSkillEffects(n,{area}).extraLootChance||0),0);
+    if(extraChance&&Math.random()<extraChance)reward+='；順手牽來：'+pickExplorationLoot();detail='在區域內找到可回收補給。';xp=16+area.level;stamp='SUPPLY';
   }else if(kind==='shop'){
     const shop=typeof createExplorationShop==='function'?createExplorationShop(area,names):null;
     title='隨機事件：'+(shop?shop.name:'臨時補給商');
@@ -412,14 +400,15 @@ function runExploration(){
   const managerEffects=equipmentEffects();
   if(managerEffects.exploreXpBonus)xp=Math.max(1,Math.round(xp*(1+managerEffects.exploreXpBonus)));
   const levelUps=[];
-  names.forEach(function(n){const res=awardSinnerExp(n,xp);if(res.after>res.before)levelUps.push(n+' Lv.'+res.after)});
+  const xpBySinner={};
+  names.forEach(function(n){xpBySinner[n]=sinnerExplorationXp(n,xp,{area,kind,success:resultSuccess});const res=awardSinnerExp(n,xpBySinner[n]);if(res.after>res.before)levelUps.push(n+' Lv.'+res.after)});
   if(levelUps.length)reward+=(reward?'；':'')+'升級：'+levelUps.join('、');
   const dialogue=typeof generateExplorationDialogue==='function'?generateExplorationDialogue(names,kind,ctx):[];
-  ex.lastResult={at:new Date().toISOString(),areaId:area.id,area:area.name,names:names,kind:kind,title:title,detail:detail,reward:reward,stamp:stamp,xp:xp,dialogue:dialogue,combat:combat};
+  ex.lastResult={at:new Date().toISOString(),areaId:area.id,area:area.name,names:names,kind:kind,title:title,detail:detail,reward:reward,stamp:stamp,xp:xp,dialogue:dialogue,combat:combat,eventId:ctx.eventId,dialogueVersion:3,xpBySinner:xpBySinner};
   ex.logs=Array.isArray(ex.logs)?ex.logs:[];
   ex.logs.unshift({
     at:ex.lastResult.at,areaId:area.id,area:area.name,names:[...names],kind:kind,title:title,detail:detail,
-    reward:reward,stamp:stamp,xp:xp,dialogue:Array.isArray(dialogue)?dialogue:[],combat:combat
+    reward:reward,stamp:stamp,xp:xp,dialogue:Array.isArray(dialogue)?dialogue:[],combat:combat,eventId:ctx.eventId,dialogueVersion:3,xpBySinner:xpBySinner
   });
   ex.logs=ex.logs.slice(0,100);
   // spent 已增加，重新依記帳筆數校正剩餘行動點數。
@@ -466,22 +455,7 @@ function renderExploration(){
   if($('containedCountHome'))$('containedCountHome').textContent=containedAbnormalityCount();
   if($('exploreTeamHome'))$('exploreTeamHome').textContent=(ex.selected||[]).join('＋')||'未指定';
 
-  const areaBox=$('explorationAreas');
-  if(areaBox){
-    areaBox.innerHTML=EXPLORATION_AREAS.map(function(area){
-      const active=ex.areaId===area.id;
-      const fullyContained=(area.abnos||[]).length>0&&(area.abnos||[]).every(function(id){
-        const p=ex.abnormalityProgress&&ex.abnormalityProgress[id];
-        return !!(p&&p.contained);
-      });
-      return '<button type="button" class="exploration-area-card wood '+(active?'active ':'')+(fullyContained?'contained':'')+'" data-area="'+area.id+'">'+
-        '<div class="area-risk">RISK / '+area.risk+(fullyContained?' · CONTAINED':'')+'</div>'+
-        '<div class="area-name">'+esc(area.name)+'</div>'+
-        (fullyContained?'<div class="area-contained-badge">收容完成</div>':'')+
-        '<div class="area-level">建議等級 Lv.'+area.level+'</div><div class="area-desc">'+esc(area.desc)+'</div></button>';
-    }).join('');
-    areaBox.querySelectorAll('[data-area]').forEach(function(btn){btn.onclick=function(){ex.areaId=btn.dataset.area;saveLocal();renderExploration()}});
-  }
+  if(typeof renderExplorationAreas==='function')renderExplorationAreas();
 
   const picker=$('explorationTeamPicker');
   if(picker){
@@ -506,7 +480,7 @@ function renderExploration(){
     $('exploreResultStamp').className='archive-stamp '+explorationStatusClass(r&&r.stamp);
   }
   if($('exploreResult'))$('exploreResult').innerHTML=r
-    ?'<div class="explore-result-title">'+esc(r.title)+'</div><div class="explore-result-meta">'+esc(r.area)+' / '+esc(r.names.join('＋'))+' / EXP +'+r.xp+'</div>'+
+    ?'<div class="explore-result-title">'+esc(r.title)+'</div><div class="explore-result-meta">'+esc(r.area)+' / '+esc(r.names.join('＋'))+' / '+(r.xpBySinner?Object.entries(r.xpBySinner).map(([n,x])=>n+' EXP +'+x).join(' · '):'EXP +'+r.xp)+'</div>'+
       (r.combat?renderCombatBreakdown(r.combat):'<div class="explore-result-detail">'+esc(r.detail)+'</div>')+
       (r.reward?'<div class="explore-reward">REWARD / '+esc(r.reward)+'</div>':'')
     :'等待探索命令。';
@@ -532,7 +506,7 @@ function renderExploration(){
       return '<article class="exploration-log-entry wood">'+
         '<div class="exploration-log-head"><span class="record-kind-badge '+explorationStatusClass(log.stamp)+'">'+esc(log.stamp||'FIELD')+'</span><time>'+esc(time)+'</time></div>'+
         '<div class="exploration-log-title">'+esc(log.title||'探索紀錄')+'</div>'+
-        '<div class="exploration-log-meta">'+esc(log.area||'未知區域')+' / '+esc((log.names||[]).join('＋'))+' / EXP +'+Number(log.xp||0)+'</div>'+
+        '<div class="exploration-log-meta">'+esc(log.area||'未知區域')+' / '+esc((log.names||[]).join('＋'))+' / '+(log.xpBySinner?Object.entries(log.xpBySinner).map(([n,x])=>n+' EXP +'+x).join(' · '):'EXP +'+Number(log.xp||0))+'</div>'+
         (log.combat?renderCombatBreakdown(log.combat):'<div class="exploration-log-detail">'+esc(log.detail||'')+'</div>')+
         (log.reward?'<div class="exploration-log-reward">REWARD / '+esc(log.reward)+'</div>':'')+
         (Array.isArray(log.dialogue)&&log.dialogue.length?'<div class="exploration-log-dialogue">'+reviewedExplorationLines(log.dialogue).map(function(line){
@@ -584,7 +558,7 @@ function renderSinnerManagement(){
   box.querySelectorAll('[data-sinner-gear]').forEach(function(sel){sel.onchange=function(){assignFieldGear(sel.dataset.sinnerGear,sel.value)}});
 }
 function equipmentEffects(){
-  const out={expBonus:0,questXpBonus:0,goldBonus:0,allDamage:0,shopDiscount:0,exploreXpBonus:0,eventBonus:0,lootBonus:0};
+  const out={monsterDamage:0,bossDamage:0,expBonus:0,questXpBonus:0,goldBonus:0,allDamage:0,shopDiscount:0,exploreXpBonus:0,eventBonus:0,lootBonus:0};
   const catalog=(typeof window!=='undefined'&&window.RPG_EQUIPMENT_CATALOG)||EQUIPMENT_EFFECTS;
   (state.rpg.equipped||[]).forEach(function(name){
     const e=catalog[name]||EQUIPMENT_EFFECTS[name];
@@ -600,6 +574,7 @@ function toggleEquip(name){
   const i=state.rpg.equipped.indexOf(name);
   if(i>=0){state.rpg.equipped.splice(i,1);toast('已卸下 '+name)}
   else if(state.rpg.equipped.length>=3){toast('最多同時裝備 3 件');return}
+  else if(!state.rpg.inventory.includes(name)){toast('尚未持有這件裝備');return}
   else{state.rpg.equipped.push(name);toast('已裝備 '+name)}
   checkAchievements();saveLocal();render();
 }
@@ -625,7 +600,7 @@ function damageBoss(base){
     const spec=BOSS_CATALOG.find(function(x){return x.id===b.id})||BOSS_CATALOG[0];
     state.rpg.gold+=100;
     state.rpg.itemBoxes=(state.rpg.itemBoxes||0)+1;
-    if(!state.rpg.inventory.includes(spec.reward))state.rpg.inventory.unshift(spec.reward);
+    state.rpg.inventory.unshift(spec.reward);
     state.rpg.rewardLog='月度 BOSS 鎮壓完成！\n獲得 100 金幣、道具箱 ×1 與 '+spec.reward+'。';
   }
 }
@@ -778,19 +753,18 @@ function openItemBox(){
   }else if(roll<0.65){
     const gold=30+Math.floor(Math.random()*71);state.rpg.gold+=gold;reward='金幣 ×'+gold;
   }else if(roll<0.83){
-    const ids=Object.keys(FIELD_GEAR),unowned=ids.filter(function(id){return !state.exploration.fieldGear.includes(id)});
-    if(unowned.length){const id=unowned[Math.floor(Math.random()*unowned.length)];state.exploration.fieldGear.push(id);reward='探索裝備：'+FIELD_GEAR[id].name}
-    else{const gold=80+Math.floor(Math.random()*41);state.rpg.gold+=gold;reward='探索裝備已齊全，轉換為金幣 ×'+gold}
+    reward='探索裝備：'+pickFieldGear();
   }else if(roll<0.93){
-    const pool=(typeof window!=='undefined'&&typeof window.rpgSupportEquipmentNames==='function')?window.rpgSupportEquipmentNames():Object.keys(EQUIPMENT_EFFECTS),unowned=pool.filter(function(name){return !state.rpg.inventory.includes(name)});
-    if(unowned.length){const loot=unowned[Math.floor(Math.random()*unowned.length)];state.rpg.inventory.unshift(loot);reward='管理支援裝備：'+loot}
-    else{state.rpg.consumables.potion+=2;reward='小型治療藥水 ×2'}
+    const pool=typeof window.rpgSupportEquipmentNames==='function'?window.rpgSupportEquipmentNames():Object.keys(EQUIPMENT_EFFECTS);
+    const loot=pool[Math.floor(Math.random()*pool.length)];state.rpg.inventory.unshift(loot);reward='管理支援裝備：'+loot+' ×1';
   }else if(roll<0.98){
     state.rpg.itemBoxes+=1;state.rpg.gold+=100;reward='額外道具箱 ×1 ＋ 金幣 ×100';
   }else{
     state.rpg.gold+=200;state.rpg.consumables.potion+=2;state.rpg.consumables.water+=3;
     reward='稀有補給包：金幣 ×200、治療藥水 ×2、瓶裝水 ×3';
   }
+  state.exploration.stats.boxesOpened=(state.exploration.stats.boxesOpened||0)+1;
+  recordRandomEvent({kind:'box',title:'道具箱開啟',detail:'開啟一個道具箱。',reward:reward,stamp:'SUPPLY'});
   state.rpg.rewardLog='開啟道具箱！\n獲得 '+reward+'。';
   saveLocal();try{render()}catch(e){console.error(e)}toast('獲得 '+reward);
 }
@@ -921,11 +895,19 @@ function render(){
   if($('initialInput'))$('initialInput').value=state.profile.initialAmount||'';
 }
 
+function speakerMarkup(name){
+ const value=String(name||'');if(value.includes('阿賴耶'))return '<span class="speaker-main">阿賴耶</span><small class="speaker-role">（刀鞘）</small>';
+ return esc(value);
+}
+function recordRandomEvent(event){
+ ensureExplorationState();const ex=state.exploration;ex.eventLogs=Array.isArray(ex.eventLogs)?ex.eventLogs:[];
+ ex.eventLogs.unshift({at:new Date().toISOString(),area:'LCB 巴士',names:[],...event});ex.eventLogs=ex.eventLogs.slice(0,200);
+}
 function renderCommentLines(comment){
   if(!comment||!Array.isArray(comment.lines))return '';
   return comment.lines.map(function(line){
     const color=typeof sinnerColorForSpeaker==='function'?sinnerColorForSpeaker(line.speaker):'#c9c5bb';
-    return '<div class="commentary-line" style="--speaker-color:'+color+'"><div class="commentary-speaker">'+esc(line.speaker)+'</div><div class="commentary-text">'+esc(line.text)+'</div></div>';
+    return '<div class="commentary-line" style="--speaker-color:'+color+'"><div class="commentary-speaker">'+speakerMarkup(line.speaker)+'</div><div class="commentary-text">'+esc(line.text)+'</div></div>';
   }).join('');
 }
 function showSinnerComment(comment){
@@ -942,10 +924,12 @@ function showSinnerComment(comment){
 function backfillMissingComments(){
   let changed=false;
   state.entries.forEach(function(entry){
+    if(entry.comment&&entry.comment.version!==COMMENTARY_VERSION){entry.comment=refreshSinnerComment(entry);changed=true;}
     if(!entry.comment && entry.source && String(entry.source).startsWith('手動')){
       entry.comment=generateSinnerComment(entry);changed=true;
     }
   });
+  if(typeof refreshExplorationDialogues==='function'&&refreshExplorationDialogues())changed=true;
   if(changed)saveLocal();
 }
 
@@ -967,7 +951,7 @@ function commentEntryCard(entry,opts){
   }
   if(!lines.length)return '';
   const copy={...entry.comment,lines:lines};
-  return '<div class="commentary-entry wood '+(opts.sinner?'compact-by-sinner':'')+'"><div class="commentary-head"><div><b>'+esc(entry.store)+'</b><div class="commentary-meta">'+esc(entry.date)+' / '+(entry.type==='income'?'收入':'支出')+' / '+esc(entry.category||'其他')+' / '+money(entry.amount)+'</div></div><span class="commentary-tag '+(rare?'rare':'')+'">'+commentKindLabel(entry.comment.kind)+'</span></div><div class="commentary-lines">'+renderCommentLines(copy)+'</div></div>';
+  return '<div class="commentary-entry wood kind-'+esc(entry.comment.kind)+' '+(opts.sinner?'compact-by-sinner':'')+'"><div class="commentary-head"><div><b>'+esc(entry.store)+'</b><div class="commentary-meta">'+esc(entry.date)+' / '+(entry.type==='income'?'收入':'支出')+' / '+esc(entry.category||'其他')+' / '+money(entry.amount)+'</div></div><span class="commentary-tag '+(rare?'rare':'')+'">'+commentKindLabel(entry.comment.kind)+'</span></div><div class="commentary-lines">'+renderCommentLines(copy)+'</div></div>';
 }
 function setCommentaryView(view){
   commentaryView=view==='sinner'?'sinner':'time';
@@ -1059,7 +1043,7 @@ function syncEntryTypeUI(){
 }
 function renderQuickCats(){
   const type=$('etype').value, cats=type==='income'?INCOME_CATS:EXPENSE_CATS, current=$('ecat').value;
-  $('quickCats').innerHTML=cats.slice(0,8).map(cat=>`<button type="button" class="quick-cat ${cat===current?'active':''}" style="${categoryStyle(cat)}" data-quick-cat="${esc(cat)}">${esc(cat)}</button>`).join('');
+  $('quickCats').innerHTML=cats.map(cat=>`<button type="button" class="quick-cat ${cat===current?'active':''}" style="${categoryStyle(cat)}" data-quick-cat="${esc(cat)}">${esc(cat)}</button>`).join('');
   document.querySelectorAll('[data-quick-cat]').forEach(b=>b.onclick=()=>{$('ecat').value=b.dataset.quickCat;renderQuickCats()});
 }
 function openEdit(id,presetType){const entry=id?state.entries.find(x=>x.id===id):null;$('dlgTitle').textContent=entry?'編輯記錄':(presetType==='income'?'新增收入':'新增支出');$('eid').value=entry?.id||'';$('etype').value=entry?.type||presetType||'expense';updateCategoryOptions($('etype').value);$('edate').value=entry?.date||today();$('eamt').value=entry?.amount??'';$('estore').value=entry?.store||'';$('ecat').value=entry?.category||($('etype').value==='income'?'薪資':'其他');const payCandidate=entry?.payment||state.profile.lastPayment||'現金';$('epay').value=PAYMENT_OPTIONS.includes(payCandidate)?payCandidate:'其他';$('enote').value=entry?.note||'';$('del').style.display=entry?'':'none';$('saveAgain').style.display=entry?'none':'';syncEntryTypeUI();syncVisualViewport();$('dlg').showModal();setTimeout(()=>{syncVisualViewport();$('eamt').focus()},120)}
@@ -1069,6 +1053,7 @@ function saveEntry(keepOpen=false){
   const obj={...(old||{}),id:id||('manual-'+Date.now()),type:type,date:$('edate').value,amount:Number($('eamt').value||0),store:$('estore').value.trim()||'未命名紀錄',category:$('ecat').value,payment:$('epay').value,note:$('enote').value.trim(),source:old&&old.source?old.source:(type==='income'?'手動收入':'手動支出'),items:old&&old.items?old.items:[]};
   let freshComment=null;
   if(id){
+    if(old?.comment&&(old.category!==obj.category||old.amount!==obj.amount||old.type!==obj.type)){obj.comment=authoredComment(obj,old.comment.kind,old.comment.lines?.[0]?.speaker);obj.comment.createdAt=old.comment.createdAt||obj.date;}
     state.entries=state.entries.map(function(x){return x.id===id?obj:x});
     state.rpg.rewardLog='已編輯記錄：'+obj.store+'\n編輯不會額外獲得 EXP。';
     toast('已更新記錄');
@@ -1105,7 +1090,15 @@ function saveEntry(keepOpen=false){
 }
 function deleteEntry(){const id=$('eid').value;if(!id)return;if(confirm('確定刪除這筆記錄？')){state.entries=state.entries.filter(x=>x.id!==id);state.rpg.rewardLog='你刪除了一筆記錄。';saveLocal();$('dlg').close();render();toast('已刪除記錄')}}
 function parseCSVLoose(text){const rows=[];let row=[],field='',q=false;for(let i=0;i<text.length;i++){const c=text[i],n=text[i+1];if(q){if(c==='"'&&n==='"'){field+='"';i++}else if(c==='"'){q=false}else field+=c}else{if(c==='"')q=true;else if(c===','){row.push(field);field=''}else if(c==='\n'){row.push(field);rows.push(row);row=[];field=''}else if(c!=='\r')field+=c}}if(field.length||row.length){row.push(field);rows.push(row)}if(!rows.length)return [];const head=rows[0],out=[];rows.slice(1).forEach(r=>{if(!r.some(Boolean))return;while(r.length<head.length)r.push('');if(r.length>head.length)r=[...r.slice(0,head.length-1),r.slice(head.length-1).join(',')];out.push(Object.fromEntries(head.map((k,i)=>[k,r[i]||'']))) });return out}
-function autoExpenseCategory(store,items){const t=(store+' '+items.join(' ')).toLowerCase(),rules=[['便利商店',['統一超商','7-eleven','全家便利','萊爾富','ok mart']],['飲料',['茶','咖啡','飲料','鮮奶','拿鐵']],['交通',['捷運','台鐵','高鐵','uber','停車','加油']],['訂閱/數位',['apple','google','icloud','netflix','spotify','youtube']],['餐飲',['餐盒','便當','早餐','午餐','晚餐','飯','麵','餐廳','雞腿','壽司','鍋']],['購物',['誠品','紀伊國屋','商場','百貨','服飾','uniqlo','無印良品']],['醫療',['藥局','診所','醫院']],['娛樂',['電影','影城','遊戲','steam']]];for(const [cat,kws] of rules){if(kws.some(k=>t.includes(k)))return cat}return '其他'}
+function autoExpenseCategory(store,items){
+ const t=(store+' '+items.join(' ')).toLowerCase(),rules=[
+  ['醫療',['藥局','診所','醫院','掛號','處方']],['服飾',['服飾','uniqlo','襯衫','外套','褲','襪','鞋']],
+  ['學習',['課程','學費','教材','教科書','誠品','紀伊國屋']],['日用品',['洗衣精','洗碗精','衛生紙','牙刷','牙膏','洗髮','肥皂','清潔劑']],
+  ['訂閱',['apple','google','icloud','netflix','spotify','youtube','訂閱']],['交通',['捷運','台鐵','高鐵','uber','停車','加油']],
+  ['娛樂',['電影','影城','遊戲','steam']],['飲料',['茶','咖啡','飲料','鮮奶','拿鐵']],
+  ['餐飲',['餐盒','便當','早餐','午餐','晚餐','飯','麵','餐廳','雞腿','壽司','鍋']]
+ ];for(const [cat,kws] of rules){if(kws.some(k=>t.includes(k)))return cat}return '其他';
+}
 async function importCsvFiles(ev){const files=[...ev.target.files];if(!files.length)return;let added=0,updated=0;for(const file of files){const text=(await file.text()).replace(/^\ufeff/,'');const rows=parseCSVLoose(text);const groups={};rows.forEach(r=>{const inv=(r['發票號碼']||'').trim(),d=(r['發票日期']||'').trim();if(inv&&/^\d{8}$/.test(d))(groups[inv]??=[]).push(r)});for(const [inv,rs] of Object.entries(groups)){const d=rs[0]['發票日期'],date=`${d.slice(0,4)}-${d.slice(4,6)}-${d.slice(6,8)}`,store=(rs[0]['賣方名稱']||'未命名店家').trim(),items=rs.map(r=>({name:(r['消費明細_品名']||'未提供品名').trim(),amount:Number(r['消費明細_金額']||r['發票金額']||0)})),amount=items.reduce((s,i)=>s+i.amount,0),id='inv-'+inv,old=state.entries.find(x=>x.id===id),obj={id,type:'expense',date,invoice:inv,store,amount,category:old?.category||autoExpenseCategory(store,items.map(i=>i.name)),payment:old?.payment||'未設定',note:old?.note||'',items,source:'電子發票',comment:old?.comment||null};if(old){state.entries=state.entries.map(x=>x.id===id?obj:x);updated++}else{obj.comment=generateSinnerComment(obj);state.entries.push(obj);added++}}}
 if(added){grantXp(added*XP_PER_ENTRY,`匯入發票完成，共新增 ${added} 筆`);grantExplorationActions(added)}else state.rpg.rewardLog=`匯入完成，沒有新增資料。更新了 ${updated} 筆資料。`;checkQuests();saveLocal();render();toast(`匯入完成：新增 ${added} 筆，更新 ${updated} 筆`);ev.target.value=''}
 function download(name,content,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([content],{type}));a.download=name;a.click()}

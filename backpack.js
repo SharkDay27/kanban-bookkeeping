@@ -15,10 +15,10 @@
       if(field){
         const ids=[...new Set(ex.fieldGear||[])].filter(function(id){return FIELD_GEAR[id]});
         field.innerHTML=ids.length?ids.map(function(id){
-          const g=FIELD_GEAR[id],assigned=Object.entries(ex.sinners||{}).find(function(pair){return pair[1].gear===id});
+          const g=FIELD_GEAR[id],counts=fieldGearCounts(id);
           const stats=Object.entries(g.stats||{}).map(function(p){const names={combat:'戰鬥',observe:'觀察',mobility:'機動',stability:'穩定'};return '<span>'+names[p[0]]+' +'+p[1]+'</span>'}).join('');
           const rarity=typeof itemRarity==='function'?itemRarity(g.rarity):{className:'rarity-common',label:'一般'};
-          const sell=typeof itemSellPrice==='function'?itemSellPrice('field',id,g.name,g.rarity):0; return '<article class="wood equipment-card-v2 '+rarity.className+'"><div class="pack-item-head"><strong>'+e(g.name)+'</strong><span class="pack-state rarity-label">'+rarity.label+'</span></div><div class="pack-desc">'+e(g.desc)+'</div><div class="equipment-attr">'+stats+'</div><div class="equipment-source">罪人探索裝備'+(assigned?' · 配置：'+e(assigned[0]):' · 未配置')+' · 售價 '+sell+' G</div></article>';
+          const sell=typeof itemSellPrice==='function'?itemSellPrice('field',id,g.name,g.rarity):0; return '<article class="wood equipment-card-v2 '+rarity.className+'"><div class="pack-item-head"><strong>'+e(g.name)+'</strong><span class="pack-state rarity-label">'+rarity.label+'</span></div><div class="pack-desc">'+e(g.desc)+'</div><div class="equipment-attr">'+stats+'</div><div class="equipment-source">罪人探索裝備'+' · 總數 '+counts.total+' / 使用 '+counts.used+' / 未使用 '+counts.unused+(counts.users.length?' · '+e(counts.users.join('、')):'')+' · 售價 '+sell+' G</div></article>';
         }).join(''):'<div class="empty">尚未取得探索裝備。探索、商店與道具箱都有機會取得。</div>';
       }
 
@@ -30,7 +30,7 @@
           const rarity=typeof itemRarity==='function'?itemRarity(item.rarity):{className:'rarity-common',label:String(item.rarity||'一般')};
           const sell=typeof itemSellPrice==='function'?itemSellPrice('support',name,name,item.rarity):0; return '<button type="button" class="wood equipment-card-v2 '+rarity.className+' '+(on?'equipped':'')+'" data-support-equip="'+e(name)+'"><div class="pack-item-head"><strong>'+e(name)+'</strong><span class="pack-state rarity-label">'+rarity.label+(on?' · EQUIPPED':'')+'</span></div>'+
             '<div class="pack-desc">'+e(item.desc)+'</div><div class="equipment-attr">'+attrs.map(function(x){return '<span>'+e(x)+'</span>'}).join('')+'</div>'+
-            '<div class="equipment-source">'+e(item.slot)+' / '+e(item.source)+' · 售價 '+sell+' G</div><div class="equipment-action">'+(on?'點擊卸下':'點擊裝備（最多 3 件）')+'</div></button>';
+            '<div class="equipment-source">'+'總數 '+(state.rpg.inventory||[]).filter(x=>x===name).length+' / 使用 '+(on?1:0)+' / 未使用 '+Math.max(0,(state.rpg.inventory||[]).filter(x=>x===name).length-(on?1:0))+'<br>'+e(item.slot)+' / '+e(item.source)+' · 售價 '+sell+' G</div><div class="equipment-action">'+(on?'點擊卸下':'點擊裝備（最多 3 件）')+'</div></button>';
         }).join(''):'<div class="empty">尚無管理支援裝備。可由道具箱、探索與商店取得。</div>';
         support.querySelectorAll('[data-support-equip]').forEach(function(btn){btn.onclick=function(){toggleEquip(btn.dataset.supportEquip);setTimeout(render,0)}});
       }

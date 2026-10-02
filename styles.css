@@ -2450,3 +2450,90 @@ dialog#dlg .dialog-close{color:#426b7a!important;background:#e9f3f7!important;bo
 
 /* Match the entry window accent strip to its light surfaces. */
 dialog#dlg form.modal::before{background:linear-gradient(90deg,#cf8e7b 0 38%,#9abac8 38% 100%)!important}
+
+/* Light archive surfaces, including nested legacy components. */
+.language-switch{background:#e9f3f7!important;border-color:#aecdd8!important}
+.language-switch button{background:#fff!important;color:#486773!important}
+.language-switch button.active{background:#c9e6f1!important;color:#244f64!important;border:2px solid #548fa8!important;box-shadow:inset 0 -3px 0 #548fa8!important}
+.language-switch button.active::after{content:' ✓';font-weight:900}
+.bestiary-region-head{background:#e3f0f5!important;border-color:#b7d5df!important;color:#315a6b!important;border-left:4px solid #70a5ba!important}
+.bestiary-region-name{color:#284f61!important;font-size:18px}
+.bestiary-region-meta,.bestiary-region-head .archive-id{color:#4b6978!important;font-size:12px!important;line-height:1.65}
+.bestiary-card,.bestiary-card.locked{background:#f7fbfc!important;opacity:1!important;filter:none!important;border-color:#c5dbe3!important}
+.bestiary-card .specimen,.bestiary-card.locked .specimen{background:#eaf3f6!important;border-color:#c0d7df!important}
+.abno-glyph{background:#f8fcfd!important;border-color:#9bbbc9!important;color:#577986!important}
+.bestiary-name{color:#2d5666!important}
+.bestiary-meta,.bestiary-code,.abno-area,.abno-type{color:#536e7b!important;font-size:12px!important;opacity:1!important}
+.bestiary-status{background:#e0edf4!important;color:#416a82!important;border-color:#b2cfdd!important}
+.bestiary-status.unknown{background:#edf1f3!important;color:#62747e!important}
+.bestiary-status.done{background:#e5f1e7!important;color:#396d49!important;border:2px solid #78a287!important;transform:rotate(-6deg);font-weight:900}
+
+.commentary-view-switch{background:#eaf3f7!important;border-color:#bdd8e1!important}
+.commentary-view-switch button,.sinner-filter{background:#fff!important;color:#496c7b!important;border-color:#bdd5e0!important;font-size:13px!important}
+.commentary-view-switch button.active,.sinner-filter.active{background:#dcecf5!important;color:#2e5870!important;border-color:#7ba5ba!important;box-shadow:inset 0 -3px 0 #7ba5ba!important}
+.sinner-filter .count{opacity:1;color:#526f7b!important;font-size:11px;background:#edf5f8;padding:2px 5px;border-radius:4px}
+.sinner-group-head{background:#e9f3f7!important;border-color:#bdd5df!important;border-left-color:#8dadc0!important}
+.sinner-group-name{color:var(--speaker-color,#315b6d)!important;text-shadow:none!important}
+.sinner-group-code,.sinner-group-count{color:#526f7e!important;font-size:12px!important}
+.commentary-entry,.commentary-entry.wood{background:#f9fcfd!important;border-color:#bdd7e1!important;box-shadow:0 3px 10px rgba(57,100,122,.06)!important;border-left:3px solid #98bbca!important}
+.commentary-entry:nth-child(even){background:#f1f7fa!important}
+.commentary-entry .commentary-head{border-color:#d6e6ec!important}
+.commentary-head b{color:#315b6b!important}
+.commentary-line{background:#fff!important;border-color:#d6e6ed!important}
+.commentary-tag{color:#416c80!important;background:#e7f1f5!important;border-color:#bad4df!important}
+.commentary-tag.rare{color:#76518a!important;background:#f0e8f5!important;border-color:#cfb6dc!important}
+.speaker-main,.speaker-role{display:block;white-space:nowrap}
+.commentary-speaker .speaker-role{font-size:12px!important;color:#526c79!important;letter-spacing:.5px}
+
+.explore-dialogue-line.action,.exploration-log-dialogue .action{background:#edf3ed!important;border:1px dashed #b1c4b4!important;border-left:3px solid #92ad98!important;padding:10px 12px!important;margin:7px 0}
+.explore-dialogue-line.action span,.exploration-log-dialogue .action span{color:#455e4b!important;font-family:Georgia,'Noto Serif TC','Songti TC',serif!important;font-style:italic;font-size:14px!important;line-height:1.8!important}
+.explore-dialogue-line.action b::after,.exploration-log-dialogue .action b::after{content:' · 動作';color:#56715d;font-size:11px;font-weight:500}
+.combat-report-main span{color:#496977!important;font-size:13px!important;line-height:1.75!important}
+.combat-report-main strong{font-size:15px!important}
+.combat-report-label{font-size:11px!important;line-height:1.6}
+
+:root[data-theme="light"] .exploration-area-card{position:relative;background:#f7fbfd!important;border:1px solid #bbd5df!important;color:#315768!important;padding:16px!important;min-height:160px;text-align:left}
+:root[data-theme="light"] .exploration-area-card.active,:root[data-theme="light"] .exploration-area-card.active.contained{background:#dbeef6!important;border:2px solid #568da8!important;box-shadow:inset 4px 0 0 #568da8,0 3px 12px rgba(64,111,139,.12)!important}
+.area-card-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}
+.area-selected{background:#53829a;color:#fff;border-radius:4px;padding:4px 7px;font-size:12px;font-weight:700;white-space:nowrap}
+.area-risk,.area-level,.area-desc{color:#4c6b7a!important;font-size:12px!important;line-height:1.65}
+.area-name{color:#2c5367!important;font-size:18px!important;line-height:1.4;margin-bottom:8px}
+.area-seal{margin:12px 5px 3px}
+
+.achievement-card,.achievement-card.locked{background:#f8fbfd!important;opacity:1!important;filter:none!important;border:1px solid #bdd5df!important;border-left:3px solid #9fbcca!important;box-shadow:0 3px 10px rgba(64,105,124,.05)!important;padding:18px!important;min-height:210px}
+.achievement-card.unlocked{background:#f1f8f3!important;border-color:#b6d2c1!important;border-left:3px solid #86ac95!important}
+.achievement-card .achievement-badge{background:#eaf2f6!important;color:#526d7d!important;border-color:#bdd1dc!important;font-size:11px;letter-spacing:.3px;padding:4px 8px;top:15px;right:14px}
+.achievement-card.unlocked .achievement-badge{background:#edf7ef!important;color:#396a48!important;border:2px solid #7ca289!important;outline:1px solid #7ca289;outline-offset:2px;transform:rotate(-9deg);font-size:14px;font-weight:900;letter-spacing:2px;right:17px;top:19px}
+.achievement-id{color:#547383!important;font-size:11px!important;padding-right:80px}
+.achievement-card .achievement-category{color:#567889!important;font-size:12px!important;margin:8px 0}
+.achievement-name{color:#315969!important;font-size:17px!important;margin:12px 0 8px;line-height:1.5}
+.achievement-desc,.achievement-progress-text{color:#4e6a78!important;font-size:13px!important;line-height:1.7}
+.achievement-reward-line{color:#7c5d27!important;background:#fbf2df!important;padding:8px 10px;margin-top:12px;border:1px solid #e5d3ae;font-size:12px!important;line-height:1.6}
+.achievement-view-switch button.active{background:#dcecf4!important;color:#315c71!important;border-color:#8eb2c5!important;box-shadow:inset 0 -3px 0 #7fa5ba!important}
+.achievement-empty{background:#f5fafc!important;border-color:#b3d0dd!important;color:#527080!important}
+.achievement-category-filter{display:flex;align-items:center;gap:12px;color:#4a6b7a;font-size:13px;margin:12px 0 16px}
+.achievement-category-filter select{min-width:130px;min-height:40px}
+.sinner-skill.locked{opacity:1!important;background:#f1f5f8!important;border-color:#cbdbe2!important}
+.sinner-skill span{color:#526e7b!important;line-height:1.65!important;font-size:12px!important}
+#settings .settings-grid>.field{background:#f1f8fb!important;border-color:#c0d9e3!important;padding:14px!important}
+#settings label{color:#416575!important;font-size:13px!important}
+#settings input,#settings select{background:#fff!important;color:#315563!important;border:1px solid #adccd9!important;min-height:46px}
+#settings .settings-note{background:#f5f9fb;padding:12px 14px;color:#4f6e7d!important;line-height:1.8;border-left:3px solid #9ab7c8}
+button:focus-visible,select:focus-visible{outline:3px solid #6096b0!important;outline-offset:3px}
+@media(max-width:700px){
+ .commentary-view-switch{background:#eaf3f7!important}
+ .achievement-card{min-height:200px}
+ .area-card-top{flex-wrap:wrap}
+ .explore-dialogue-line.action{grid-template-columns:1fr}
+}
+
+.commentary-entry.kind-araya .commentary-speaker{display:block!important}
+.commentary-entry.kind-araya .commentary-line{grid-template-columns:110px minmax(0,1fr)}
+@media(max-width:700px){.commentary-entry.kind-araya .commentary-line{grid-template-columns:1fr}}
+
+/* Each archive region gets enough width for readable specimen notes. */
+#bestiaryGrid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:20px!important;align-items:start}
+#bestiaryGrid .bestiary-region{margin:0!important;min-width:0}
+#bestiaryGrid .bestiary-region .bestiary-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:10px}
+@media(max-width:900px){#bestiaryGrid{grid-template-columns:1fr!important}}
+@media(max-width:500px){#bestiaryGrid .bestiary-region .bestiary-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
