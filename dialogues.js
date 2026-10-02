@@ -25,8 +25,8 @@ const SINNER_COLORS={
   '辛克萊':'#79a95a',
   '奧提斯':'#8e9a55',
   '格里高爾':'#9a7358',
-  '阿賴耶':'#e59aa9',
-  '阿賴耶識':'#b78691'
+  '阿賴耶':'#355f9f',
+  '阿賴耶識':'#29456f'
 };
 function sinnerColorForSpeaker(speaker){
   const s=String(speaker||'');
@@ -699,26 +699,101 @@ function sinnerLine(sinner,entry){
   return parts.join(' ');
 }
 
-function arayaScabbardLines(ryoshuText,meaning){
+function arayaIndependentThought(entry){
+  const cat=entry&&entry.category||'';
+  const type=entry&&entry.type||'expense';
+  const tier=entry?amountTier(entry):'medium';
+  const thoughts={
+    '餐飲':[
+      '我倒覺得吃得值得，比一味想著省更重要。只是別每次都拿「今天很累」當理由就好。',
+      '如果這餐真的讓你滿足，那就不用因為記帳而覺得有罪惡感。記清楚就好。'
+    ],
+    '飲料':[
+      '飲料就是很容易一杯一杯沒感覺。比起完全不喝，我比較想知道你一個月到底喝了多少。',
+      '偶爾喝一杯沒什麼吧。只是如果每天都來一杯，月底看到總額可能會嚇到。'
+    ],
+    '購物':[
+      '我比較在意你買回去之後會不會真的用。會用的話，至少不是只為了那一瞬間。',
+      '媽媽總是先看要不要砍。我會先問：這東西一個月後你還會覺得值得嗎？'
+    ],
+    '交通':[
+      '交通有時候不是想省就能省。能比較不同走法的成本就已經很有用了。',
+      '這種支出我不太想苛責。只要不是為了方便而一直付出你自己都沒注意到的溢價。'
+    ],
+    '訂閱/數位':[
+      '訂閱最麻煩的是忘記，不是金額本身。真的有在用的話，我不覺得一定要砍。',
+      '如果每個月都有打開，那就算有價值；如果連上次什麼時候用都想不起來，就很可疑了。'
+    ],
+    '娛樂':[
+      '我不覺得娛樂支出需要先被否定。能讓自己真的開心，也算是一種用途。',
+      '只要不是花完之後反而後悔，我覺得偶爾對自己好一點沒什麼。'
+    ],
+    '醫療':[
+      '這種錢我不贊成省。身體出問題之後，通常只會付出更多。',
+      '醫療不是拿來跟一般消費一起心疼的。該處理的就先處理。'
+    ],
+    '薪資':[
+      '比起薪水進來多少，我更在意月底到底還能留下多少。',
+      '收到錢的那一刻最容易覺得自己突然很有餘裕。其實固定支出還在後面排隊。'
+    ],
+    '獎金':[
+      '獎金拿一點來做想做的事也沒什麼吧。全部拿去存，反而像沒收到一樣。',
+      '額外收入可以留一部分，也可以讓自己開心一點。我不會像媽媽那麼快就喊停。'
+    ]
+  };
+  if(type==='income'&&!thoughts[cat])return pick([
+    '收入當然是好事。不過我比較想知道，這筆錢最後會留下多少。',
+    '進帳的時候先別急著替它安排一堆用途。留一點沒有名字的餘裕也不錯。'
+  ]);
+  if(tier==='huge')return pick([
+    '數字很大沒錯，但大不代表一定錯。先確認原因，再決定要不要擔心。',
+    '我會先看這筆是不是必要的。只因為數字醒目就否定它，也不太公平。'
+  ]);
+  return pick(thoughts[cat]||[
+    '我覺得比起只看這一筆，更重要的是它是不是正在變成習慣。',
+    '只要你知道自己為什麼花、之後也願意回頭看，我覺得就已經比裝作沒發生好多了。'
+  ]);
+}
+function arayaScabbardLines(ryoshuText,meaning,entry){
   const sounds=[
     '刀鞘輕響兩下。',
     '刀鞘輕輕震了一聲，隨後又敲了兩下。',
     '刀鞘傳來三下短促的輕響。',
     '刀鞘先輕響一下，隔了半拍又連敲兩聲。'
   ];
-  const intros=[
-    '媽媽是說',
-    '媽媽的意思是',
-    '她是在說',
-    '嗯，媽媽是想說',
-    '媽媽大概是在說'
-  ];
-  const sound=pick(sounds);
-  const intro=pick(intros);
+  const cleanMeaning=String(meaning||'').replace(/^「|」$/g,'');
+  const roll=Math.random();
+  let response='';
+  if(roll<0.4){
+    response=pick([
+      '媽媽是說：',
+      '媽媽的意思是：',
+      '嗯，媽媽是想說：',
+      '媽媽大概是在說：'
+    ])+'「'+cleanMeaning+'」';
+  }else if(roll<0.64){
+    response=pick([
+      '……嗯，這次我站媽媽這邊。',
+      '這次我同意媽媽。',
+      '媽媽這句雖然講得很短，但我也覺得她說得對。'
+    ])+' '+arayaIndependentThought(entry);
+  }else if(roll<0.79){
+    response=pick([
+      '我不完全同意媽媽。',
+      '媽媽講得有點太重了。',
+      '這次我跟媽媽的想法不太一樣。'
+    ])+' '+arayaIndependentThought(entry);
+  }else{
+    response=pick([
+      '先不翻媽媽那句了，我自己的想法是——',
+      '媽媽的意思你大概猜得到。我比較想說的是——',
+      '這次讓我自己講吧。'
+    ])+' '+arayaIndependentThought(entry);
+  }
   return [
     {speaker:'良秀',text:ryoshuText},
-    {speaker:'阿賴耶識（刀鞘）',text:sound},
-    {speaker:'阿賴耶（刀鞘內）',text:intro+'：'+meaning}
+    {speaker:'阿賴耶識（刀鞘）',text:pick(sounds)},
+    {speaker:'阿賴耶（刀鞘內）',text:response}
   ];
 }
 function ryoshuArayaInteraction(entry){
@@ -740,7 +815,7 @@ function ryoshuArayaInteraction(entry){
   for(const key of ['lateNight','salarySpend','shoppingStreak','higherThanLast','lowerThanLast','repeatCategory','breakfast','lunch','dinner','monthEnd','monthStart']){
     if(situations.includes(key)&&special[key]){
       const s=special[key];
-      return arayaScabbardLines(s[0],s[1]);
+      return arayaScabbardLines(s[0],s[1],entry);
     }
   }
   const sets=ctx==='income'?[
@@ -771,7 +846,7 @@ function ryoshuArayaInteraction(entry){
   };
   if(extras[cat]&&Math.random()<0.72)s=extras[cat];
   if(tier==='huge')s=['巨。停。看。','「先別做別的，把這個數字確認清楚。」'];
-  return arayaScabbardLines(s[0],s[1]);
+  return arayaScabbardLines(s[0],s[1],entry);
 }
 function generateSinnerComment(entry){
   const roll=Math.random();
