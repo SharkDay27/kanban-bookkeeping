@@ -440,6 +440,118 @@ dialog#dlg.type-income .amount-field input{border-color:#4c8c60!important;box-sh
   .quick-type button.active{transform:translateY(-1px)}
   .card.transaction-card:before{width:4px}
 }
+
+/* ===== v9.4 iPhone Safari input optimization ===== */
+:root{--vvh:100dvh;--vvo:0px}
+@supports (-webkit-touch-callout:none){
+  @media(max-width:700px){
+    html,body{overscroll-behavior-y:none}
+    button,.quick-cat,.bottom button,.dialog-close{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+    dialog#dlg{
+      position:fixed!important;
+      left:0!important;right:0!important;
+      top:var(--vvo)!important;bottom:auto!important;
+      width:100vw!important;height:var(--vvh)!important;
+      max-width:none!important;max-height:none!important;
+      margin:0!important;padding:0!important;
+      overflow:hidden!important;
+    }
+    dialog#dlg[open]{
+      display:flex!important;
+      align-items:flex-end!important;
+      justify-content:stretch!important;
+      padding:0!important;
+    }
+    dialog#dlg form.modal{
+      width:100%!important;
+      height:min(92vh,calc(var(--vvh) - 4px))!important;
+      max-height:calc(var(--vvh) - 4px)!important;
+      display:flex!important;
+      flex-direction:column!important;
+      overflow-y:auto!important;
+      -webkit-overflow-scrolling:touch;
+      overscroll-behavior:contain;
+      padding:12px 12px 0!important;
+      border-left:0!important;border-right:0!important;border-bottom:0!important;
+      scroll-padding-bottom:190px;
+    }
+    dialog#dlg .archive-header{
+      flex:0 0 auto;
+      position:sticky;top:-12px;z-index:7;
+      margin:0 0 8px!important;
+      padding:10px 46px 10px 9px!important;
+      background:#18191d!important;
+      box-shadow:0 7px 14px rgba(0,0,0,.25);
+    }
+    dialog#dlg .quick-type,
+    dialog#dlg .entry-primary,
+    dialog#dlg .entry-advanced,
+    dialog#dlg .quick-hint{flex:0 0 auto}
+    dialog#dlg input,
+    dialog#dlg select,
+    dialog#dlg textarea{
+      font-size:16px!important; /* prevents Safari auto-zoom */
+    }
+    dialog#dlg .amount-field input{
+      min-height:58px!important;
+      font-size:30px!important;
+    }
+    dialog#dlg .entry-primary{padding:8px!important;margin-top:6px!important}
+    dialog#dlg .quick-type{margin-bottom:7px!important}
+    dialog#dlg .quick-cats{max-height:88px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+    dialog#dlg .entry-advanced summary{min-height:42px;display:flex;align-items:center}
+    dialog#dlg .foot{
+      position:sticky!important;
+      left:0;right:0;bottom:0!important;
+      z-index:20!important;
+      flex:0 0 auto;
+      display:grid!important;
+      grid-template-columns:1fr 1fr!important;
+      gap:7px!important;
+      margin:12px -12px 0!important;
+      padding:10px 12px calc(10px + env(safe-area-inset-bottom))!important;
+      background:linear-gradient(180deg,rgba(18,19,23,.96),#111216 24%)!important;
+      border-top:1px solid #51535b!important;
+      box-shadow:0 -12px 26px rgba(0,0,0,.38);
+    }
+    dialog#dlg .foot button{
+      min-height:46px!important;
+      font-size:13px!important;
+      touch-action:manipulation;
+    }
+    dialog#dlg #save{
+      grid-column:1/-1!important;
+      order:-2!important;
+      min-height:54px!important;
+      font-size:16px!important;
+      font-weight:900!important;
+      background:linear-gradient(180deg,#8f3038,#5c2026)!important;
+      border-color:#d2626a!important;
+      color:#fff!important;
+      box-shadow:0 7px 18px rgba(116,31,39,.35)!important;
+    }
+    dialog#dlg.type-income #save{
+      background:linear-gradient(180deg,#427d54,#285437)!important;
+      border-color:#71b184!important;
+      box-shadow:0 7px 18px rgba(35,100,57,.30)!important;
+    }
+    dialog#dlg #saveAgain{
+      grid-column:1/-1!important;
+      order:-1!important;
+      min-height:46px!important;
+    }
+    dialog#dlg #del{order:3!important}
+    dialog#dlg .dialog-close{
+      position:fixed!important;
+      right:10px!important;
+      top:calc(var(--vvo) + 8px)!important;
+      width:40px!important;height:40px!important;
+      z-index:30!important;
+    }
+    body.keyboard-open .bottom{display:none!important}
+    body.keyboard-open dialog#dlg form.modal{height:calc(var(--vvh) - 2px)!important;max-height:calc(var(--vvh) - 2px)!important}
+  }
+}
 </style>
 </head>
 <body>
@@ -1629,6 +1741,38 @@ function renderCommentaryArchive(){
   }).join('');
 }
 
+
+function syncVisualViewport(){
+  const vv=window.visualViewport;
+  const h=Math.max(320,Math.round(vv?vv.height:window.innerHeight));
+  const top=Math.round(vv?vv.offsetTop:0);
+  document.documentElement.style.setProperty('--vvh',h+'px');
+  document.documentElement.style.setProperty('--vvo',top+'px');
+  const keyboardOpen=window.innerHeight-h>120;
+  document.body.classList.toggle('keyboard-open',keyboardOpen);
+}
+function setupIphoneSafariInput(){
+  syncVisualViewport();
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize',syncVisualViewport,{passive:true});
+    window.visualViewport.addEventListener('scroll',syncVisualViewport,{passive:true});
+  }
+  window.addEventListener('orientationchange',function(){setTimeout(syncVisualViewport,180)},{passive:true});
+  const dlg=$('dlg');
+  if(dlg){
+    dlg.addEventListener('focusin',function(e){
+      if(!e.target.matches('input,select,textarea'))return;
+      setTimeout(function(){
+        try{e.target.scrollIntoView({block:'center',behavior:'smooth'})}catch(_){}
+      },260);
+    });
+    dlg.addEventListener('close',function(){
+      document.body.classList.remove('keyboard-open');
+      syncVisualViewport();
+    });
+  }
+}
+
 function syncEntryTypeUI(){
   const type=$('etype').value;
   document.querySelectorAll('[data-entry-type]').forEach(b=>b.classList.toggle('active',b.dataset.entryType===type));$('dlg').classList.toggle('type-expense',type==='expense');$('dlg').classList.toggle('type-income',type==='income');
@@ -1642,7 +1786,7 @@ function renderQuickCats(){
   $('quickCats').innerHTML=cats.slice(0,8).map(cat=>`<button type="button" class="quick-cat ${cat===current?'active':''}" style="${categoryStyle(cat)}" data-quick-cat="${esc(cat)}">${esc(cat)}</button>`).join('');
   document.querySelectorAll('[data-quick-cat]').forEach(b=>b.onclick=()=>{$('ecat').value=b.dataset.quickCat;renderQuickCats()});
 }
-function openEdit(id,presetType){const entry=id?state.entries.find(x=>x.id===id):null;$('dlgTitle').textContent=entry?'編輯記錄':(presetType==='income'?'新增收入':'新增支出');$('eid').value=entry?.id||'';$('etype').value=entry?.type||presetType||'expense';updateCategoryOptions($('etype').value);$('edate').value=entry?.date||today();$('eamt').value=entry?.amount??'';$('estore').value=entry?.store||'';$('ecat').value=entry?.category||($('etype').value==='income'?'薪資':'其他');$('epay').value=entry?.payment||state.profile.lastPayment||'未設定';$('enote').value=entry?.note||'';$('del').style.display=entry?'':'none';$('saveAgain').style.display=entry?'none':'';syncEntryTypeUI();$('dlg').showModal();setTimeout(()=>$('eamt').focus(),80)}
+function openEdit(id,presetType){const entry=id?state.entries.find(x=>x.id===id):null;$('dlgTitle').textContent=entry?'編輯記錄':(presetType==='income'?'新增收入':'新增支出');$('eid').value=entry?.id||'';$('etype').value=entry?.type||presetType||'expense';updateCategoryOptions($('etype').value);$('edate').value=entry?.date||today();$('eamt').value=entry?.amount??'';$('estore').value=entry?.store||'';$('ecat').value=entry?.category||($('etype').value==='income'?'薪資':'其他');$('epay').value=entry?.payment||state.profile.lastPayment||'未設定';$('enote').value=entry?.note||'';$('del').style.display=entry?'':'none';$('saveAgain').style.display=entry?'none':'';syncEntryTypeUI();syncVisualViewport();$('dlg').showModal();setTimeout(()=>{syncVisualViewport();$('eamt').focus()},120)}
 function saveEntry(keepOpen=false){
   if(!$('edate').value){toast('請選擇日期');return}if(!(Number($('eamt').value)>0)){toast('請輸入大於 0 的金額');$('eamt').focus();return}
   const id=$('eid').value,old=state.entries.find(function(x){return x.id===id}),type=$('etype').value;
@@ -1737,7 +1881,7 @@ function mapIcon(kind){
 }
 function mountIcons(){$('logo').innerHTML=drawSprite('star');$('heroIcon').innerHTML=drawSprite('hero');$('monsterIcon').innerHTML=drawSprite('slime');$('salaryNpc').innerHTML=npcSprite('fairy');$('npcClerk').innerHTML=npcSprite('clerk');$('npcMerchant').innerHTML=npcSprite('merchant');$('npcFairy').innerHTML=npcSprite('fairy');}
 $('etype').addEventListener('change',syncEntryTypeUI);document.querySelectorAll('[data-entry-type]').forEach(b=>b.onclick=()=>{$('etype').value=b.dataset.entryType;syncEntryTypeUI()});$('dlg').addEventListener('click',e=>{if(e.target===$('dlg'))$('dlg').close()});$('ecat').addEventListener('change',renderQuickCats);
-$('save').onclick=()=>saveEntry(false);$('saveAgain').onclick=()=>saveEntry(true);$('closeDlg').onclick=()=>$('dlg').close();$('closeCommentDlg').onclick=()=>$('commentDlg').close();$('goCommentArchive').onclick=()=>{$('commentDlg').close();setTab('commentary')};$('del').onclick=deleteEntry;$('csv').addEventListener('change',importCsvFiles);$('export').onclick=exportCsv;$('backup').onclick=backupJson;$('restore').addEventListener('change',restoreJson);$('clear').onclick=clearLocalData;$('saveSettings').onclick=saveSettings;$('addExpense').onclick=()=>openEdit('', 'expense');$('addIncome').onclick=()=>openEdit('', 'income');$('fab').onclick=()=>openEdit('', 'expense');$('bottomAdd').onclick=()=>openEdit('', 'expense');['month','typeFilter','cat','search'].forEach(id=>$(id).addEventListener('input',render));document.querySelectorAll('[data-chest]').forEach(btn=>btn.onclick=()=>openChest(btn.dataset.chest));document.querySelectorAll('.tabs button').forEach(btn=>btn.onclick=()=>setTab(btn.dataset.tab));document.querySelectorAll('[data-goto]').forEach(btn=>btn.onclick=()=>setTab(btn.dataset.goto));if(!$('month').value){$('month').value=new Date().toISOString().slice(0,7)}mountIcons();render();
+$('save').onclick=()=>saveEntry(false);$('saveAgain').onclick=()=>saveEntry(true);$('closeDlg').onclick=()=>$('dlg').close();$('closeCommentDlg').onclick=()=>$('commentDlg').close();$('goCommentArchive').onclick=()=>{$('commentDlg').close();setTab('commentary')};$('del').onclick=deleteEntry;$('csv').addEventListener('change',importCsvFiles);$('export').onclick=exportCsv;$('backup').onclick=backupJson;$('restore').addEventListener('change',restoreJson);$('clear').onclick=clearLocalData;$('saveSettings').onclick=saveSettings;$('addExpense').onclick=()=>openEdit('', 'expense');$('addIncome').onclick=()=>openEdit('', 'income');$('fab').onclick=()=>openEdit('', 'expense');$('bottomAdd').onclick=()=>openEdit('', 'expense');['month','typeFilter','cat','search'].forEach(id=>$(id).addEventListener('input',render));document.querySelectorAll('[data-chest]').forEach(btn=>btn.onclick=()=>openChest(btn.dataset.chest));document.querySelectorAll('.tabs button').forEach(btn=>btn.onclick=()=>setTab(btn.dataset.tab));document.querySelectorAll('[data-goto]').forEach(btn=>btn.onclick=()=>setTab(btn.dataset.goto));if(!$('month').value){$('month').value=new Date().toISOString().slice(0,7)}mountIcons();render();setupIphoneSafariInput();
 </script>
 </body>
 </html>
