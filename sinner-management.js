@@ -63,10 +63,10 @@
           '<div class="sinner-hp-bar"><div style="width:'+Math.max(0,Math.min(100,Math.round((Number(data.hp||0)/Math.max(1,Number(data.maxHp||100)))*100)))+'%"></div></div>'+
           (Number(data.hp||0)<=0?'<button type="button" class="wood sinner-revive-btn" data-revive-sinner="'+safeEsc(name)+'">消耗 1 行動復活</button>':'')+
           '<div class="sinner-stat-grid">'+
-            '<span>戰鬥 <b>'+Number(st.combat||0)+'</b></span>'+
-            '<span>觀察 <b>'+Number(st.observe||0)+'</b></span>'+
-            '<span>機動 <b>'+Number(st.mobility||0)+'</b></span>'+
-            '<span>穩定 <b>'+Number(st.stability||0)+'</b></span>'+
+            '<span title="影響對怪異造成的基礎傷害與直接制壓能力">戰鬥 <b>'+Number(st.combat||0)+'</b><small>輸出</small></span>'+
+            '<span title="影響弱點辨識、事件判讀與部分探索修正">觀察 <b>'+Number(st.observe||0)+'</b><small>判讀</small></span>'+
+            '<span title="影響移動、追擊、脫離與探索判定">機動 <b>'+Number(st.mobility||0)+'</b><small>行動</small></span>'+
+            '<span title="影響承傷與異常狀況抗性">穩定 <b>'+Number(st.stability||0)+'</b><small>生存</small></span>'+
           '</div>'+
           '<label class="sinner-gear-label">探索裝備'+
             '<select class="wood sinner-gear-select" data-sinner-gear="'+safeEsc(name)+'">'+gearOptions+'</select>'+
