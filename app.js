@@ -343,6 +343,7 @@ function ensureExplorationState(){
   state.exploration.earned=state.entries.length;
   state.exploration.actions=Math.max(0,state.exploration.earned-state.exploration.spent);
   state.exploration.logs=Array.isArray(state.exploration.logs)?state.exploration.logs:[];
+  state.exploration.activeShop=state.exploration.activeShop||null;
   state.exploration.runs=Math.max(0,Number(state.exploration.runs||0));
   state.exploration.selected=Array.isArray(state.exploration.selected)?state.exploration.selected.slice(0,2):['李箱','浮士德'];
   state.exploration.fieldGear=Array.isArray(state.exploration.fieldGear)?state.exploration.fieldGear:[];
@@ -470,10 +471,11 @@ function pickFieldGear(){
 }
 function explorationEventKind(){
   const r=Math.random();
-  if(r<.34)return 'abnormality';
-  if(r<.59)return 'event';
-  if(r<.82)return 'supply';
-  return 'gear';
+  if(r<.30)return 'abnormality';
+  if(r<.54)return 'event';
+  if(r<.72)return 'supply';
+  if(r<.86)return 'gear';
+  return 'shop';
 }
 function runExploration(){
   ensureExplorationState();
@@ -483,6 +485,7 @@ function runExploration(){
   if(names.length!==2||names[0]===names[1]){toast('請選擇兩名不同罪人');return}
   if(names.some(function(n){return ex.sinners[n].hp<=0})){toast('隊伍中有倒下的罪人，請先復活');return}
   const area=EXPLORATION_AREAS.find(function(x){return x.id===ex.areaId})||EXPLORATION_AREAS[0];
+  ex.activeShop=null;
   ex.actions--;ex.spent++;ex.runs++;
   const kind=explorationEventKind();
   let title='',detail='',reward='',stamp='FIELD',xp=18,ctx={area:area.name,kind:kind};
@@ -534,6 +537,15 @@ function runExploration(){
     ctx.event=ev.name;ctx.eventId=ev.id;ctx.success=resultSuccess;
   }else if(kind==='supply'){
     title='補給發現';reward=pickExplorationLoot();detail='在區域內找到可回收補給。';xp=16+area.level;stamp='SUPPLY';
+  }else if(kind==='shop'){
+    const shop=typeof createExplorationShop==='function'?createExplorationShop(area,names):null;
+    title='隨機事件：'+(shop?shop.name:'臨時補給商');
+    detail=shop
+      ?shop.flavor+' 商品價格會依區域風險與物資類型調整，商店會保留到下一次探索開始。'
+      :'探索途中遇到一名臨時補給商。';
+    reward='可使用金幣購買補給品或探索裝備';
+    xp=12+area.level;stamp='SHOP';
+    ctx.shopName=shop?shop.name:'臨時補給商';ctx.success=true;
   }else{
     title='裝備回收';reward=pickFieldGear();detail='發現可供罪人配置的探索裝備。';xp=22+area.level;stamp='GEAR';
   }
@@ -626,6 +638,7 @@ function renderExploration(){
     }).join(''):'<div class="empty">尚無探索紀錄。</div>';
   }
 
+  if(typeof renderExplorationShop==='function')renderExplorationShop();
   const home=$('homeContainmentProgress');
   if(home){
     const rows=Object.entries(ABNORMALITY_CATALOG).map(function(pair){
