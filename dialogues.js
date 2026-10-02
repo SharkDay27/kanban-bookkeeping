@@ -914,7 +914,11 @@ function interactiveSinnerLines(members,entry){
   if(!members||!members.length)return [];
   const lines=[{speaker:members[0].name,text:sinnerLine(members[0],entry),visibility:'public'}];
   for(let i=1;i<members.length;i++){
-    const current=members[i],previous=members[i-1];
+    const current=members[i];
+    let previous=members[i-1];
+    // 3 人以上時偶爾回應更早發言者，讓討論形成真正的交叉互動，
+    // 但仍只使用各角色既有的原作風格規則，不另外生成通用人格。
+    if(i>=2&&Math.random()<0.34)previous=members[Math.floor(Math.random()*i)];
     lines.push({speaker:current.name,text:sinnerInteractiveReply(current,previous,entry),visibility:'public'});
   }
   return lines;
@@ -940,23 +944,31 @@ function appendSinnerAfterAraya(lines,sinner,entry){
   return lines;
 }
 
+function randomSinnerGroup(count){
+  const pool=[...SINNERS];
+  for(let i=pool.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [pool[i],pool[j]]=[pool[j],pool[i]];
+  }
+  return pool.slice(0,Math.max(1,Math.min(count,pool.length)));
+}
 function generateSinnerComment(entry){
   const roll=Math.random();
   const contexts=detectSituations(entry).map(function(x){return x.id});
   const meta={createdAt:new Date().toISOString(),category:entry.category,amountTier:amountTier(entry),amount:entry.amount,contexts:contexts};
 
-  // 評議種類先獨立決定，確保實際機率：
-  // 全員評議 3%、一般雙人評議 13%。
+  // 多人評議總機率維持 3%。其中大多數為 3～4 人輪流對話，
+  // 少數才會真的出現 12 人全員評議，避免每次多人事件都過長。
   if(roll<0.03){
-    const order=[...SINNERS].sort(function(){return Math.random()-.5});
-    return {...meta,kind:'all',lines:interactiveSinnerLines(order,entry)};
+    const fullAssembly=Math.random()<0.15;
+    const count=fullAssembly?SINNERS.length:(Math.random()<0.5?3:4);
+    const members=randomSinnerGroup(count);
+    return {...meta,kind:fullAssembly?'all':'group',lines:interactiveSinnerLines(members,entry)};
   }
 
   if(roll<0.16){
-    const first=SINNERS[Math.floor(Math.random()*SINNERS.length)];
-    let second=SINNERS[Math.floor(Math.random()*SINNERS.length)];
-    while(second.name===first.name)second=SINNERS[Math.floor(Math.random()*SINNERS.length)];
-    return {...meta,kind:'duo',lines:interactiveSinnerLines([first,second],entry)};
+    const members=randomSinnerGroup(2);
+    return {...meta,kind:'duo',lines:interactiveSinnerLines(members,entry)};
   }
 
   const first=SINNERS[Math.floor(Math.random()*SINNERS.length)];
@@ -968,6 +980,7 @@ function generateSinnerComment(entry){
 }
 function commentKindLabel(kind){
   if(kind==='all')return 'RARE / 全員評議';
+  if(kind==='group')return 'RARE / 多人評議';
   if(kind==='duo')return 'RARE / 雙人評議';
   if(kind==='araya')return 'SPECIAL / 良秀・阿賴耶';
   return 'SINGLE / 單人評議';
