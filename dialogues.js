@@ -702,13 +702,26 @@ function pick(arr){return arr[Math.floor(Math.random()*arr.length)]}
 function sinnerLine(sinner,entry){
   const pool=COMMENT_POOLS[sinner.name]||COMMENT_POOLS['默爾索'];
   const ctx=commentContext(entry);
-  let base=pick(pool[ctx]||pool.expense||pool.income).replaceAll('{A}',sinner.address);
+  const base=pick(pool[ctx]||pool.expense||pool.income).replaceAll('{A}',sinner.address);
   const cat=categoryReaction(sinner,entry);
   const amt=amountReaction(sinner,entry);
-  const parts=[base];
-  if(cat&&Math.random()<0.88)parts.push(cat);
-  if(amt&&Math.random()<0.82)parts.push(amt);
-  return parts.join(' ');
+  const situations=situationReaction(sinner,entry);
+
+  // 一次評議只選一個完整方向，避免把多段模板硬接在一起，
+  // 造成同一名罪人在一段話裡重複喊「經理／執行經理／但丁」。
+  const candidates=[];
+  if(situations.length)candidates.push({text:situations[0],weight:36});
+  if(cat)candidates.push({text:cat,weight:30});
+  if(amt)candidates.push({text:amt,weight:18});
+  candidates.push({text:base,weight:28});
+
+  const total=candidates.reduce(function(s,x){return s+x.weight},0);
+  let roll=Math.random()*total;
+  for(const item of candidates){
+    roll-=item.weight;
+    if(roll<=0)return item.text;
+  }
+  return base;
 }
 
 function arayaIndependentThought(entry){
