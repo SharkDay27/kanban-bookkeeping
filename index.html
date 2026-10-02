@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="終端記錄">
 <title>RPG 化記帳工具</title>
-<link rel="stylesheet" href="styles.css?v=20261002m">
+<link rel="stylesheet" href="styles.css?v=20261002n">
 </head>
 <body>
 <div class="wrap">
@@ -60,7 +60,14 @@
     <div class="stat wood panel"><div class="k">連續記錄</div><div class="v" id="streak">0 天</div><div class="s" id="bestStreak">最長 0 天</div></div>
   </div>
 
-  <div class="tabs zone zone-tabs">
+  <div class="tabs-directory-head">
+    <div>
+      <div class="archive-id">SECTION // MAIN DIRECTORY</div>
+      <div class="tabs-directory-title">主功能目錄</div>
+    </div>
+    <div class="tabs-directory-note">選擇工作區</div>
+  </div>
+  <div class="tabs zone zone-tabs" aria-label="主功能頁籤">
     <button class="wood active" data-tab="adventure">終端</button>
     <button class="wood" data-tab="book">記錄</button>
     <button class="wood" data-tab="quests">任務</button>
@@ -277,7 +284,7 @@
 </dialog>
 <button id="fab" class="fab">＋</button>
 <div class="bottom">
-  <button data-goto="adventure">⌂<span class="mobile-nav-label">終端</span></button>
+  <button data-goto="adventure" class="active">⌂<span class="mobile-nav-label">終端</span></button>
   <button data-goto="book">▤<span class="mobile-nav-label">記錄</span></button>
   <button id="bottomAdd" class="nav-add">＋<span class="mobile-nav-label">新增</span></button>
   <button data-goto="commentary">◈<span class="mobile-nav-label">評議</span></button>
@@ -335,6 +342,6 @@
 </dialog>
 
 <script src="dialogues.js?v=20261002y"></script>
-<script src="app.js?v=20261002m"></script>
+<script src="app.js?v=20261002n"></script>
 </body>
 </html>
