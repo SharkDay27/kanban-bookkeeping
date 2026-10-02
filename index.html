@@ -381,6 +381,65 @@ dialog#dlg .foot{
   .commentary-speaker{font-size:11px}
   .commentary-entry{padding:9px}.commentary-head{display:block}.commentary-head .commentary-tag{margin-top:6px}
 }
+
+/* ===== v9.2 transaction type + category colors ===== */
+.quick-type button{
+  position:relative;overflow:hidden;transition:.16s ease;
+  border-width:1px!important;
+}
+.quick-type button[data-entry-type="expense"]{
+  background:#1a1416;color:#9f8385;border-color:#4c3033!important;
+}
+.quick-type button[data-entry-type="income"]{
+  background:#141a16;color:#829b88;border-color:#304738!important;
+}
+.quick-type button.active[data-entry-type="expense"]{
+  background:linear-gradient(180deg,#6a252b,#3a171b)!important;
+  border-color:#d45a64!important;color:#fff3f3!important;
+  box-shadow:0 0 0 1px rgba(212,90,100,.25) inset,0 5px 18px rgba(126,32,42,.28);
+}
+.quick-type button.active[data-entry-type="income"]{
+  background:linear-gradient(180deg,#315e40,#183522)!important;
+  border-color:#69ad7e!important;color:#effff3!important;
+  box-shadow:0 0 0 1px rgba(105,173,126,.22) inset,0 5px 18px rgba(30,90,50,.25);
+}
+.quick-type button.active:before{
+  content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:currentColor;opacity:.85
+}
+dialog#dlg.type-expense form.modal:before{background:linear-gradient(90deg,#c83f49 0 38%,#553238 38% 100%)}
+dialog#dlg.type-income form.modal:before{background:linear-gradient(90deg,#4d9565 0 38%,#30463a 38% 100%)}
+dialog#dlg.type-expense .amount-field input{border-color:#a6454d!important;box-shadow:inset 0 0 0 1px rgba(200,63,73,.18)}
+dialog#dlg.type-income .amount-field input{border-color:#4c8c60!important;box-shadow:inset 0 0 0 1px rgba(77,149,101,.18)}
+.quick-cat{
+  border-color:var(--cat-border,#50525a)!important;
+  background:var(--cat-bg,#17181c)!important;
+  color:var(--cat-text,#bbb7ad)!important;
+  transition:.12s ease;
+}
+.quick-cat.active{
+  border-color:var(--cat-accent,#a06464)!important;
+  background:var(--cat-active,#2b1d1f)!important;
+  color:#fff!important;
+  box-shadow:inset 4px 0 0 var(--cat-accent,#a06464);
+}
+.card.transaction-card{position:relative;overflow:hidden;border-color:var(--cat-border,#464850)}
+.card.transaction-card:before{
+  content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--cat-accent,#666)
+}
+.card.transaction-card.type-income{background:linear-gradient(90deg,rgba(54,118,73,.12),transparent 38%),linear-gradient(180deg,#1b1c20,#141519)}
+.card.transaction-card.type-expense{background:linear-gradient(90deg,rgba(155,53,61,.10),transparent 38%),linear-gradient(180deg,#1b1c20,#141519)}
+.badge.category-badge{
+  background:var(--cat-bg,#202126)!important;border-color:var(--cat-border,#55575f)!important;color:var(--cat-text,#d0ccc2)!important
+}
+.badge.income{background:#183522!important;border-color:#4d8b61!important;color:#cdebd5!important}
+.badge.expense{background:#3b191d!important;border-color:#a24a52!important;color:#f1c8cc!important}
+.amt.income{color:#78c58d!important;text-shadow:0 0 12px rgba(94,185,119,.16)}
+.amt.expense{color:#e06b73!important;text-shadow:0 0 12px rgba(224,107,115,.14)}
+@media(max-width:700px){
+  .quick-type button{font-size:13px}
+  .quick-type button.active{transform:translateY(-1px)}
+  .card.transaction-card:before{width:4px}
+}
 </style>
 </head>
 <body>
@@ -695,6 +754,29 @@ const OLD_KEYS=['kanban-bookkeeping-rpg-v3','kanban-bookkeeping-rpg-v2','kanban-
 const EXPENSE_CATS=['餐飲','飲料','便利商店','交通','購物','訂閱/數位','娛樂','醫療','生活用品','其他'];
 const INCOME_CATS=['薪資','獎金','退款','零用錢','投資','禮金','其他收入'];
 const XP_PER_ENTRY=10;
+const CATEGORY_COLORS={
+ '餐飲':{accent:'#c87548',border:'#70472f',bg:'#291d17',text:'#efc3a5',active:'#59331f'},
+ '飲料':{accent:'#5b9cc7',border:'#355d76',bg:'#16232b',text:'#b8dff5',active:'#22475d'},
+ '便利商店':{accent:'#4aa47a',border:'#32674f',bg:'#16251e',text:'#bce7d0',active:'#224f3a'},
+ '交通':{accent:'#6d82c7',border:'#45547f',bg:'#1a1e2d',text:'#c7d1f5',active:'#2c396b'},
+ '購物':{accent:'#b7659a',border:'#744163',bg:'#281925',text:'#efc0df',active:'#5b294a'},
+ '訂閱/數位':{accent:'#8270c7',border:'#51467a',bg:'#1f1b2b',text:'#d5ccf4',active:'#3d3265'},
+ '娛樂':{accent:'#b88345',border:'#76562f',bg:'#281f16',text:'#efd3a8',active:'#5b3e1e'},
+ '醫療':{accent:'#b85b5b',border:'#733c3c',bg:'#291919',text:'#efc0c0',active:'#592828'},
+ '生活用品':{accent:'#7f9560',border:'#50603d',bg:'#1e2419',text:'#d3e2bd',active:'#3c4a2b'},
+ '其他':{accent:'#777b84',border:'#4b4e55',bg:'#1d1e22',text:'#d0d1d5',active:'#35373d'},
+ '薪資':{accent:'#52a66e',border:'#386f4b',bg:'#17271c',text:'#c3efd0',active:'#28573a'},
+ '獎金':{accent:'#c39b45',border:'#79632f',bg:'#2a2417',text:'#f2dfab',active:'#5d4b1f'},
+ '退款':{accent:'#58a5a2',border:'#39706e',bg:'#172827',text:'#c1ecea',active:'#285957'},
+ '零用錢':{accent:'#9c7cc2',border:'#66517e',bg:'#221d2a',text:'#dfcef2',active:'#4a3960'},
+ '投資':{accent:'#4d91aa',border:'#356073',bg:'#17232a',text:'#bee2ef',active:'#284b59'},
+ '禮金':{accent:'#c56c78',border:'#7b4650',bg:'#2b1a1e',text:'#f2c5cc',active:'#60303a'},
+ '其他收入':{accent:'#689478',border:'#466453',bg:'#19241d',text:'#cbe0d2',active:'#34503e'}
+};
+function categoryStyle(cat){
+  const p=CATEGORY_COLORS[cat]||CATEGORY_COLORS['其他'];
+  return '--cat-accent:'+p.accent+';--cat-border:'+p.border+';--cat-bg:'+p.bg+';--cat-text:'+p.text+';--cat-active:'+p.active;
+}
 const MONSTER_CATALOG=[
  {id:'M-001',name:'灰燼史萊姆',risk:'LOW',hp:60,note:'半流體收容單位。對例行紀錄反應穩定。',shape:'slime'},
  {id:'M-002',name:'鐵殼蠕蟲',risk:'LOW',hp:72,note:'外殼會隨作業次數逐步龜裂。',shape:'worm'},
@@ -1281,7 +1363,7 @@ function renderRpg(){const xp=state.rpg.xp,lv=Math.floor(xp/100)+1,cur=xp%100;$(
 function renderSummary(){const expense=state.entries.filter(x=>x.type==='expense').reduce((s,x)=>s+x.amount,0),income=state.entries.filter(x=>x.type==='income').reduce((s,x)=>s+x.amount,0),init=Number(state.profile.initialAmount||0),bal=init+income-expense,m=$('month').value||today().slice(0,7),monthEntries=state.entries.filter(x=>x.date.startsWith(m)),mIncome=monthEntries.filter(x=>x.type==='income').reduce((s,x)=>s+x.amount,0),mExpense=monthEntries.filter(x=>x.type==='expense').reduce((s,x)=>s+x.amount,0),monthNet=mIncome-mExpense,st=computeStreak();$('initialAmount').textContent=money(init);$('allIncome').textContent=money(income);$('allIncome').style.color='var(--green)';$('allExpense').textContent=money(expense);$('allExpense').style.color='var(--red)';$('balance').textContent=money(bal);$('balance').style.color=bal<0?'var(--red)':'var(--green)';$('monthNet').textContent=money(monthNet);$('monthNet').style.color=monthNet<0?'var(--red)':'var(--green)';$('monthLabel').textContent=m;$('streak').textContent=st.current+' 天';$('bestStreak').textContent='最長 '+st.best+' 天';$('streakBig').textContent=st.current;$('bestBig').textContent=st.best}
 function renderQuests(){ensureDaily(today());const ds=dayStats(today());$('questList').innerHTML=QUESTS.map(q=>{const p=q.id==='q3'?ds.cats:ds.count,done=p>=q.goal,claim=state.daily[today()].questClaims[q.id];return `<div class="quest wood panel ${done?'done':''}"><div class="row"><div class="quest-name">${done?'✓ ':'◇ '}${q.name}</div><div class="quest-reward">+${q.rewardXp} EXP</div></div><div class="quest-desc">${q.desc}</div><div class="quest-progress"><div style="width:${Math.min(100,Math.round(p/q.goal*100))}%"></div></div><div class="quest-desc">${Math.min(p,q.goal)} / ${q.goal}${claim?'・已領取':''}</div></div>`}).join('')}
 function filtered(){const m=$('month').value,t=$('typeFilter').value,c=$('cat').value,q=$('search').value.trim().toLowerCase();return state.entries.filter(x=>(!m||x.date.startsWith(m))&&(!t||x.type===t)&&(!c||x.category===c)&&(!q||[x.store,x.note,x.invoice,x.category,...(x.items||[]).map(i=>i.name)].join(' ').toLowerCase().includes(q))).sort((a,b)=>b.date.localeCompare(a.date)||b.amount-a.amount)}
-function renderBoard(){const rows=filtered(),groups={};rows.forEach(x=>(groups[x.date]??=[]).push(x));const dates=Object.keys(groups).sort().reverse();if(!dates.length){$('board').innerHTML='<div class="empty wood panel">目前沒有資料。先新增一筆收入或支出吧！</div>';return}$('board').innerHTML='<div class="board">'+dates.map(date=>{const items=groups[date],expense=items.filter(x=>x.type==='expense').reduce((s,x)=>s+x.amount,0),income=items.filter(x=>x.type==='income').reduce((s,x)=>s+x.amount,0),net=income-expense;return `<section class="day wood panel"><div class="dayhead"><div><div style="font-weight:900">${date}</div><div class="s">${items.length} 筆紀錄</div></div><div style="text-align:right"><div class="daytotal">支出 ${money(expense)}</div><div class="daynet ${net<0?'minus':'plus'}">淨額 ${money(net)}</div></div></div>${items.map(entry=>`<article class="card wood"><div class="row"><div class="store">${esc(entry.store)}</div><div class="amt ${entry.type}">${entry.type==='income'?'+ ':''}${money(entry.amount)}</div></div><div class="badges"><span class="badge ${entry.type}">${entry.type==='income'?'收入':'支出'}</span><span class="badge">${esc(entry.category||'其他')}</span><span class="badge">${esc(entry.payment||'未設定')}</span></div><div class="items">${(entry.items||[]).slice(0,3).map(i=>esc(i.name)).join('、')||esc(entry.note||'—')}</div>${entry.comment&&entry.comment.lines&&entry.comment.lines.length?`<div class="entry-comment-preview"><b>${esc(entry.comment.lines[0].speaker)}</b>：${esc(entry.comment.lines[0].text)}</div>`:''}<div class="card-actions"><button class="mini-btn" data-edit="${entry.id}">編輯</button></div></article>`).join('')}</section>`}).join('')+'</div>';document.querySelectorAll('[data-edit]').forEach(btn=>btn.onclick=()=>openEdit(btn.dataset.edit))}
+function renderBoard(){const rows=filtered(),groups={};rows.forEach(x=>(groups[x.date]??=[]).push(x));const dates=Object.keys(groups).sort().reverse();if(!dates.length){$('board').innerHTML='<div class="empty wood panel">目前沒有資料。先新增一筆收入或支出吧！</div>';return}$('board').innerHTML='<div class="board">'+dates.map(date=>{const items=groups[date],expense=items.filter(x=>x.type==='expense').reduce((s,x)=>s+x.amount,0),income=items.filter(x=>x.type==='income').reduce((s,x)=>s+x.amount,0),net=income-expense;return `<section class="day wood panel"><div class="dayhead"><div><div style="font-weight:900">${date}</div><div class="s">${items.length} 筆紀錄</div></div><div style="text-align:right"><div class="daytotal">支出 ${money(expense)}</div><div class="daynet ${net<0?'minus':'plus'}">淨額 ${money(net)}</div></div></div>${items.map(entry=>`<article class="card wood transaction-card type-${entry.type}" style="${categoryStyle(entry.category||'其他')}"><div class="row"><div class="store">${esc(entry.store)}</div><div class="amt ${entry.type}">${entry.type==='income'?'+ ':''}${money(entry.amount)}</div></div><div class="badges"><span class="badge ${entry.type}">${entry.type==='income'?'收入':'支出'}</span><span class="badge category-badge" style="${categoryStyle(entry.category||'其他')}">${esc(entry.category||'其他')}</span><span class="badge">${esc(entry.payment||'未設定')}</span></div><div class="items">${(entry.items||[]).slice(0,3).map(i=>esc(i.name)).join('、')||esc(entry.note||'—')}</div>${entry.comment&&entry.comment.lines&&entry.comment.lines.length?`<div class="entry-comment-preview"><b>${esc(entry.comment.lines[0].speaker)}</b>：${esc(entry.comment.lines[0].text)}</div>`:''}<div class="card-actions"><button class="mini-btn" data-edit="${entry.id}">編輯</button></div></article>`).join('')}</section>`}).join('')+'</div>';document.querySelectorAll('[data-edit]').forEach(btn=>btn.onclick=()=>openEdit(btn.dataset.edit))}
 function render(){backfillMissingComments();refreshFilters();renderSummary();renderRpg();renderQuests();renderBoard();renderCharts();renderBestiary();renderBoss();checkAchievements();renderProgress();renderCommentaryArchive();renderSalaryReminder();$('initialInput').value=state.profile.initialAmount||'';$('playerName').value=state.profile.name||'帳本終端者';$('salaryDay').value=state.profile.salaryDay||'';$('salaryAdvance').value=String(state.profile.salaryAdvance??1)}
 
 function renderCommentLines(comment){
@@ -1324,7 +1406,7 @@ function renderCommentaryArchive(){
 
 function syncEntryTypeUI(){
   const type=$('etype').value;
-  document.querySelectorAll('[data-entry-type]').forEach(b=>b.classList.toggle('active',b.dataset.entryType===type));
+  document.querySelectorAll('[data-entry-type]').forEach(b=>b.classList.toggle('active',b.dataset.entryType===type));$('dlg').classList.toggle('type-expense',type==='expense');$('dlg').classList.toggle('type-income',type==='income');
   $('estoreLabel').textContent=type==='income'?'收入來源':'店家／用途';
   $('estore').placeholder=type==='income'?'例如：薪資、退款、獎金':'例如：午餐、超商、交通';
   updateCategoryOptions(type);
@@ -1332,7 +1414,7 @@ function syncEntryTypeUI(){
 }
 function renderQuickCats(){
   const type=$('etype').value, cats=type==='income'?INCOME_CATS:EXPENSE_CATS, current=$('ecat').value;
-  $('quickCats').innerHTML=cats.slice(0,8).map(cat=>`<button type="button" class="quick-cat ${cat===current?'active':''}" data-quick-cat="${esc(cat)}">${esc(cat)}</button>`).join('');
+  $('quickCats').innerHTML=cats.slice(0,8).map(cat=>`<button type="button" class="quick-cat ${cat===current?'active':''}" style="${categoryStyle(cat)}" data-quick-cat="${esc(cat)}">${esc(cat)}</button>`).join('');
   document.querySelectorAll('[data-quick-cat]').forEach(b=>b.onclick=()=>{$('ecat').value=b.dataset.quickCat;renderQuickCats()});
 }
 function openEdit(id,presetType){const entry=id?state.entries.find(x=>x.id===id):null;$('dlgTitle').textContent=entry?'編輯記錄':(presetType==='income'?'新增收入':'新增支出');$('eid').value=entry?.id||'';$('etype').value=entry?.type||presetType||'expense';updateCategoryOptions($('etype').value);$('edate').value=entry?.date||today();$('eamt').value=entry?.amount??'';$('estore').value=entry?.store||'';$('ecat').value=entry?.category||($('etype').value==='income'?'薪資':'其他');$('epay').value=entry?.payment||state.profile.lastPayment||'未設定';$('enote').value=entry?.note||'';$('del').style.display=entry?'':'none';$('saveAgain').style.display=entry?'none':'';syncEntryTypeUI();$('dlg').showModal();setTimeout(()=>$('eamt').focus(),80)}
