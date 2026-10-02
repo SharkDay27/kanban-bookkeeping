@@ -29,13 +29,13 @@
     const info=AREA_SHOPS[area.id]||AREA_SHOPS['zone-1'];
     const riskBonus=area.level>=8?3:area.level>=5?2:1;
     const stock=[
-      {stockId:stockId(),type:'supply',itemId:'water',name:SUPPLIES.water.name,desc:SUPPLIES.water.desc,price:roundPrice(SUPPLIES.water.basePrice*info.mult),qty:2+Math.floor(Math.random()*3)},
-      {stockId:stockId(),type:'supply',itemId:'potion',name:SUPPLIES.potion.name,desc:SUPPLIES.potion.desc,price:roundPrice(SUPPLIES.potion.basePrice*info.mult),qty:1+Math.floor(Math.random()*2)}
+      {stockId:stockId(),type:'supply',itemId:'water',name:SUPPLIES.water.name,desc:SUPPLIES.water.desc,rarity:'common',price:roundPrice(SUPPLIES.water.basePrice*info.mult),qty:2+Math.floor(Math.random()*3)},
+      {stockId:stockId(),type:'supply',itemId:'potion',name:SUPPLIES.potion.name,desc:SUPPLIES.potion.desc,rarity:'uncommon',price:roundPrice(SUPPLIES.potion.basePrice*info.mult),qty:1+Math.floor(Math.random()*2)}
     ];
     const unowned=shuffled(Object.keys(FIELD_GEAR).filter(function(id){return !state.exploration.fieldGear.includes(id)}));
     unowned.slice(0,Math.min(riskBonus,unowned.length)).forEach(function(id){
       const g=FIELD_GEAR[id],variance=.95+Math.random()*.1;
-      stock.push({stockId:stockId(),type:'gear',itemId:id,name:g.name,desc:g.desc,price:roundPrice((GEAR_PRICES[id]||140)*info.mult*variance),qty:1});
+      stock.push({stockId:stockId(),type:'gear',itemId:id,name:g.name,desc:g.desc,rarity:g.rarity||'common',price:roundPrice((GEAR_PRICES[id]||140)*info.mult*variance),qty:1});
     });
     const shop={
       id:'SHOP-'+Date.now(),areaId:area.id,name:info.name,flavor:info.flavor,mult:info.mult,
@@ -88,8 +88,9 @@
         const effects=typeof equipmentEffects==='function'?equipmentEffects():{shopDiscount:0};
         const finalPrice=Math.max(1,Math.round(item.price*(1-(effects.shopDiscount||0))));
         item.finalPrice=finalPrice;
-        return '<article class="shop-item '+(sold?'soldout':'')+'"><div class="shop-item-head"><div><div class="shop-item-name">'+esc(item.name)+'</div>'+
-          '<div class="shop-item-kind">'+(item.type==='gear'?'EQUIPMENT':'SUPPLY')+'</div></div><div class="shop-price">'+finalPrice+' G</div></div>'+
+        const rarity=typeof itemRarity==='function'?itemRarity(item.rarity):{className:'rarity-common',label:'一般'};
+        return '<article class="shop-item '+rarity.className+' '+(sold?'soldout':'')+'"><div class="shop-item-head"><div><div class="shop-item-name">'+esc(item.name)+'</div>'+
+          '<div class="shop-item-kind">'+(item.type==='gear'?'EQUIPMENT':'SUPPLY')+' · '+rarity.label+'</div></div><div class="shop-price">'+finalPrice+' G</div></div>'+
           '<div class="shop-item-desc">'+esc(item.desc)+'</div><div class="shop-item-foot"><span class="shop-stock-count">STOCK / '+item.qty+'</span>'+
           '<button type="button" class="wood shop-buy" data-shop-buy="'+esc(item.stockId)+'" '+(canBuy?'':'disabled')+'>'+(sold?'售罄':canBuy?'購買':'金幣不足')+'</button></div></article>';
       }).join('')+'</div>'+
