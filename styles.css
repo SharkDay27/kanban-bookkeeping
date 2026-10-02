@@ -741,3 +741,38 @@ dialog#dlg .foot button[value="cancel"]{
   letter-spacing:1px;
   box-shadow:inset 0 0 0 1px rgba(213,139,146,.12);
 }
+
+
+/* ===== Backpack / operator HP ===== */
+#backpack.section.active{border-top-color:#8d7047}
+.backpack-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.backpack-material-panel{grid-column:1/-1}
+.backpack-status-panel{border-left:4px solid #8d7047}
+.backpack-subhead{margin-top:16px}
+.backpack-hp-card{padding:12px;background:#111216;border:1px solid #4d4f57}
+.backpack-hp-number{font-size:26px;font-weight:900;margin-top:4px}
+.operator-hp{height:22px;background:#0d0e11;border:1px solid #666870;position:relative;margin-top:8px;overflow:hidden}
+.operator-hp>div:first-child{height:100%;background:linear-gradient(90deg,#75413c,#9a6b48)}
+.operator-hp span{position:absolute;inset:0;display:grid;place-items:center;font-size:10px;font-weight:900}
+.backpack-hp{height:26px}
+.operator-hp-block{margin-top:12px;padding-top:10px;border-top:1px solid #3f4148}
+.backpack-combat-log{font-size:11px;color:var(--muted);line-height:1.55;margin-top:8px}
+.backpack-items{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:10px}
+.pack-item{padding:11px;background:linear-gradient(180deg,#1d1f24,#131417);min-width:0}
+button.pack-item{text-align:left;color:var(--text);width:100%}
+.pack-item-head{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.pack-item-head strong{font-size:13px}
+.pack-count,.pack-state{font-size:9px;letter-spacing:.8px;color:#c7b783;border:1px solid #665b40;padding:3px 5px}
+.pack-desc{font-size:10px;color:var(--muted);line-height:1.5;margin-top:6px}
+.consumable-card{border-left:4px solid #627b66}
+.equipment-card{border-left:4px solid #746b55}
+.equipment-card.equipped{border-color:#9a8150;background:linear-gradient(180deg,#262318,#16150f)}
+.material-card{border-left:4px solid #5e6470}
+.pack-item .mini-btn{margin-top:9px;min-height:38px}
+.pack-item .mini-btn:disabled{opacity:.4;cursor:not-allowed}
+.pack-empty{grid-column:1/-1}
+@media(max-width:700px){
+  .backpack-grid{grid-template-columns:1fr}
+  .backpack-material-panel{grid-column:auto}
+  .backpack-items{grid-template-columns:1fr}
+}
