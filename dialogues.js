@@ -875,21 +875,91 @@ function ryoshuArayaInteraction(entry){
   if(tier==='huge')s=['巨。停。看。','「先別做別的，把這個數字確認清楚。」'];
   return arayaScabbardLines(s[0],s[1],entry);
 }
+
+function sinnerInteractiveReply(sinner,previous,entry){
+  const prevName=previous.name;
+  const own=sinnerLine(sinner,entry);
+  const cat=entry.category||'這筆';
+  const tier=amountTier(entry);
+  const replies={
+    '李箱':[
+      prevName+'所言並非無理。不過若只凝視這一筆，恐怕仍看不見整條流向。 '+own,
+      '我明白'+prevName+'的意思。只是帳目之事，偶爾也該讓時間替我們補上答案。 '+own
+    ],
+    '浮士德':[
+      prevName+'的觀察可以保留，但仍應以紀錄本身驗證。 '+own,
+      '補充'+prevName+'的說法：單筆感受不足以構成結論。 '+own
+    ],
+    '堂吉訶德':[
+      '喔！'+prevName+'之言甚有道理！然吾亦有一言——'+own,
+      prevName+'！此番見解吾已聽見！那麼也請聽聽吾之判斷！ '+own
+    ],
+    '良秀':[
+      '呵。'+prevName+'，話太多。 '+own,
+      prevName+'。可。我的結論——'+own,
+      '不對。'+prevName+'漏了一刀。 '+own
+    ],
+    '默爾索':[
+      '我已理解'+prevName+'的意見。補充如下：'+own,
+      prevName+'的判斷與紀錄並不衝突。我的意見是：'+own
+    ],
+    '鴻璐':[
+      prevName+'說得挺有意思。不過我倒是想到另一件事：'+own,
+      '原來'+prevName+'是這樣看呀。那我也說說我的想法。 '+own
+    ],
+    '希斯克利夫':[
+      '行了，'+prevName+'，我懂你的意思。可我看這筆更像是——'+own,
+      prevName+'講得倒輕鬆。要我說，'+own
+    ],
+    '以實瑪利':[
+      '先等等，'+prevName+'。那個結論下得太快了。 '+own,
+      '我同意'+prevName+'的一部分，但實際記帳時還得看後續。 '+own
+    ],
+    '羅佳':[
+      '嗯——'+prevName+'這麼說也沒錯啦。不過我會再看一件事：'+own,
+      prevName+'先別把話說死嘛。我的看法是——'+own
+    ],
+    '辛克萊':[
+      '我、我懂'+prevName+'的意思。不過我覺得也可以這樣看…… '+own,
+      prevName+'說得有道理。只是如果是我的話，我還會注意——'+own
+    ],
+    '奧提斯':[
+      prevName+'的意見可供參考，執行經理。但我認為仍需補充：'+own,
+      '恕我直言，'+prevName+'只說中了其中一部分。 '+own
+    ],
+    '格里高爾':[
+      '嗯，'+prevName+'說得差不多。不過我還是想補一句。 '+own,
+      prevName+'，你那說法也不是不行。只是啊，'+own
+    ]
+  };
+  let text=pick(replies[sinner.name]||[own]);
+  if(tier==='huge'&&Math.random()<0.35)text+=' 這數字夠大，前面的話先別急著當結論。';
+  if(cat==='醫療'&&sinner.name!=='良秀'&&Math.random()<0.3)text+=' 至少醫療支出別因為爭論誰對誰錯而拖延。';
+  return text;
+}
+function interactiveSinnerLines(members,entry){
+  if(!members||!members.length)return [];
+  const lines=[{speaker:members[0].name,text:sinnerLine(members[0],entry)}];
+  for(let i=1;i<members.length;i++){
+    const current=members[i],previous=members[i-1];
+    lines.push({speaker:current.name,text:sinnerInteractiveReply(current,previous,entry)});
+  }
+  return lines;
+}
+
 function generateSinnerComment(entry){
   const roll=Math.random();
   const contexts=detectSituations(entry).map(function(x){return x.id});
   const meta={createdAt:new Date().toISOString(),category:entry.category,amountTier:amountTier(entry),amount:entry.amount,contexts:contexts};
-  if(roll<0.01)return {...meta,kind:'all',lines:SINNERS.map(function(s){return {speaker:s.name,text:sinnerLine(s,entry)}})};
+  if(roll<0.01){const order=[...SINNERS].sort(function(){return Math.random()-.5});return {...meta,kind:'all',lines:interactiveSinnerLines(order,entry)}};
   const first=SINNERS[Math.floor(Math.random()*SINNERS.length)];
   if(first.name==='良秀'&&Math.random()<0.58)return {...meta,kind:'araya',lines:ryoshuArayaInteraction(entry)};
-  const lines=[{speaker:first.name,text:sinnerLine(first,entry)}];
   if(roll<0.08){
     let second=SINNERS[Math.floor(Math.random()*SINNERS.length)];
     while(second.name===first.name)second=SINNERS[Math.floor(Math.random()*SINNERS.length)];
-    lines.push({speaker:second.name,text:sinnerLine(second,entry)});
-    return {...meta,kind:'duo',lines:lines};
+    return {...meta,kind:'duo',lines:interactiveSinnerLines([first,second],entry)};
   }
-  return {...meta,kind:'single',lines:lines};
+  return {...meta,kind:'single',lines:[{speaker:first.name,text:sinnerLine(first,entry)}]};
 }
 function commentKindLabel(kind){
   if(kind==='all')return 'RARE / 全員評議';
