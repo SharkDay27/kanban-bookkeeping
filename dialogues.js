@@ -912,14 +912,26 @@ function generateSinnerComment(entry){
   const roll=Math.random();
   const contexts=detectSituations(entry).map(function(x){return x.id});
   const meta={createdAt:new Date().toISOString(),category:entry.category,amountTier:amountTier(entry),amount:entry.amount,contexts:contexts};
-  if(roll<0.01){const order=[...SINNERS].sort(function(){return Math.random()-.5});return {...meta,kind:'all',lines:interactiveSinnerLines(order,entry)}};
-  const first=SINNERS[Math.floor(Math.random()*SINNERS.length)];
-  if(first.name==='良秀'&&Math.random()<0.82)return {...meta,kind:'araya',lines:ryoshuArayaInteraction(entry)};
-  if(roll<0.08){
+
+  // 評議種類先獨立決定，確保實際機率：
+  // 全員評議 3%、一般雙人評議 13%。
+  if(roll<0.03){
+    const order=[...SINNERS].sort(function(){return Math.random()-.5});
+    return {...meta,kind:'all',lines:interactiveSinnerLines(order,entry)};
+  }
+
+  if(roll<0.16){
+    const first=SINNERS[Math.floor(Math.random()*SINNERS.length)];
     let second=SINNERS[Math.floor(Math.random()*SINNERS.length)];
     while(second.name===first.name)second=SINNERS[Math.floor(Math.random()*SINNERS.length)];
     return {...meta,kind:'duo',lines:interactiveSinnerLines([first,second],entry)};
   }
+
+  const first=SINNERS[Math.floor(Math.random()*SINNERS.length)];
+  if(first.name==='良秀'&&Math.random()<0.82){
+    return {...meta,kind:'araya',lines:ryoshuArayaInteraction(entry)};
+  }
+
   return {...meta,kind:'single',lines:[{speaker:first.name,text:sinnerLine(first,entry)}]};
 }
 function commentKindLabel(kind){
