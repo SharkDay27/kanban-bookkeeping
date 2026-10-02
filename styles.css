@@ -637,3 +637,20 @@ dialog#dlg .foot button[value="cancel"]{
   .sinner-filter{min-height:40px;font-size:12px}
   .sinner-group-head{position:sticky;top:52px;z-index:6}
 }
+
+
+/* ===== v9.7 sinner representative colors ===== */
+.commentary-speaker{
+  color:var(--speaker-color,#c9c5bb)!important;
+  font-weight:900;
+  text-shadow:0 0 12px color-mix(in srgb,var(--speaker-color,#c9c5bb) 28%,transparent);
+  border-left:3px solid var(--speaker-color,#c9c5bb);
+  padding-left:7px;
+}
+.sinner-group-name{
+  color:var(--speaker-color,#e5deda)!important;
+  text-shadow:0 0 14px color-mix(in srgb,var(--speaker-color,#e5deda) 24%,transparent);
+}
+@supports not (color:color-mix(in srgb, white 50%, black)){
+  .commentary-speaker,.sinner-group-name{text-shadow:none}
+}
