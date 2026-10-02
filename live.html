@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="終端記錄">
+<title>RPG 化記帳工具</title>
+<link rel="stylesheet" href="styles.css?v=20261002w">
+</head>
+<body>
+<script>
+/* STALE-NPC-CLEANUP: compatibility cleanup for older cached markup */
+document.addEventListener('DOMContentLoaded',function(){
+  document.querySelectorAll('.npc-strip').forEach(function(el){el.remove()});
+});
+window.addEventListener('pageshow',function(){
+  document.querySelectorAll('.npc-strip').forEach(function(el){el.remove()});
+});
+</script>
+<div class="wrap">
+  <div class="top">
+    <div class="brand">
+      <div class="logo wood" id="logo"></div>
+      <div>
+        <div class="title">RPG 化記帳工具</div>
+      </div>
+    </div>
+    <div class="language-switch wood" role="group" aria-label="語言切換">
+      <button type="button" data-language="zh-Hant" class="active">繁體</button>
+      <button type="button" data-language="zh-Hans">简体</button>
+    </div>
+  </div>
+
+  <div class="notice wood panel zone zone-privacy">資料只保存在目前瀏覽器 localStorage。GitHub Pages 不會儲存你的發票、收入、初始金額或進度資料。換裝置或清除 Safari 網站資料前，請先備份 JSON。</div>
+
+  <div class="actions zone zone-actions">
+    <label class="btn wood">匯入發票 CSV<input id="csv" type="file" accept=".csv" multiple></label>
+    <button id="export" class="wood">匯出 CSV</button>
+    <button id="backup" class="wood">備份 JSON</button>
+    <label class="btn wood">還原 JSON<input id="restore" type="file" accept=".json"></label>
+    <button id="clear" class="wood danger">清除本機資料</button>
+    <button id="addExpense" class="wood primary">＋新增支出</button>
+    <button id="addIncome" class="wood income-btn">＋新增收入</button>
+  </div>
+
+  <div class="currency-console wood panel zone zone-currency" id="currencyConsole">
+    <div class="currency-compact">
+      <div>
+        <div class="currency-eyebrow">PRIMARY CURRENCY / 主要幣別</div>
+        <div class="currency-note">僅切換顯示單位，不自動換算既有金額。</div>
+      </div>
+      <select id="currencySelect" class="wood currency-select" aria-label="選擇主要幣別">
+        <option value="TWD">NT$ · TWD · 台幣</option>
+        <option value="CNY">CN¥ · CNY · 人民幣</option>
+        <option value="JPY">JP¥ · JPY · 日幣</option>
+        <option value="USD">US$ · USD · 美金</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="summary zone zone-summary">
+    <div class="stat wood panel"><div class="k">初始金額</div><div class="v" id="initialAmount">$0</div><div class="s">由你自行設定</div></div>
+    <div class="stat wood panel"><div class="k">累計收入</div><div class="v" id="allIncome">$0</div><div class="s">所有收入記錄</div></div>
+    <div class="stat wood panel"><div class="k">累計支出</div><div class="v" id="allExpense">$0</div><div class="s">所有支出記錄</div></div>
+    <div class="stat wood panel"><div class="k">目前剩餘</div><div class="v" id="balance">$0</div><div class="s">初始金額＋收入−支出</div></div>
+    <div class="stat wood panel"><div class="k">本月淨額</div><div class="v" id="monthNet">$0</div><div class="s" id="monthLabel">—</div></div>
+    <div class="stat wood panel"><div class="k">連續記錄</div><div class="v" id="streak">0 天</div><div class="s" id="bestStreak">最長 0 天</div></div>
+  </div>
+
+  <button type="button" class="tabs-directory-head wood" id="mainMenuToggle" aria-expanded="false" aria-controls="mainMenuTabs">
+    <div>
+      <div class="archive-id">SECTION // MAIN DIRECTORY</div>
+      <div class="tabs-directory-title">主功能目錄</div>
+    </div>
+    <div class="tabs-directory-toggle">
+      <span class="tabs-directory-current" id="mainMenuCurrent">終端</span>
+      <span class="tabs-directory-chevron" aria-hidden="true">⌄</span>
+    </div>
+  </button>
+  <div class="tabs zone zone-tabs collapsed" id="mainMenuTabs" aria-label="主功能頁籤" aria-hidden="true">
+    <button class="wood active" data-tab="adventure">終端</button>
+    <button class="wood" data-tab="book">記錄</button>
+    <button class="wood" data-tab="quests">任務</button>
+    <button class="wood" data-tab="explore">探索</button>
+    <button class="wood" data-tab="sinners">罪人管理</button>
+    <button class="wood" data-tab="backpack">背包</button>
+    <button class="wood" data-tab="bestiary">圖鑑</button>
+    <button class="wood" data-tab="progress">成就</button>
+    <button class="wood" data-tab="commentary">評議</button>
+    <button class="wood" data-tab="stats">統計</button>
+    <button class="wood" data-tab="settings">設定</button>
+  </div>
+
+  <section id="adventure" class="section active">
+
+    <div class="main-grid">
+      <div class="wood panel">
+        <div class="archive-header"><div><div class="archive-id">FILE // IDENTITY-ACCOUNT-01</div><div class="archive-title">執行經理檔案 / MANAGER IDENTITY</div></div><div class="archive-stamp">ACTIVE</div></div><div class="sub">你被固定識別為 LCB 執行經理「但丁」。每新增一筆收入或支出，除原有 EXP 外，另獲得 1 次探索行動。</div>
+        <div class="hero">
+          <div class="avatar" id="heroIcon"></div>
+          <div>
+            <div class="row"><div id="rank" style="font-size:18px;font-weight:900">但丁｜LCB 執行經理</div><div id="lv" style="font-size:18px;font-weight:900">Lv.1</div></div>
+            <div style="margin:8px 0 6px;color:var(--muted);font-size:12px" id="xpText">0 / 100 EXP</div>
+            <div class="bar"><div class="barfill" id="xpFill"></div><div class="bartext" id="xpPct">0%</div></div>
+            <div class="mini-grid manager-reward-grid">
+              <div class="mini wood panel"><div class="k">金幣</div><div class="num" id="gold">0</div></div>
+              <div class="mini wood panel"><div class="k">道具箱</div><div class="num" id="itemBoxCount">0</div></div>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+              <button class="wood gold-btn" id="openItemBox">開啟道具箱</button>
+            </div>
+            <div class="sub manager-box-note">經理每次升級獲得 1 個道具箱。箱內獎勵依一般 RPG 機率隨機抽取，不分箱子稀有度。</div>
+            <div class="rewardlog wood" id="rewardLog">開始記錄來啟動管理流程。</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="wood panel containment-frame exploration-command-panel">
+        <div class="archive-header"><div><div class="archive-id">LCB // EXPLORATION-COMMAND</div><div class="archive-title">探索行動管理</div></div><div class="archive-stamp">DANTE</div></div>
+        <div class="sub">每新增 1 筆記帳紀錄 = 1 次可用行動。行動不會自動消耗；由但丁選擇兩名罪人與區域後執行探索。</div>
+        <div class="explore-command-kpis">
+          <div class="mini wood panel"><div class="k">可用行動</div><div class="num" id="exploreActionsHome">0</div></div>
+          <div class="mini wood panel"><div class="k">累計探索</div><div class="num" id="exploreRunsHome">0</div></div>
+          <div class="mini wood panel"><div class="k">已收容怪異</div><div class="num" id="containedCountHome">0</div></div>
+          <div class="mini wood panel"><div class="k">探索隊伍</div><div class="num compact" id="exploreTeamHome">未指定</div></div>
+        </div>
+        <div class="containment-feedback" id="exploreHomeFeedback">
+          <div class="containment-feedback-head"><span>LAST OPERATION / 最近探索</span><span id="exploreHomeCode">STANDBY</span></div>
+          <div class="containment-feedback-main" id="exploreHomeMain">尚未執行探索。</div>
+          <div class="containment-feedback-detail" id="exploreHomeDetail">前往「探索」頁籤選擇區域與兩名罪人。</div>
+        </div>
+        <button type="button" class="wood primary goto-explore" data-goto="explore" style="margin-top:12px">前往探索管制區</button>
+      </div>
+    </div>
+    <details class="wood panel exploration-overview-panel containment-overview-collapse">
+      <summary class="containment-overview-summary">
+        <div><div class="archive-id">CONTAINMENT // FIELD-OVERVIEW</div><div class="archive-title">收容進度總覽</div></div>
+        <div class="containment-overview-right"><span class="archive-stamp">FIELD</span><span class="collapse-chevron">⌄</span></div>
+      </summary>
+      <div class="containment-overview-body">
+        <div class="sub">怪異必須在探索中累積指定擊殺次數後，才會正式標記為「已收容」。不同區域存在不同建議等級。</div>
+        <div id="homeContainmentProgress" class="home-containment-progress"></div>
+      </div>
+    </details>
+  </section>
+
+  <section id="book" class="section">
+    <div class="filters">
+      <input id="month" class="wood" type="month">
+      <select id="typeFilter" class="wood"><option value="">全部類型</option><option value="expense">支出</option><option value="income">收入</option></select>
+      <select id="cat" class="wood"><option value="">所有分類</option></select>
+      <input id="search" class="wood" placeholder="搜尋店家、品項、備註">
+    </div>
+    <div id="board"></div>
+  </section>
+
+  <section id="quests" class="section">
+    <div class="main-grid">
+      <div class="wood panel">
+        <div style="font-size:18px;font-weight:900">每日執行指令</div>
+        <div class="sub">依今日紀錄狀態自動判定執行完成，完成後即刻發放報酬。</div>
+        <div class="quest-list command-sheet" id="questList"></div>
+      </div>
+      <div class="wood panel">
+        <div style="font-size:18px;font-weight:900">長期執行紀錄</div>
+        <div class="sub">每日完成至少一筆收入或支出紀錄，即視為當日作業成立。</div>
+        <div class="quest-list command-sheet">
+          <div class="quest wood panel"><div class="quest-name">連續 3 天</div><div class="quest-desc">獲得 1 個道具箱</div></div>
+          <div class="quest wood panel"><div class="quest-name">連續 7 天</div><div class="quest-desc">獲得 1 個道具箱</div></div>
+          <div class="quest wood panel"><div class="quest-name">連續 14 天</div><div class="quest-desc">獲得 2 個道具箱</div></div>
+          <div class="quest wood panel"><div class="quest-name">連續 30 天</div><div class="quest-desc">獲得 3 個道具箱</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <section id="explore" class="section">
+    <div class="exploration-layout">
+      <div class="wood panel">
+        <div class="archive-header">
+          <div><div class="archive-id">FIELD // AREA-SELECTION</div><div class="archive-title">區域探索</div></div>
+          <div class="archive-stamp">2 SINNERS</div>
+        </div>
+        <div class="explore-action-banner">
+          <div><span class="k">AVAILABLE ACTIONS / 可用行動</span><strong id="exploreActions">0</strong></div>
+          <div class="sub">每次探索消耗 1 次行動。記帳新增成功時補充行動。</div>
+        </div>
+        <div id="explorationAreas" class="exploration-area-grid"></div>
+      </div>
+
+      <div class="wood panel">
+        <div class="archive-header">
+          <div><div class="archive-id">LCB // DEPLOYMENT</div><div class="archive-title">罪人編成</div></div>
+          <div class="archive-stamp">SELECT 2</div>
+        </div>
+        <div class="sub">每次必須選擇兩名罪人。能力值、等級、專業技能與裝備都會影響探索結果。</div>
+        <div id="explorationTeamPicker" class="team-picker"></div>
+        <button type="button" id="exploreBtn" class="wood primary explore-btn">執行探索</button>
+      </div>
+
+      <div class="wood panel exploration-result-panel">
+        <div class="archive-header">
+          <div><div class="archive-id">RESULT // FIELD-REPORT</div><div class="archive-title">探索報告</div></div>
+          <div class="archive-stamp" id="exploreResultStamp">STANDBY</div>
+        </div>
+        <div id="exploreResult" class="explore-result">等待探索命令。</div>
+        <div id="exploreDialogue" class="explore-dialogue"></div>
+        <div id="explorationShop" class="exploration-shop" hidden></div>
+      </div>
+
+      <div class="wood panel exploration-result-panel">
+        <div class="archive-header">
+          <div><div class="archive-id">ARCHIVE // EXPLORATION-LOG</div><div class="archive-title">探索紀錄 LOG</div></div>
+          <div class="archive-stamp">LATEST 100</div>
+        </div>
+        <div class="sub">每次探索都會保留區域、編成、結果、EXP、掉落與現場對話。</div>
+        <div id="explorationLog" class="exploration-log"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="sinners" class="section">
+    <div class="wood panel">
+      <div class="archive-header">
+        <div><div class="archive-id">LCB // SINNER-MANAGEMENT</div><div class="archive-title">罪人管理</div></div>
+        <div class="archive-stamp">12 FILES</div>
+      </div>
+      <div class="sub">查看罪人等級、探索 EXP、基礎能力、專業技能、E.G.O 參考技能與目前裝備。</div>
+      <div id="sinnerManagementGrid" class="sinner-management-grid"></div>
+    </div>
+  </section>
+
+  <section id="backpack" class="section">
+    <div class="backpack-grid">
+      <div class="wood panel backpack-status-panel">
+        <div class="archive-header">
+          <div><div class="archive-id">FIELD // SUPPLY-STORAGE</div><div class="archive-title">背包 / FIELD PACK</div></div>
+          <div class="archive-stamp">READY</div>
+        </div>
+        <div class="sub">探索補給集中於此。罪人狀態過低時，系統會視庫存自動使用瓶裝水或小型治療藥水。</div>
+        <div class="archive-header backpack-subhead">
+          <div><div class="archive-id">CONSUMABLE // AUTO-USE</div><div class="archive-title">消耗品</div></div>
+        </div>
+        <div id="backpackConsumables" class="backpack-items"></div>
+      </div>
+
+      <div class="wood panel">
+        <div class="archive-header">
+          <div><div class="archive-id">FIELD // SINNER-GEAR</div><div class="archive-title">探索裝備</div></div>
+          <div class="archive-stamp">ASSIGNABLE</div>
+        </div>
+        <div class="sub">探索取得的裝備可在「罪人管理」中分配給個別罪人。</div>
+        <div id="backpackFieldGear" class="backpack-items"></div>
+      </div>
+
+      <div class="wood panel">
+        <div class="archive-header">
+          <div><div class="archive-id">MANAGER // SUPPORT-GEAR</div><div class="archive-title">管理支援裝備</div></div>
+          <div class="archive-stamp">3 SLOTS</div>
+        </div>
+        <div class="sub">既有 RPG 支援裝備仍可裝備／卸下，效果作用於 EXP、寶箱與其他既有系統。</div>
+        <div id="backpackEquipment" class="backpack-items backpack-equipment-list"></div>
+      </div>
+
+      <div class="wood panel backpack-material-panel">
+        <div class="archive-header">
+          <div><div class="archive-id">STORAGE // MATERIALS</div><div class="archive-title">材料與其他物品</div></div>
+          <div class="archive-stamp">STORED</div>
+        </div>
+        <div class="sub">收容相關掉落物與其他物品會保存在此。</div>
+        <div id="backpackMaterials" class="backpack-items"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="bestiary" class="section">
+    <div class="wood panel">
+      <div class="archive-header">
+        <div><div class="archive-id">ARCHIVE // ABNORMALITY-CATALOG</div><div class="archive-title">怪異圖鑑 / CONTAINMENT INDEX</div></div>
+        <div class="archive-stamp">CATALOG</div>
+      </div>
+      <div class="sub">探索中遭遇的怪異會自動登錄。達成指定擊殺次數後，才會標記為「已收容」。</div>
+      <div id="bestiaryGrid" class="bestiary-grid" style="margin-top:12px"></div>
+    </div>
+  </section>
+
+  <section id="progress" class="section">
+    <div class="wood panel">
+      <div class="archive-header">
+        <div><div class="archive-id">RECORD // ACHIEVEMENTS</div><div class="archive-title">成就系統</div></div>
+        <div class="archive-stamp">MILESTONE</div>
+      </div>
+      <div class="sub">完成里程碑會自動解鎖並獲得金幣；探索與收容進度也會列入判定。</div>
+      <div id="achievementGrid" class="achievement-grid"></div>
+    </div>
+  </section>
+
+  <section id="commentary" class="section">
+    <div class="wood panel">
+      <div class="archive-header">
+        <div><div class="archive-id">LCB // SINNER-COMMENTARY</div><div class="archive-title">罪人評議記錄</div></div>
+        <div class="archive-stamp">ARCHIVE</div>
+      </div>
+      <div class="sub">每筆新登錄的收入／支出會固定保存當時的罪人點評。可依時間或罪人切換檢視。</div>
+      <div class="commentary-view-switch">
+        <button type="button" id="commentViewTime" class="active">依時間</button>
+        <button type="button" id="commentViewSinner">依罪人</button>
+      </div>
+      <div id="sinnerFilterBar" class="sinner-filter-bar" style="display:none"></div>
+      <div id="commentaryList" class="commentary-list"></div>
+    </div>
+  </section>
+
+  <section id="stats" class="section">
+    <div class="stats-grid">
+      <div class="wood panel chart-card"><div class="report-head"><div><div class="report-code">FINANCIAL MANAGEMENT REPORT</div><div style="font-size:18px;font-weight:900">REPORT A-01 / 本月收支構成</div></div><div class="archive-stamp">MONTHLY</div></div>
+        <div class="sub">依目前月份篩選條件生成之管理報表。</div>
+        <div class="pie-wrap"><div id="incomeExpensePie" class="pie"></div><div id="incomeExpenseLegend" class="legend-list"></div></div>
+      </div>
+      <div class="wood panel chart-card"><div class="report-head"><div><div class="report-code">EXPENSE DISTRIBUTION REPORT</div><div style="font-size:18px;font-weight:900">REPORT A-02 / 支出分類分布</div></div><div class="archive-stamp">ANALYSIS</div></div>
+        <div class="sub">支出類別比例，供資金流向審閱。</div>
+        <div class="pie-wrap"><div id="expenseCategoryPie" class="pie"></div><div id="expenseCategoryLegend" class="legend-list"></div></div>
+      </div>
+      <div class="wood panel chart-card"><div class="report-head"><div><div class="report-code">INCOME SOURCE REPORT</div><div style="font-size:18px;font-weight:900">REPORT A-03 / 收入來源分布</div></div><div class="archive-stamp">ANALYSIS</div></div>
+        <div class="sub">各收入來源占比與本期資金來源結構。</div>
+        <div class="pie-wrap"><div id="incomeCategoryPie" class="pie"></div><div id="incomeCategoryLegend" class="legend-list"></div></div>
+      </div>
+      <div class="wood panel chart-card"><div class="report-head"><div><div class="report-code">MONTHLY EXECUTIVE SUMMARY</div><div style="font-size:18px;font-weight:900">REPORT A-04 / 月度管理摘要</div></div><div class="archive-stamp">REVIEW</div></div>
+        <div class="sub">關鍵數值摘要，用於本期財務狀態判讀。</div>
+        <div class="month-kpis"><div class="kpi wood panel"><div class="k">收入</div><strong id="statsIncome">$0</strong></div><div class="kpi wood panel"><div class="k">支出</div><strong id="statsExpense">$0</strong></div><div class="kpi wood panel"><div class="k">淨額</div><strong id="statsNet">$0</strong></div></div>
+        <div class="rewardlog wood" id="statsComment">先建立一些收入／支出檔案索引，就能看到完整分析。</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="settings" class="section">
+    <div class="wood panel">
+      <div style="font-size:18px;font-weight:900">資金設定</div>
+      <div class="sub">初始金額可在這裡調整；執行經理固定為「但丁」。</div>
+      <div class="settings-grid" style="margin-top:10px">
+        <div class="field"><label>初始金額</label><input id="initialInput" class="wood" type="number" min="0" step="1" placeholder="例如 30000"></div>
+      </div>
+      <div style="margin-top:10px"><button id="saveSettings" class="wood primary">儲存設定</button></div>
+      <div class="settings-note">目前剩餘金額的計算方式為：<b>初始金額 ＋ 累計收入 − 累計支出</b>。匯入的發票 CSV 會自動視為支出；收入請由你手動新增。</div>
+    </div>
+  </section>
+</div>
+
+
+<div id="toast" class="toast wood"></div>
+
+<dialog id="commentDlg">
+  <div class="comment-dialog">
+    <div class="archive-header">
+      <div><div class="archive-id">LCB // COMMENT RECEIVED</div><div class="archive-title">罪人評議</div></div>
+      <div class="archive-stamp" id="commentDlgTag">SINGLE</div>
+    </div>
+    <div id="commentDlgBody" class="commentary-lines"></div>
+    <div class="comment-dialog-actions">
+      <button type="button" id="goCommentArchive" class="wood">查看評議記錄</button>
+      <button type="button" id="closeCommentDlg" class="wood primary">確認</button>
+    </div>
+  </div>
+</dialog>
+<button id="fab" class="fab">＋</button>
+<div class="bottom">
+  <button data-goto="adventure" class="active">⌂<span class="mobile-nav-label">終端</span></button>
+  <button data-goto="book">▤<span class="mobile-nav-label">記錄</span></button>
+  <button id="bottomAdd" class="nav-add">＋<span class="mobile-nav-label">新增</span></button>
+  <button data-goto="commentary">◈<span class="mobile-nav-label">評議</span></button>
+  <button data-goto="explore">◆<span class="mobile-nav-label">探索</span></button>
+</div>
+
+<dialog id="dlg">
+  <form class="modal wood" method="dialog">
+    <button type="button" id="closeDlg" class="dialog-close" aria-label="關閉輸入介面">×</button>
+    <div class="archive-header">
+      <div><div class="archive-id">TRANSACTION // QUICK-ENTRY</div><h3 id="dlgTitle" style="margin:2px 0 0">新增記錄</h3></div>
+      <div class="archive-stamp">INPUT</div>
+    </div>
+    <input id="eid" type="hidden">
+    <select id="etype" style="display:none"><option value="expense">支出</option><option value="income">收入</option></select>
+
+    <div class="quick-type">
+      <button type="button" data-entry-type="expense">支出</button>
+      <button type="button" data-entry-type="income">收入</button>
+    </div>
+
+    <div class="entry-primary">
+      <div class="field amount-field">
+        <label>金額</label>
+        <input id="eamt" class="wood" type="number" inputmode="decimal" min="0" step="1" placeholder="0" required>
+      </div>
+      <div class="field">
+        <label id="estoreLabel">店家／用途</label>
+        <input id="estore" class="wood" autocomplete="off" placeholder="例如：午餐、超商、交通" required>
+      </div>
+      <div class="field entry-wide">
+        <label>分類</label>
+        <select id="ecat" class="wood"></select>
+        <div id="quickCats" class="quick-cats"></div>
+      </div>
+    </div>
+
+    <details class="entry-advanced">
+      <summary>日期、付款方式、備註（選填）</summary>
+      <div class="advanced-body form-grid">
+        <div class="field"><label>日期</label><input id="edate" class="wood" type="date" required></div>
+        <div class="field"><label>付款方式</label><select id="epay" class="wood"><option>現金</option><option>轉帳</option><option>信用卡</option><option>支付寶</option><option>微信</option><option>其他</option></select></div>
+        <div class="field" style="grid-column:1/-1"><label>備註</label><textarea id="enote" class="wood" placeholder="需要時再填即可"></textarea></div>
+      </div>
+    </details>
+
+    <div class="quick-hint">新增成功後會自動獲得 EXP；編輯既有紀錄不會重複給予 EXP。</div>
+    <div class="foot">
+      <button value="cancel" class="wood">取消</button>
+      <button type="button" id="del" class="wood danger">刪除</button>
+      <button type="button" id="saveAgain" class="wood save-again">儲存並再記一筆</button>
+      <button type="button" id="save" class="wood primary">儲存</button>
+    </div>
+  </form>
+</dialog>
+
+<script src="dialogues.js?v=20261002ab"></script>
+<script src="app.js?v=20261002zb"></script>
+<script src="sinner-management.js?v=20261002b"></script>
+<script src="bestiary.js?v=20261002a"></script>
+<script src="exploration.js?v=20261002c"></script>
+<script src="exploration-shop.js?v=20261002a"></script>
+</body>
+</html>
