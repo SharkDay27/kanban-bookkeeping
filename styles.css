@@ -2579,3 +2579,13 @@ button:focus-visible,select:focus-visible{outline:3px solid #6096b0!important;ou
 .achievement-badge-preview{display:flex;align-items:center;gap:10px;margin:12px 0 4px;padding:10px;border:1px dashed #d4c294;background:#fcf9f0;color:#6e5429;font-size:12px;line-height:1.6}
 .achievement-badge-preview .medal-emblem{width:36px;height:36px;font-size:14px;outline:none;border-width:2px}
 @media(max-width:600px){.medal-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.achievement-medals{padding:14px}.achievement-category-filter{flex-wrap:wrap}}
+
+/* Unknown containment files retain only the readable reveal instruction. */
+.home-containment-progress .containment-progress-row{min-width:0;padding:16px!important;gap:12px;background:#f7fbfd!important;border:1px solid #bdd5df!important;border-left:3px solid #8fb5c7!important}
+.home-containment-progress .containment-progress-row.containment-unknown{position:relative;border-style:dashed!important;border-left-width:1px!important;background:#f0f6f9!important}
+.containment-obscured{filter:blur(4px);opacity:.48;pointer-events:none;user-select:none;line-height:1.8}
+.containment-unknown-hint{position:absolute;inset:53px 12px 12px;display:grid;place-items:center;text-align:center;background:rgba(241,247,250,.68);color:#4c6d7e;font-size:12px;line-height:1.65}
+.containment-file-name{line-height:1.55}
+.pack-shop-hint{color:#57788a;font-size:12px;margin-top:10px;border-top:1px solid #ccdee6;padding-top:9px}
+.record-kind-badge.status-clear,.archive-stamp.status-clear{background:#e9eff5!important;color:#4e6881!important;border-color:#a8bdcc!important}
+@media(max-width:600px){.home-containment-progress .containment-progress-row{padding:14px!important}}

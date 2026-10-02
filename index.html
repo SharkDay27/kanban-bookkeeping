@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="終端記錄">
 <title>RPG 化記帳工具</title>
-<link rel="stylesheet" href="styles.css?v=20261007a">
+<link rel="stylesheet" href="styles.css?v=20261008a">
 </head>
 <body>
 <script>
@@ -153,7 +153,7 @@ window.addEventListener('pageshow',function(){
         <div class="containment-overview-right"><span class="archive-stamp">FIELD</span><span class="collapse-chevron">⌄</span></div>
       </summary>
       <div class="containment-overview-body">
-        <div class="sub">怪異必須在探索中累積指定擊殺次數後，才會正式標記為「已收容」。不同區域存在不同建議等級。</div>
+        <div class="sub">未接觸的怪異會以模糊檔案呈現。累積指定制壓次數後標記為「已收容」，並從探索遭遇中移除。</div>
         <div id="homeContainmentProgress" class="home-containment-progress"></div>
       </div>
     </details>
@@ -185,7 +185,7 @@ window.addEventListener('pageshow',function(){
           <option value="supply">補給</option>
           <option value="gear">裝備</option>
           <option value="shop">商店</option>
-          <option value="revive">復活</option>
+          <option value="quiet">平安無事</option><option value="revive">復活</option>
         </select>
         <input id="exploreRecordSearch" class="wood" placeholder="搜尋區域、罪人、事件、結果">
       </div>
@@ -219,7 +219,7 @@ window.addEventListener('pageshow',function(){
         </div>
         <div class="explore-action-banner">
           <div><span class="k">AVAILABLE ACTIONS / 可用行動</span><strong id="exploreActions">0</strong></div>
-          <div class="sub">每次探索消耗 1 次行動。記帳新增成功時補充行動。只有普通敵人與怪異戰鬥會獲得罪人 EXP。事件及補給／裝備回收可能失敗並造成受傷，出發前請確認隊伍狀態。</div>
+          <div class="sub">每次探索消耗 1 次行動。記帳新增成功時補充行動。只有普通敵人與怪異戰鬥會獲得罪人 EXP。事件及補給／裝備回收可能失敗並造成受傷，出發前請確認隊伍狀態。偶爾也會平安無事地返回。</div>
         </div>
         <div id="explorationAreas" class="exploration-area-grid"></div>
       </div>
@@ -284,8 +284,8 @@ window.addEventListener('pageshow',function(){
     <div class="backpack-grid collapsible-pack">
       <details class="wood panel backpack-category" open><summary class="backpack-category-head"><div><div class="archive-id">CONSUMABLE // AUTO-USE</div><div class="archive-title">消耗品</div></div><span class="backpack-category-chevron">⌄</span></summary><div class="backpack-category-body"><div id="backpackConsumables" class="backpack-items"></div></div></details>
       <details class="wood panel backpack-category" open><summary class="backpack-category-head"><div><div class="archive-id">FIELD // SINNER-GEAR</div><div class="archive-title">探索裝備</div></div><span class="backpack-category-chevron">⌄</span></summary><div class="backpack-category-body"><div class="sub">可在「罪人管理」中分配；已配置裝備無法於商店出售。</div><div id="backpackFieldGear" class="backpack-items"></div></div></details>
-      <details class="wood panel backpack-category"><summary class="backpack-category-head"><div><div class="archive-id">MANAGER // SUPPORT-GEAR</div><div class="archive-title">管理支援裝備</div></div><span class="backpack-category-chevron">⌄</span></summary><div class="backpack-category-body"><div class="sub">最多同時裝備 3 件；已裝備的支援裝備無法出售。</div><div id="backpackEquipment" class="backpack-items backpack-equipment-list"></div></div></details>
-      <details class="wood panel backpack-category backpack-material-panel"><summary class="backpack-category-head"><div><div class="archive-id">STORAGE // MATERIALS</div><div class="archive-title">材料與其他物品</div></div><span class="backpack-category-chevron">⌄</span></summary><div class="backpack-category-body"><div class="sub">普通敵方素材可直接出售；其他材料可在探索商店換成金幣。</div><div id="backpackMaterials" class="backpack-items"></div></div></details>
+      <details class="wood panel backpack-category"><summary class="backpack-category-head"><div><div class="archive-id">MANAGER // SUPPORT-GEAR</div><div class="archive-title">管理支援裝備</div></div><span class="backpack-category-chevron">⌄</span></summary><div class="backpack-category-body"><div class="sub">支援經理成長、全隊戰鬥或探索判定，最多同時裝備 3 件；已裝備的份數會保留，其餘可在商店出售。</div><div id="backpackEquipment" class="backpack-items backpack-equipment-list"></div></div></details>
+      <details class="wood panel backpack-category backpack-material-panel"><summary class="backpack-category-head"><div><div class="archive-id">STORAGE // MATERIALS</div><div class="archive-title">材料與其他物品</div></div><span class="backpack-category-chevron">⌄</span></summary><div class="backpack-category-body"><div class="sub">材料與未使用的物品只能在探索商店出售；背包用於查看與整備。</div><div id="backpackMaterials" class="backpack-items"></div></div></details>
     </div>
   </section>
 
@@ -444,28 +444,28 @@ window.addEventListener('pageshow',function(){
   </form>
 </dialog>
 
-<script src="sinners.js?v=20261007a"></script>
-<script src="sinner-addresses.js?v=20261007a"></script>
-<script src="sinner-skills.js?v=20261007a"></script>
-<script src="area-exploration.js?v=20261007a"></script>
-<script src="enemies.js?v=20261007a"></script>
-<script src="araya-dialogues.js?v=20261007a"></script>
-<script src="dialogues.js?v=20261007a"></script>
-<script src="exploration-events.js?v=20261007a"></script>
-<script src="exploration-dialogues.js?v=20261007a"></script>
-<script src="app.js?v=20261007a"></script>
-<script src="item-rarity.js?v=20261007a"></script>
-<script src="equipment.js?v=20261007a"></script>
-<script src="item-economy.js?v=20261007a"></script>
-<script src="records.js?v=20261007a"></script>
-<script src="sinner-management.js?v=20261007a"></script>
-<script src="bestiary.js?v=20261007a"></script>
-<script src="exploration.js?v=20261007a"></script>
-<script src="exploration-shop.js?v=20261007a"></script>
-<script src="backpack.js?v=20261007a"></script>
-<script src="achievements.js?v=20261007a"></script>
-<script src="quests.js?v=20261007a"></script>
-<script src="statistics.js?v=20261007a"></script>
-<script src="manager-progress.js?v=20261007a"></script>
+<script src="sinners.js?v=20261008a"></script>
+<script src="sinner-addresses.js?v=20261008a"></script>
+<script src="sinner-skills.js?v=20261008a"></script>
+<script src="area-exploration.js?v=20261008a"></script>
+<script src="enemies.js?v=20261008a"></script>
+<script src="araya-dialogues.js?v=20261008a"></script>
+<script src="dialogues.js?v=20261008a"></script>
+<script src="exploration-events.js?v=20261008a"></script>
+<script src="exploration-dialogues.js?v=20261008a"></script>
+<script src="app.js?v=20261008a"></script>
+<script src="item-rarity.js?v=20261008a"></script>
+<script src="equipment.js?v=20261008a"></script>
+<script src="item-economy.js?v=20261008a"></script>
+<script src="records.js?v=20261008a"></script>
+<script src="sinner-management.js?v=20261008a"></script>
+<script src="bestiary.js?v=20261008a"></script>
+<script src="exploration.js?v=20261008a"></script>
+<script src="exploration-shop.js?v=20261008a"></script>
+<script src="backpack.js?v=20261008a"></script>
+<script src="achievements.js?v=20261008a"></script>
+<script src="quests.js?v=20261008a"></script>
+<script src="statistics.js?v=20261008a"></script>
+<script src="manager-progress.js?v=20261008a"></script>
 </body>
 </html>

@@ -1,6 +1,6 @@
 /* Alternate age scenes; Araya is a person, and her relationship with Ryoshu remains mother/daughter. */
 const ARAYA_AGES=[{id:'child',label:'小孩'},{id:'high-school',label:'高中生'},{id:'college',label:'大學生'},{id:'adult',label:'成年人'}];
-// Each pair is a complete exchange: Araya speaks first, Ryoshu answers.
+// Complete exchanges may start with either mother or daughter.
 const ARAYA_AGE_SCENES={
  child:{
   '餐飲':['媽媽，這口太大了……能幫我切一下嗎？','盤子拿來。別用手抓。'],
@@ -79,9 +79,60 @@ const ARAYA_AGE_SCENES={
   '其他收入':['媽媽，之前那份委託結清了。晚一點，但沒少給。','下次別讓他拖這麼久。']
  }
 };
-function arayaCommentScene(entry,ageId){
+
+const ARAYA_MOTHER_OPENINGS={
+ '餐飲':'還沒吃？先坐下。','飲料':'杯子拿穩。還要喝嗎？','交通':'看什麼呢？快到站了。','服飾':'試過再拿。手抬起來。','學習':'哪裡不懂？拿來。','日用品':'這個快用完了。還缺什麼？','訂閱':'這個還在扣。你還用嗎？','娛樂':'今天空著。要去哪？','醫療':'還痛？別忍著。','其他':'這筆買了什麼？我看看。','薪資':'錢到了。今晚想吃什麼？','獎金':'多了一筆。你有想要的？','退款':'退回來了。數字對嗎？','零用錢':'錢留好了。別拿飯錢去省。','投資':'會賠多少？先說這個。','禮金':'給你的。收著。','其他收入':'這筆不是薪水。你看看。'
+};
+const ARAYA_MOTHER_REPLIES={
+ child:{
+ '餐飲':'吃了一點點。媽媽陪我吃，我就吃完。','飲料':'還要。媽媽，這次我自己拿得穩！','交通':'看窗外……媽媽，我沒鬆手啦。','服飾':'這樣嗎？媽媽，袖子又蓋到手了。','學習':'這裡。我剛剛算到一半就忘記了。','日用品':'畫畫的紙。上次那本都畫滿了。','訂閱':'有啊，我還想看下一集。媽媽也一起看嘛。','娛樂':'去有鞦韆的那裡！媽媽要幫我推喔。','醫療':'有一點。你陪我去，好不好？','其他':'是給你的。先別打開嘛。','薪資':'想吃媽媽上次做的。還有剩下的嗎？','獎金':'想買點心。媽媽也挑一個吧。','退款':'我數數看……媽媽，幫我看這一行。','零用錢':'我有留。今天的飯也吃完了！','投資':'我不知道……還以為放著就會變多。','禮金':'真的給我？那我先放進盒子裡。','其他收入':'這筆啊？那我把它放到旁邊記。'
+ },
+ 'high-school':{
+ '餐飲':'正要吃啦。媽媽，先把你那份也拿過來。','飲料':'要。別只買我的，你也喝一杯。','交通':'知道啦，我只是回個訊息。下車前會收起來。','服飾':'抬得起來啦。媽媽，再拉下去衣服都要被你撐鬆了。','學習':'這段。上課明明聽懂了，回來又想不起來。','日用品':'筆芯。我明天上學自己去買就行。','訂閱':'沒在用了。媽媽，我現在就停。','娛樂':'去看電影？這次讓我選好不好。','醫療':'還有一點……好啦，我不拖了。','其他':'社團分攤的。我有留收據，等我找一下。','薪資':'媽媽想吃什麼？今天別又忙到最後才吃。','獎金':'先留著吧。假期再和你出去。','退款':'對。我核過了，沒有少退。','零用錢':'我沒省飯錢。媽媽，我有好好吃飯啦。','投資':'所以我還沒買啊。先問問你嘛。','禮金':'好。媽媽，你不用每次都替我留那麼多。','其他收入':'我看到了。不是少記，是還沒分好類別。'
+ },
+ college:{
+ '餐飲':'剛回來。媽媽，你也別站著了，一起吃。','飲料':'要，謝謝。媽媽，你那杯也別放到涼了。','交通':'在看轉車的時間。這站我不下，下一站轉。','服飾':'試過了，坐下也不會勒。媽媽，放心啦。','學習':'這裡。我想先自己理一遍，你陪我看就好。','日用品':'宿舍的洗衣用品。這次我順路一起帶回去。','訂閱':'要用，不過學生方案更便宜。我把舊的換掉。','娛樂':'陪我逛逛吧。不趕時間的那種。','醫療':'有約好時間。媽媽，你陪我去也行，但別又請一整天假。','其他':'社團的材料費。每一項我都寫在下面了。','薪資':'我來買吧。媽媽，上次說想吃的那家還記得嗎？','獎金':'想和你出去兩天。我先查查哪天有空。','退款':'對，和原本付的一樣。這回終於不用再問了。','零用錢':'我知道。夠用的話我就先留著。','投資':'只拿這一筆試。賠完也不動生活費。','禮金':'我收了。媽媽，下次換我送你。','其他收入':'是打工以外接的委託。我會分開記。'
+ },
+ adult:{
+ '餐飲':'等你呢。媽媽，今天的事先放一下吧。','飲料':'還要一點。你也坐下，我替你添。','交通':'在看回家的路。媽媽，這次換我帶你走。','服飾':'都試過了。你要不要也試那件？我去拿。','學習':'這部分。你先看看，我去把另一份資料拿來。','日用品':'我都補上了。媽媽，你那邊少什麼再告訴我。','訂閱':'這個留，另外兩個我已經停掉了。','娛樂':'陪我走走吧。今天不特地安排什麼。','醫療':'我知道。媽媽，你自己的檢查也一起排吧。','其他':'零碎的用品。我一項一項寫了，給你看。','薪資':'媽媽，今天讓我請吧。想吃什麼你說。','獎金':'想留幾天陪你。媽媽，你也把事情先放下，好不好？','退款':'對。拖了那麼久，總算拿回來了。','零用錢':'夠了。我留了日常用的，這份不會混在一起。','投資':'最多就這一筆。我知道你在問什麼，不會再往裡加。','禮金':'媽媽，這次換我送你嘛。你的先收著。','其他收入':'看到了，是之前的委託結款。下次不讓他拖這麼久。'
+ }
+};
+const ARAYA_ABBREVIATIONS={
+ '餐飲':['食・先。','媽媽，先吃還是先試一口？……她是說先吃飯，別等涼了。','先吃。'],
+ '服飾':['穿・試・後。','媽媽，又把順序說反了啦。她是說試過再買，不是買了才試。','先試。'],
+ '學習':['題・放。','媽媽，是放下題目，還是把題目放過來？她是要一起看，沒叫我不寫啦。','拿來。'],
+ '訂閱':['續・停。','媽媽，續訂和停訂不能縮在一起嘛。她是說沒在用的先停掉，別再扣款。','那就停。'],
+ '醫療':['藥・後。','又說反了啦。媽媽是說飯後吃藥，不是吃藥後才吃飯。','看藥袋。'],
+ '退款':['退・入。','媽媽，是退款入帳，不是又把錢退回去啦。這筆已經回來了。','知道。'],
+ '投資':['賠・先。','媽媽，這樣像叫我先賠一筆。她是要先看最多會賠多少，再決定要不要買。','這個。']
+};
+function arayaCommentScene(entry,ageId,style){
  const age=ARAYA_AGES.find(a=>a.id===ageId)||ARAYA_AGES[Math.floor(Math.random()*ARAYA_AGES.length)];
- const pair=ARAYA_AGE_SCENES[age.id][entry.category]||ARAYA_AGE_SCENES[age.id][entry.type==='income'?'其他收入':'其他'];
- return {age:age.id,lines:[{speaker:'阿賴耶',text:pair[0],kind:'speech'},{speaker:'良秀',text:pair[1],kind:'speech'}]};
+ const category=ARAYA_AGE_SCENES[age.id][entry.category]?entry.category:entry.type==='income'?'其他收入':'其他';
+ const speech=(speaker,text)=>({speaker,text,kind:'speech'}),roll=Math.random();let lines;
+ if((style==='abbreviation'||!style&&roll<.15)&&ARAYA_ABBREVIATIONS[category]){
+  const pair=ARAYA_ABBREVIATIONS[category];lines=[speech('良秀',pair[0]),speech('阿賴耶',pair[1]),speech('良秀',pair[2])];
+ }else if(style==='mother'||!style&&roll<.7){lines=[speech('良秀',ARAYA_MOTHER_OPENINGS[category]),speech('阿賴耶',ARAYA_MOTHER_REPLIES[age.id][category])];}
+ else{const pair=ARAYA_AGE_SCENES[age.id][category];lines=[speech('阿賴耶',pair[0]),speech('良秀',pair[1])];}
+ return {age:age.id,lines};
+}
+// Araya speaks through the bus channel; she does not become a third field explorer.
+function arayaExplorationScene(names,kind,ctx){
+ if(!names.includes('良秀')||ctx.success===false||(ctx.injuries||[]).some(i=>i.hp<=0)||!['supply','gear','shop','quiet','abnormality'].includes(kind))return null;
+ if(kind==='abnormality'&&ctx.success!==true)return null;
+ const age=ARAYA_AGES[Math.floor(Math.random()*ARAYA_AGES.length)],speech=(speaker,text)=>({speaker,text,kind:'speech',arayaAge:age.id}),action=text=>({speaker:'良秀',text,kind:'action',arayaAge:age.id});
+ const opening=()=>action('良秀確認周圍已安全，打開通往巴士的通訊。');
+ if(kind==='shop'&&Math.random()<.35)return [opening(),speech('良秀','價・再。'),speech('阿賴耶','媽媽，是價錢再便宜一點，還是再看看價錢？……她是說先比價，別急著付錢。'),speech('良秀','都要。')];
+ if(kind==='gear'&&Math.random()<.3)return [opening(),speech('良秀','裝・試・後。'),speech('阿賴耶','媽媽，順序又反了。她是說帶回來再試，別在那裡換裝備啦。'),speech('良秀','回・試。')];
+ const daughter={
+ child:{supply:'有我的那份嗎？媽媽，我幫你拿小的。',gear:'媽媽，是給誰用的？我可以先看看嗎？',shop:'媽媽，別忘了你自己的水。我的還有喔。',quiet:'那今天早點回來吧？我還留著上次沒畫完的。',abnormality:'媽媽，你也要看看有沒有受傷，別只看別人。'},
+ 'high-school':{supply:'媽媽，你先留好自己用的。回來我幫你收。',gear:'知道啦，媽媽。我不會剛拿到就拆開。',shop:'媽媽，我的水還有。先買你們缺的吧。',quiet:'那回來陪我吃飯？別又說不餓。',abnormality:'好啦，聽到了。媽媽，你的傷也要看，不是能走就算沒事。'},
+ college:{supply:'我知道放哪。媽媽，回來讓我整理就好。',gear:'媽媽，先看扣具。上次那件你可沒仔細看。',shop:'媽媽，先補水和藥吧。我幫你查查標價。',quiet:'那就直接回來吧。今天不用繞路買東西。',abnormality:'我在巴士等。媽媽，別省掉檢查傷口那一步。'},
+ adult:{supply:'我把位置騰好了。媽媽，重的回來我拿。',gear:'回來一起看吧。媽媽，先別急著換上。',shop:'先補缺的吧。媽媽，你把清單傳來，我替你核對。',quiet:'那回來吧。今天的飯還熱著。',abnormality:'我知道了。媽媽，你也檢查一下傷勢，我等你回來。'}
+ };
+ const mother={supply:'找到補給了。留個位置。',gear:'撿到一件。回去一起看。',shop:'有商店。還缺什麼？',quiet:'沒事。往回走了。',abnormality:'倒了。這邊暫時沒事。'};
+ if(Math.random()<.65)return [opening(),speech('良秀',mother[kind]),speech('阿賴耶',daughter[age.id][kind])];
+ const ask={supply:'媽媽，回來要我幫忙收東西嗎？',gear:'媽媽，剛剛說的裝備拿到了？',shop:'媽媽，你們遇到商店了？',quiet:'媽媽，這次路上怎麼樣？',abnormality:'媽媽，聽得到嗎？你那邊還好嗎？'};
+ return [opening(),speech('阿賴耶',ask[kind]),speech('良秀',mother[kind])];
 }
 function arayaAgeLabel(comment){return comment?.kind==='araya'?(ARAYA_AGES.find(a=>a.id===comment.arayaAge)?.label||''):''}

@@ -7,7 +7,7 @@ const SINNER_SKILL_EFFECTS={
  '浮士德':[
   {desc:'事件判定 +4',effects:{eventPower:4}},
   {desc:'探索戰鬥未獲勝時，額外獲得 6 EXP',when:'failure',effects:{flatXp:6}},
-  {desc:'隊伍裝備回收權重 +4（基準 14）',effects:{gearWeight:4}}],
+  {desc:'隊伍裝備回收權重 +2（基準 5）',effects:{gearWeight:2}}],
  '堂吉訶德':[
   {desc:'戰鬥傷害 +14%',effects:{damageBonus:.14}},
   {desc:'機動 +2',effects:{mobility:2}},
@@ -61,6 +61,6 @@ function sinnerSkillEffects(name,ctx={}){
  if(ctx.ab){if(ctx.ab.level>=5)out.damageBonus=(out.damageBonus||0)+(out.highLevelDamage||0);if(temporalAbnormality(ctx.ab))out.observe=(out.observe||0)+(out.temporalObserve||0)}
  return out;
 }
-function explorationSkillWeights(names,area){const weights={enemy:20,abnormality:30,event:24,supply:18,gear:14,shop:14};names.forEach(n=>{const e=sinnerSkillEffects(n,{area});weights.event+=e.eventWeight||0;weights.supply+=e.supplyWeight||0;weights.gear+=e.gearWeight||0});return weights}
+function explorationSkillWeights(names,area){const weights={enemy:20,abnormality:30,event:24,supply:18,gear:5,shop:14,quiet:5};names.forEach(n=>{const e=sinnerSkillEffects(n,{area});weights.event+=e.eventWeight||0;weights.supply+=e.supplyWeight||0;weights.gear+=e.gearWeight||0});return weights}
 function sinnerExplorationXp(name,base,ctx={}){if(!['enemy','abnormality'].includes(ctx.kind)||!(Number(base)>0))return 0;const e=sinnerSkillEffects(name,ctx);return Math.max(1,Math.round(base*(1+(e.xpBonus||0))+(e.flatXp||0)))}
 window.SINNER_SKILL_EFFECTS=SINNER_SKILL_EFFECTS;

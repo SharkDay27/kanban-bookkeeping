@@ -4,7 +4,7 @@
   const MATERIAL_BASE={'史萊姆凝膠':12,'鐵殼碎片':16,'紅線紙片':15,'齒輪牙片':18,'失真鱗粉':24,'黑箱扣件':28,'廢線束':20,'白面鏡片':30};
   const CONSUMABLE_BASE={water:5,potion:14};
   function rk(v){return typeof itemRarity==='function'?itemRarity(v).key:(v||'common')}
-  function price(kind,key,name,rarity){if(kind==='consumable')return CONSUMABLE_BASE[key]||5;if(kind==='field')return FIELD_BASE[key]||50;if(kind==='support')return SUPPORT_BASE[rk(rarity)]||55;if(kind==='material')return ENEMY_MATERIALS[name]?.price||MATERIAL_BASE[name]||18;return 10}
+  function price(kind,key,name,rarity){if(kind==='consumable')return CONSUMABLE_BASE[key]||5;if(kind==='field')return FIELD_BASE[key]||{common:60,uncommon:90,rare:130,epic:190,legendary:280}[rk(rarity)]||50;if(kind==='support')return SUPPORT_BASE[rk(rarity)]||55;if(kind==='material')return ENEMY_MATERIALS[name]?.price||MATERIAL_BASE[name]||18;return 10}
   function items(){
     ensureExplorationState();ensurePlayerState();
     const out=[],catalog=window.RPG_EQUIPMENT_CATALOG||{},ex=state.exploration||{fieldGear:[],sinners:{}},cons=state.rpg.consumables||{};
@@ -17,7 +17,7 @@
     Object.entries(mats).forEach(function(p){out.push({token:'material|'+encodeURIComponent(p[0]),kind:'material',key:p[0],name:p[0],qty:p[1],rarity:'common',price:price('material',p[0],p[0],'common'),canSell:true})});
     return out;
   }
-  function sell(token){const item=items().find(function(x){return x.token===token});if(!item)return {ok:false,message:'找不到可出售物品'};if(!item.canSell)return {ok:false,message:item.reason||'目前不可出售'};
+  function sell(token){if(!state.exploration?.activeShop)return {ok:false,message:'只能在探索商店中出售物品'};const item=items().find(function(x){return x.token===token});if(!item)return {ok:false,message:'找不到可出售物品'};if(!item.canSell)return {ok:false,message:item.reason||'目前不可出售'};
     if(item.kind==='consumable')state.rpg.consumables[item.key]--;
     else if(item.kind==='field'){const i=state.exploration.fieldGear.indexOf(item.key);if(i<0)return {ok:false,message:'庫存不足'};state.exploration.fieldGear.splice(i,1)}
     else{const i=state.rpg.inventory.indexOf(item.key);if(i<0)return {ok:false,message:'庫存不足'};state.rpg.inventory.splice(i,1)}

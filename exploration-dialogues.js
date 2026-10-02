@@ -1,5 +1,5 @@
 (function(){
- const VERSION=6;
+ const VERSION=7;
  const speech=(speaker,text)=>({speaker,text,kind:'speech'});
  const action=(speaker,text)=>({speaker,text,kind:'action'});
  const pick=arr=>arr[Math.floor(Math.random()*arr.length)];
@@ -297,6 +297,8 @@
   if(fallen.length===2)return [action(first,'兩人相繼倒下，現場通訊中斷。')];
   if(fallen.length===1){const standing=names.find(n=>n!==fallen[0]);return [action(fallen[0],fallen[0]+'倒下後沒有回應。'),action(standing,standing+'退到同伴身旁，向終端回報位置並請求支援。')];}
   if(ctx.success===false&&['event','supply','gear'].includes(kind))return fieldFailureScene(first,second,kind,ctx);
+  if(typeof arayaExplorationScene==='function'&&has('良秀')&&!/時間|時序|時鐘|temporal/i.test([ctx.abnormalityType,ctx.abnormality].join(' '))&&Math.random()<.22){const family=arayaExplorationScene(names,kind,ctx);if(family)return family;}
+  if(kind==='quiet')return [action(first,first+'沿著預定路線巡查，沒有停下處理任何異常。'),action(second,second+'確認回程通道暢通，與搭檔一起返回。')];
   if(kind==='event'){
    const id=ctx.eventId;
    const authored=pairScene(names,kind,ctx);if(authored)return authored;

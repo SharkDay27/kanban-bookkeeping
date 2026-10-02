@@ -94,6 +94,9 @@ function ensureExplorationState(){
   if(!fieldStats.eventsResolvedByArea){fieldStats.eventsResolvedByArea={};state.exploration.logs.filter(l=>l.kind==='event'&&l.stamp==='RESOLVED').forEach(l=>{if(l.areaId)fieldStats.eventsResolvedByArea[l.areaId]=(fieldStats.eventsResolvedByArea[l.areaId]||0)+1;});}
   ['supplyRecovered','gearRecovered','supplyFailures','gearFailures','fieldIncidentsWithInjury'].forEach(k=>{if(fieldStats[k]==null)fieldStats[k]=0;});
   Object.values(state.exploration.eventProgress).forEach(p=>{if(p.failures==null)p.failures=Math.max(0,(p.encounters||0)-(p.resolved||0));});
+  if(!state.exploration.dailyProgress){
+    state.exploration.dailyProgress={};state.exploration.logs.filter(l=>l.kind!=='revive').forEach(l=>{const key=localDateKey(l.at);if(!key)return;const day=state.exploration.dailyProgress[key]||(state.exploration.dailyProgress[key]={runs:0,suppressions:0});day.runs++;if(['SUPPRESSED','CONTAINED'].includes(l.stamp))day.suppressions++;});
+  }
   state.exploration.runs=Math.max(0,Number(state.exploration.runs||0));
   state.exploration.selected=Array.isArray(state.exploration.selected)?state.exploration.selected.slice(0,2):['李箱','浮士德'];
   state.exploration.fieldGear=Array.isArray(state.exploration.fieldGear)?state.exploration.fieldGear:[];

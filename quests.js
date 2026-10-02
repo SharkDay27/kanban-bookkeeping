@@ -15,9 +15,8 @@
   ];
   window.RPG_QUESTS={daily:DAILY,long:RPG};
 
-  function dateKeyFromIso(v){const d=new Date(v);if(isNaN(d.getTime()))return '';const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');return y+'-'+m+'-'+day}
-  function todayExplorations(){ensureExplorationState();return (state.exploration.logs||[]).filter(function(x){return x.kind!=='revive'&&dateKeyFromIso(x.at)===today()}).length}
-  function todaySuppressions(){ensureExplorationState();return (state.exploration.logs||[]).filter(function(x){return (x.stamp==='SUPPRESSED'||x.stamp==='CONTAINED')&&dateKeyFromIso(x.at)===today()}).length}
+  function todayExplorations(){ensureExplorationState();return Number(state.exploration.dailyProgress[today()]?.runs||0)}
+  function todaySuppressions(){ensureExplorationState();return Number(state.exploration.dailyProgress[today()]?.suppressions||0)}
   function rewardText(r){const x=[];if(r.xp)x.push(r.xp+' EXP');if(r.gold)x.push(r.gold+' 金幣');if(r.box)x.push('道具箱 ×'+r.box);if(r.water)x.push('瓶裝水 ×'+r.water);if(r.potion)x.push('治療藥水 ×'+r.potion);return x.join('、')}
   function grant(r,label){
     ensurePlayerState();
