@@ -795,10 +795,10 @@ function renderRpg(){
   $('woodChest').textContent=state.rpg.chests.wood||0;$('silverChest').textContent=state.rpg.chests.silver||0;$('goldChest').textContent=state.rpg.chests.gold||0;
   $('rewardLog').textContent=state.rpg.rewardLog;
   const ds=dayStats(today());
-  $('streakBig').textContent=computeStreak().current;
-  $('bestBig').textContent=computeStreak().best;
-  $('todayCount').textContent=ds.count;
-  $('todayNet').textContent=money(ds.net);$('todayNet').style.color=ds.net<0?'var(--red)':'var(--green)';
+  if($('streakBig'))$('streakBig').textContent=computeStreak().current;
+  if($('bestBig'))$('bestBig').textContent=computeStreak().best;
+  if($('todayCount'))$('todayCount').textContent=ds.count;
+  if($('todayNet')){$('todayNet').textContent=money(ds.net);$('todayNet').style.color=ds.net<0?'var(--red)':'var(--green)'}
 }
 function renderSummary(){const expense=state.entries.filter(x=>x.type==='expense').reduce((s,x)=>s+x.amount,0),income=state.entries.filter(x=>x.type==='income').reduce((s,x)=>s+x.amount,0),init=Number(state.profile.initialAmount||0),bal=init+income-expense,m=$('month').value||today().slice(0,7),monthEntries=state.entries.filter(x=>x.date.startsWith(m)),mIncome=monthEntries.filter(x=>x.type==='income').reduce((s,x)=>s+x.amount,0),mExpense=monthEntries.filter(x=>x.type==='expense').reduce((s,x)=>s+x.amount,0),monthNet=mIncome-mExpense,st=computeStreak();$('initialAmount').textContent=money(init);$('allIncome').textContent=money(income);$('allIncome').style.color='var(--green)';$('allExpense').textContent=money(expense);$('allExpense').style.color='var(--red)';$('balance').textContent=money(bal);$('balance').style.color=bal<0?'var(--red)':'var(--green)';$('monthNet').textContent=money(monthNet);$('monthNet').style.color=monthNet<0?'var(--red)':'var(--green)';$('monthLabel').textContent=m;$('streak').textContent=st.current+' 天';$('bestStreak').textContent='最長 '+st.best+' 天';$('streakBig').textContent=st.current;$('bestBig').textContent=st.best}
 function renderQuests(){ensureDaily(today());const ds=dayStats(today());$('questList').innerHTML=QUESTS.map(q=>{const p=q.id==='q3'?ds.cats:ds.count,done=p>=q.goal,claim=state.daily[today()].questClaims[q.id];return `<div class="quest wood panel ${done?'done':''}"><div class="row"><div class="quest-name">${done?'✓ ':'◇ '}${q.name}</div><div class="quest-reward">+${q.rewardXp} EXP</div></div><div class="quest-desc">${q.desc}</div><div class="quest-progress"><div style="width:${Math.min(100,Math.round(p/q.goal*100))}%"></div></div><div class="quest-desc">${Math.min(p,q.goal)} / ${q.goal}${claim?'・已領取':''}</div></div>`}).join('')}
@@ -856,7 +856,12 @@ function renderProgress(){
       '<div class="achievement-reward">REWARD / '+item.gold+' 金幣</div></div>';
   }).join('');
 }
-function render(){backfillMissingComments();refreshFilters();renderLanguageSwitch();renderCurrencySelector();renderSummary();renderRpg();renderQuests();renderBoard();renderCharts();renderBestiary();checkAchievements();renderProgress();renderBackpack();renderExploration();renderSinnerManagement();renderCommentaryArchive();$('initialInput').value=state.profile.initialAmount||''}
+function render(){
+  backfillMissingComments();refreshFilters();renderLanguageSwitch();renderCurrencySelector();renderSummary();
+  renderRpg();renderQuests();renderBoard();renderCharts();renderBestiary();checkAchievements();
+  renderProgress();renderBackpack();renderExploration();renderSinnerManagement();renderCommentaryArchive();
+  if($('initialInput'))$('initialInput').value=state.profile.initialAmount||'';
+}
 
 function renderCommentLines(comment){
   if(!comment||!Array.isArray(comment.lines))return '';
