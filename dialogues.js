@@ -661,6 +661,13 @@ function arayaIndependentThought(entry){
     '只要你知道自己為什麼花、之後也願意回頭看，我覺得就已經比裝作沒發生好多了。'
   ]);
 }
+function isRyoshuAbbreviatedSpeech(text){
+  const raw=String(text||'').trim();
+  if(!raw)return false;
+  if(raw.includes('·'))return true;
+  const parts=raw.split(/[。！？]/).map(function(x){return x.trim()}).filter(Boolean);
+  return parts.length>=2&&raw.length<=18&&parts.every(function(x){return x.length<=5});
+}
 function arayaScabbardLines(ryoshuText,meaning,entry){
   const sounds=[
     '刀鞘輕響兩下。',
@@ -669,34 +676,44 @@ function arayaScabbardLines(ryoshuText,meaning,entry){
     '刀鞘先輕響一下，隔了半拍又連敲兩聲。'
   ];
   const cleanMeaning=String(meaning||'').replace(/^「|」$/g,'');
+  const abbreviated=isRyoshuAbbreviatedSpeech(ryoshuText);
   const roll=Math.random();
   let response='';
-  if(roll<0.4){
+
+  // 只有良秀使用略縮語時，阿賴耶才可能替使用者解釋其意思。
+  if(abbreviated&&roll<0.52){
     response=pick([
       '媽媽是說：',
       '媽媽的意思是：',
-      '嗯，媽媽是想說：',
-      '媽媽大概是在說：'
+      '嗯，媽媽這句是在說：',
+      '這句是媽媽的略縮語。她的意思是：'
     ])+'「'+cleanMeaning+'」';
-  }else if(roll<0.64){
-    response=pick([
-      '……嗯，這次我站媽媽這邊。',
-      '這次我同意媽媽。',
-      '媽媽這句雖然講得很短，但我也覺得她說得對。'
-    ])+' '+arayaIndependentThought(entry);
-  }else if(roll<0.79){
-    response=pick([
-      '我不完全同意媽媽。',
-      '媽媽講得有點太重了。',
-      '這次我跟媽媽的想法不太一樣。'
-    ])+' '+arayaIndependentThought(entry);
   }else{
-    response=pick([
-      '先不翻媽媽那句了，我自己的想法是——',
-      '媽媽的意思你大概猜得到。我比較想說的是——',
-      '這次讓我自己講吧。'
-    ])+' '+arayaIndependentThought(entry);
+    const opinionRoll=abbreviated?(roll-0.52)/0.48:roll;
+    if(opinionRoll<0.38){
+      response=pick([
+        '……嗯，這次我站媽媽這邊。',
+        '這次我同意媽媽。',
+        '我覺得媽媽這次說得沒錯。',
+        '這點我和媽媽想的一樣。'
+      ])+' '+arayaIndependentThought(entry);
+    }else if(opinionRoll<0.69){
+      response=pick([
+        '我不完全同意媽媽。',
+        '媽媽講得有點太重了。',
+        '這次我跟媽媽的想法不太一樣。',
+        '我知道媽媽為什麼這樣想，不過我不會完全照她的看法。'
+      ])+' '+arayaIndependentThought(entry);
+    }else{
+      response=pick([
+        '我自己的想法是——',
+        '這次我想說點別的。',
+        '先不管媽媽怎麼看，我比較在意的是——',
+        '如果是我的話，我會這樣看。'
+      ])+' '+arayaIndependentThought(entry);
+    }
   }
+
   return [
     {speaker:'良秀',text:ryoshuText,visibility:'public'},
     {speaker:'阿賴耶識（刀鞘）',text:pick(sounds),visibility:'public',kind:'scabbard'},
