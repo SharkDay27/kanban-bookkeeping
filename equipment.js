@@ -21,7 +21,7 @@
     if(item.questXpBonus)out.push('任務 EXP +'+Math.round(item.questXpBonus*100)+'%');
     if(item.goldBonus)out.push('金幣收益 +'+Math.round(item.goldBonus*100)+'%');
     if(item.shopDiscount)out.push('商店折扣 '+Math.round(item.shopDiscount*100)+'%');
-    if(item.exploreXpBonus)out.push('探索 EXP +'+Math.round(item.exploreXpBonus*100)+'%');
+    if(item.exploreXpBonus)out.push('探索戰鬥 EXP +'+Math.round(item.exploreXpBonus*100)+'%');
     if(item.eventBonus)out.push('事件判定 +'+Math.round(item.eventBonus*100)+'%');
     if(item.lootBonus)out.push('探索掉落 +'+Math.round(item.lootBonus*100)+'%');
     return out;

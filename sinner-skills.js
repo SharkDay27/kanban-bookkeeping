@@ -6,7 +6,7 @@ const SINNER_SKILL_EFFECTS={
   {desc:'HIGH／EXTREME 區域：觀察額外 +2',when:'highRisk',effects:{observe:2}}],
  '浮士德':[
   {desc:'事件判定 +4',effects:{eventPower:4}},
-  {desc:'探索未制壓或事件失敗時，額外獲得 6 EXP',when:'failure',effects:{flatXp:6}},
+  {desc:'探索戰鬥未獲勝時，額外獲得 6 EXP',when:'failure',effects:{flatXp:6}},
   {desc:'隊伍裝備回收權重 +4（基準 14）',effects:{gearWeight:4}}],
  '堂吉訶德':[
   {desc:'戰鬥傷害 +14%',effects:{damageBonus:.14}},
@@ -35,10 +35,10 @@ const SINNER_SKILL_EFFECTS={
  '羅佳':[
   {desc:'隊伍補給發現權重 +4（基準 18）',effects:{supplyWeight:4}},
   {desc:'補給發現時，隊伍有 25% 機率額外取得一份補給',effects:{extraLootChance:.25}},
-  {desc:'HIGH／EXTREME 區域探索成功時，自身 EXP +20%',when:'highRiskSuccess',effects:{xpBonus:.20}}],
+  {desc:'HIGH／EXTREME 區域戰鬥勝利時，自身 EXP +20%',when:'highRiskSuccess',effects:{xpBonus:.20}}],
  '辛克萊':[
-  {desc:'自身探索 EXP +10%',effects:{xpBonus:.10}},
-  {desc:'自身等級低於區域建議等級時，EXP 額外 +15%',when:'underLevel',effects:{xpBonus:.15}},
+  {desc:'自身探索戰鬥 EXP +10%',effects:{xpBonus:.10}},
+  {desc:'自身等級低於區域建議等級時，戰鬥 EXP 額外 +15%',when:'underLevel',effects:{xpBonus:.15}},
   {desc:'HP 低於 50%：戰鬥 +2',when:'lowHp',effects:{combat:2}}],
  '奧提斯':[
   {desc:'雙人隊伍事件判定 +4',effects:{teamPower:4}},
@@ -46,7 +46,7 @@ const SINNER_SKILL_EFFECTS={
   {desc:'HIGH／EXTREME 區域：事件判定額外 +6',when:'highRisk',effects:{eventPower:6}}],
  '格里高爾':[
   {desc:'受到的戰鬥傷害 -15%',effects:{damageReduction:.15}},
-  {desc:'探索未制壓或事件失敗時，額外獲得 6 EXP',when:'failure',effects:{flatXp:6}},
+  {desc:'探索戰鬥未獲勝時，額外獲得 6 EXP',when:'failure',effects:{flatXp:6}},
   {desc:'HP 低於 50%：穩定 +3',when:'lowHp',effects:{stability:3}}]
 };
 Object.entries(SINNER_SKILL_EFFECTS).forEach(([name,defs])=>defs.forEach((d,i)=>Object.assign(SINNER_FIELD_PROFILES[name].skills[i],d)));
@@ -62,5 +62,5 @@ function sinnerSkillEffects(name,ctx={}){
  return out;
 }
 function explorationSkillWeights(names,area){const weights={enemy:20,abnormality:30,event:24,supply:18,gear:14,shop:14};names.forEach(n=>{const e=sinnerSkillEffects(n,{area});weights.event+=e.eventWeight||0;weights.supply+=e.supplyWeight||0;weights.gear+=e.gearWeight||0});return weights}
-function sinnerExplorationXp(name,base,ctx){const e=sinnerSkillEffects(name,ctx);return Math.max(1,Math.round(base*(1+(e.xpBonus||0))+(e.flatXp||0)))}
+function sinnerExplorationXp(name,base,ctx={}){if(!['enemy','abnormality'].includes(ctx.kind)||!(Number(base)>0))return 0;const e=sinnerSkillEffects(name,ctx);return Math.max(1,Math.round(base*(1+(e.xpBonus||0))+(e.flatXp||0)))}
 window.SINNER_SKILL_EFFECTS=SINNER_SKILL_EFFECTS;

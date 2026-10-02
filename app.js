@@ -311,6 +311,11 @@ function explorationEventKind(names=state.exploration.selected,area=EXPLORATION_
  let roll=Math.random()*Object.values(weights).reduce((s,n)=>s+n,0);
  for(const [kind,w] of Object.entries(weights)){roll-=w;if(roll<0)return kind;}return 'shop';
 }
+function explorationXpLabel(result){
+  const gains=Object.entries(result.xpBySinner||{}).filter(([,xp])=>Number(xp)>0);
+  if(gains.length)return gains.map(([name,xp])=>name+' EXP +'+xp).join(' · ');
+  return Number(result.xp)>0?'EXP +'+result.xp:'不獲得 EXP';
+}
 function runExploration(){
   ensureExplorationState();
   const ex=state.exploration;
@@ -323,7 +328,7 @@ function runExploration(){
   ex.actions--;ex.spent++;ex.runs++;
   if(!ex.stats.visited.includes(area.id))ex.stats.visited.push(area.id);
   const kind=explorationEventKind(names,area);
-  let title='',detail='',reward='',stamp='FIELD',xp=18,ctx={area:area.name,kind:kind},combat=null;
+  let title='',detail='',reward='',stamp='FIELD',xp=0,ctx={area:area.name,kind:kind},combat=null;
   let resultSuccess=true;
 
   if(kind==='enemy'){
@@ -379,14 +384,14 @@ function runExploration(){
     const power=teamFieldPower(names,area)+(manager.eventBonus||0)*40+Math.random()*18;
     resultSuccess=power>20+area.level*4;
     title='隨機事件：'+ev.name;detail=ev.desc;
-    if(resultSuccess){ex.stats.eventsResolved++;reward='安全通過；獲得額外探索資料';xp=24+area.level*2;stamp='RESOLVED'}
-    else{detail+=' 判斷失誤，探索隊提前撤離。';xp=12;stamp='INCIDENT'}
+    if(resultSuccess){ex.stats.eventsResolved++;reward='安全通過；獲得額外探索資料';stamp='RESOLVED'}
+    else{detail+=' 判斷失誤，探索隊提前撤離。';stamp='INCIDENT'}
     const eventProgress=ex.eventProgress[ev.id]||(ex.eventProgress[ev.id]={encounters:0,resolved:0});eventProgress.encounters++;if(resultSuccess)eventProgress.resolved++;
     ctx.event=ev.name;ctx.eventId=ev.id;ctx.success=resultSuccess;
   }else if(kind==='supply'){
     title='補給發現';reward=pickExplorationLoot();
     const extraChance=names.reduce((sum,n)=>sum+(sinnerSkillEffects(n,{area}).extraLootChance||0),0);
-    if(extraChance&&Math.random()<extraChance)reward+='；順手牽來：'+pickExplorationLoot();detail='在區域內找到可回收補給。';xp=16+area.level;stamp='SUPPLY';
+    if(extraChance&&Math.random()<extraChance)reward+='；順手牽來：'+pickExplorationLoot();detail='在區域內找到可回收補給。';stamp='SUPPLY';
   }else if(kind==='shop'){
     const shop=typeof createExplorationShop==='function'?createExplorationShop(area,names):null;
     title='隨機事件：'+(shop?shop.name:'臨時補給商');
@@ -394,25 +399,26 @@ function runExploration(){
       ?shop.flavor+' 商品價格會依區域風險與物資類型調整，商店會保留到下一次探索開始。'
       :'探索途中遇到一名臨時補給商。';
     reward='可使用金幣購買補給品或探索裝備';
-    xp=12+area.level;stamp='SHOP';
+    stamp='SHOP';
     if(shop){const key='shop-'+area.id;const p=ex.eventProgress[key]||(ex.eventProgress[key]={encounters:0,resolved:0});p.encounters++;}
     ctx.shopName=shop?shop.name:'臨時補給商';ctx.success=true;
   }else{
-    title='裝備回收';reward=pickFieldGear();detail='發現可供罪人配置的探索裝備。';xp=22+area.level;stamp='GEAR';
+    title='裝備回收';reward=pickFieldGear();detail='發現可供罪人配置的探索裝備。';stamp='GEAR';
   }
 
   const managerEffects=equipmentEffects();
-  if(managerEffects.exploreXpBonus)xp=Math.max(1,Math.round(xp*(1+managerEffects.exploreXpBonus)));
+  if(!['enemy','abnormality'].includes(kind))xp=0;
+  if(xp>0&&managerEffects.exploreXpBonus)xp=Math.max(1,Math.round(xp*(1+managerEffects.exploreXpBonus)));
   const levelUps=[];
   const xpBySinner={};
-  names.forEach(function(n){xpBySinner[n]=sinnerExplorationXp(n,xp,{area,kind,success:resultSuccess});const res=awardSinnerExp(n,xpBySinner[n]);if(res.after>res.before)levelUps.push(n+' Lv.'+res.after)});
+  names.forEach(function(n){xpBySinner[n]=sinnerExplorationXp(n,xp,{area,kind,success:resultSuccess});if(xpBySinner[n]>0){const res=awardSinnerExp(n,xpBySinner[n]);if(res.after>res.before)levelUps.push(n+' Lv.'+res.after)}});
   if(levelUps.length)reward+=(reward?'；':'')+'升級：'+levelUps.join('、');
   const dialogue=kind==='enemy'?[]:typeof generateExplorationDialogue==='function'?generateExplorationDialogue(names,kind,ctx):[];
-  ex.lastResult={at:new Date().toISOString(),areaId:area.id,area:area.name,names:names,kind:kind,title:title,detail:detail,reward:reward,stamp:stamp,xp:xp,dialogue:dialogue,combat:combat,eventId:ctx.eventId,enemyId:ctx.enemyId,dialogueVersion:4,xpBySinner:xpBySinner};
+  ex.lastResult={at:new Date().toISOString(),areaId:area.id,area:area.name,names:names,kind:kind,title:title,detail:detail,reward:reward,stamp:stamp,xp:xp,dialogue:dialogue,combat:combat,eventId:ctx.eventId,enemyId:ctx.enemyId,dialogueVersion:5,xpBySinner:xpBySinner};
   ex.logs=Array.isArray(ex.logs)?ex.logs:[];
   ex.logs.unshift({
     at:ex.lastResult.at,areaId:area.id,area:area.name,names:[...names],kind:kind,title:title,detail:detail,
-    reward:reward,stamp:stamp,xp:xp,dialogue:Array.isArray(dialogue)?dialogue:[],combat:combat,eventId:ctx.eventId,enemyId:ctx.enemyId,dialogueVersion:4,xpBySinner:xpBySinner
+    reward:reward,stamp:stamp,xp:xp,dialogue:Array.isArray(dialogue)?dialogue:[],combat:combat,eventId:ctx.eventId,enemyId:ctx.enemyId,dialogueVersion:5,xpBySinner:xpBySinner
   });
   ex.logs=ex.logs.slice(0,100);
   // spent 已增加，重新依記帳筆數校正剩餘行動點數。
@@ -484,7 +490,7 @@ function renderExploration(){
     $('exploreResultStamp').className='archive-stamp '+explorationStatusClass(r&&r.stamp);
   }
   if($('exploreResult'))$('exploreResult').innerHTML=r
-    ?'<div class="explore-result-title">'+esc(r.title)+'</div><div class="explore-result-meta">'+esc(r.area)+' / '+esc(r.names.join('＋'))+' / '+(r.xpBySinner?Object.entries(r.xpBySinner).map(([n,x])=>n+' EXP +'+x).join(' · '):'EXP +'+r.xp)+'</div>'+
+    ?'<div class="explore-result-title">'+esc(r.title)+'</div><div class="explore-result-meta">'+esc(r.area)+' / '+esc(r.names.join('＋'))+' / '+esc(explorationXpLabel(r))+'</div>'+
       (r.combat?renderCombatBreakdown(r.combat):'<div class="explore-result-detail">'+esc(r.detail)+'</div>')+
       (r.reward?'<div class="explore-reward">REWARD / '+esc(r.reward)+'</div>':'')
     :'等待探索命令。';
@@ -510,7 +516,7 @@ function renderExploration(){
       return '<article class="exploration-log-entry wood">'+
         '<div class="exploration-log-head"><span class="record-kind-badge '+explorationStatusClass(log.stamp)+'">'+esc(log.stamp||'FIELD')+'</span><time>'+esc(time)+'</time></div>'+
         '<div class="exploration-log-title">'+esc(log.title||'探索紀錄')+'</div>'+
-        '<div class="exploration-log-meta">'+esc(log.area||'未知區域')+' / '+esc((log.names||[]).join('＋'))+' / '+(log.xpBySinner?Object.entries(log.xpBySinner).map(([n,x])=>n+' EXP +'+x).join(' · '):'EXP +'+Number(log.xp||0))+'</div>'+
+        '<div class="exploration-log-meta">'+esc(log.area||'未知區域')+' / '+esc((log.names||[]).join('＋'))+' / '+esc(explorationXpLabel(log))+'</div>'+
         (log.combat?renderCombatBreakdown(log.combat):'<div class="exploration-log-detail">'+esc(log.detail||'')+'</div>')+
         (log.reward?'<div class="exploration-log-reward">REWARD / '+esc(log.reward)+'</div>':'')+
         (Array.isArray(log.dialogue)&&log.dialogue.length?'<div class="exploration-log-dialogue">'+reviewedExplorationLines(log.dialogue).map(function(line){
