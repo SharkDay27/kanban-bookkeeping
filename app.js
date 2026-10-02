@@ -641,7 +641,12 @@ function renderExploration(){
         '<div class="exploration-log-meta">'+esc(log.area||'未知區域')+' / '+esc((log.names||[]).join('＋'))+' / EXP +'+Number(log.xp||0)+'</div>'+
         '<div class="exploration-log-detail">'+esc(log.detail||'')+'</div>'+
         (log.reward?'<div class="exploration-log-reward">REWARD / '+esc(log.reward)+'</div>':'')+
-        (Array.isArray(log.dialogue)&&log.dialogue.length?'<div class="exploration-log-dialogue">'+log.dialogue.map(function(line){const color=(typeof sinnerColorForSpeaker==='function'?sinnerColorForSpeaker(line.speaker):'#d08b91');return '<div><b style="color:'+color+'">'+esc(line.speaker)+'</b> '+esc(line.text)+'</div>'}).join('')+'</div>':'')+
+        (Array.isArray(log.dialogue)&&log.dialogue.length?'<div class="exploration-log-dialogue">'+log.dialogue.map(function(line){
+          const speaker=typeof normalizeExplorationTraditional==='function'?normalizeExplorationTraditional(line.speaker):line.speaker;
+          const txt=typeof normalizeExplorationTraditional==='function'?normalizeExplorationTraditional(line.text):line.text;
+          const color=(typeof sinnerColorForSpeaker==='function'?sinnerColorForSpeaker(speaker):'#d08b91');
+          return '<div class="'+(line.kind==='action'?'action':'')+'"><b style="color:'+color+'">'+esc(speaker)+'</b> <span>'+esc(txt)+'</span></div>';
+        }).join('')+'</div>':'')+
       '</article>';
     }).join(''):'<div class="empty">尚無探索紀錄。</div>';
   }
@@ -1239,6 +1244,7 @@ function setTab(id){
   if(id==='backpack'&&typeof window.forceRenderBackpack==='function')window.forceRenderBackpack();
   if(id==='progress'&&typeof window.forceRenderAchievements==='function')window.forceRenderAchievements();
   if(id==='quests'&&typeof window.forceRenderRpgQuests==='function')window.forceRenderRpgQuests();
+  if(id==='stats'&&typeof window.forceRenderStatistics==='function')window.forceRenderStatistics();
 }
 function drawSprite(kind){
   if(kind==='star')return `<svg viewBox="0 0 64 64" width="44" height="44" aria-hidden="true"><circle cx="32" cy="32" r="23" fill="#1c1d22" stroke="#b52d2d" stroke-width="4"/><path d="M32 16l4 12 12 4-12 4-4 12-4-12-12-4 12-4z" fill="#d6d2c7"/></svg>`;
