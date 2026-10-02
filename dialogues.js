@@ -816,9 +816,9 @@ function arayaScabbardLines(ryoshuText,meaning,entry){
     ])+' '+arayaIndependentThought(entry);
   }
   return [
-    {speaker:'良秀',text:ryoshuText},
-    {speaker:'阿賴耶識（刀鞘）',text:pick(sounds)},
-    {speaker:'阿賴耶（刀鞘內）',text:response}
+    {speaker:'良秀',text:ryoshuText,visibility:'public'},
+    {speaker:'阿賴耶識（刀鞘）',text:pick(sounds),visibility:'public',kind:'scabbard'},
+    {speaker:'阿賴耶（刀鞘內）',text:response,visibility:'user-only',kind:'inner-voice'}
   ];
 }
 function ryoshuArayaInteraction(entry){
@@ -956,6 +956,27 @@ function sinnerInteractiveReply(sinner,previous,entry){
   if(tier==='huge'&&Math.random()<0.35)text+=' 這數字夠大，前面的話先別急著當結論。';
   if(cat==='醫療'&&sinner.name!=='良秀'&&Math.random()<0.3)text+=' 至少醫療支出別因為爭論誰對誰錯而拖延。';
   return text;
+}
+function publicPreviousSpeaker(line){
+  if(!line)return null;
+  if(line.visibility==='user-only'||String(line.speaker||'').includes('阿賴耶（刀鞘內）'))return null;
+  return line;
+}
+function scabbardObservedReaction(sinner){
+  const reactions={
+    '李箱':['刀鞘似乎有所回應。其意，吾等無從得知。'],
+    '浮士德':['可觀測到刀鞘產生反應；其內容無法由現有資訊解讀。'],
+    '堂吉訶德':['喔！刀鞘方才確實動了！然其中深意，吾尚未能參透！'],
+    '默爾索':['確認刀鞘發生震動。無法判讀其含義。'],
+    '鴻璐':['它剛才是在回應嗎？真有趣，可惜我聽不懂。'],
+    '希斯克利夫':['……那刀鞘又在動什麼？算了，反正我聽不懂。'],
+    '以實瑪利':['刀鞘又有反應了。不過那不是我們能理解的訊息。'],
+    '羅佳':['欸，它剛剛是不是又晃了一下？完全看不懂呢。'],
+    '辛克萊':['剛、剛才刀鞘是不是響了？我不知道那代表什麼……'],
+    '奧提斯':['刀鞘出現反應。其含義不明，執行經理。'],
+    '格里高爾':['又動了啊……老實說，我到現在還是看不懂那是在表達什麼。']
+  };
+  return pick(reactions[sinner.name]||['刀鞘有反應，但無法理解其含義。']);
 }
 function interactiveSinnerLines(members,entry){
   if(!members||!members.length)return [];
