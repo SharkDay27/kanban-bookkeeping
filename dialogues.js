@@ -877,31 +877,28 @@ function ryoshuArayaInteraction(entry){
 }
 
 function ryoshuAddressFor(name){
-  const map={
-    '浮士德':['白毛'],
-    '堂吉訶德':['D.Q.'],
-    '鴻璐':['富家少爺'],
-    '希斯克利夫':['愛哭鬼','H.C.'],
-    '以實瑪利':['橘毛'],
-    '辛克萊':['小鬼','香檳毛','M.T.L.'],
-    '格里高爾':['B.G.','毛蟲','老傢伙']
-  };
-  const pool=map[name];
-  return pool&&pool.length?pick(pool):'';
+  // 依中文 Wiki 主線呈現：良秀極少直接叫其他罪人的名字。
+  // 沒有中文 Wiki 明確可驗證的稱呼時，寧可省略稱呼或用「你」，不自行造英文縮寫／外號。
+  const verifiedChineseNicknames={};
+  return verifiedChineseNicknames[name]||'';
 }
 function ryoshuInteractiveReply(previous,entry){
   const nick=ryoshuAddressFor(previous.name);
   const own=sinnerLine(SINNERS.find(function(s){return s.name==='良秀'}),entry);
-  const prefix=nick?pick([
-    nick+'。吵。',
-    nick+'，省點口水。',
-    '呵。'+nick+'。'
-  ]):pick([
-    '呵。話太多。',
-    '省點口水。',
-    '不對。漏了一刀。'
+  if(nick){
+    return pick([
+      nick+'。吵。',
+      nick+'，省點口水。',
+      '呵。'+nick+'。'
+    ])+' '+own;
+  }
+  return pick([
+    '呵。話太多。 '+own,
+    '省點口水。 '+own,
+    '不對。漏了一刀。 '+own,
+    '你說完了？那就看數字。 '+own,
+    '嘖。少說兩句。 '+own
   ]);
-  return prefix+' '+own;
 }
 function sinnerInteractiveReply(sinner,previous,entry){
   const prevName=previous.name;
