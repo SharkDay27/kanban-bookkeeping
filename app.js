@@ -794,7 +794,6 @@ function renderRpg(){
   $('gold').textContent=state.rpg.gold;
   $('woodChest').textContent=state.rpg.chests.wood||0;$('silverChest').textContent=state.rpg.chests.silver||0;$('goldChest').textContent=state.rpg.chests.gold||0;
   $('rewardLog').textContent=state.rpg.rewardLog;
-  renderInventory();
   const ds=dayStats(today());
   $('streakBig').textContent=computeStreak().current;
   $('bestBig').textContent=computeStreak().best;
