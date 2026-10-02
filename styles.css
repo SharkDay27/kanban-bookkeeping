@@ -1346,3 +1346,64 @@ dialog#dlg .entry-wide{
 @media(max-width:700px){
   .achievement-summary,.quest-summary{grid-template-columns:1fr 1fr}
 }
+
+
+/* ===== Dialogue polish / speaker colors / action narration ===== */
+.explore-dialogue-line.action{
+  background:rgba(255,255,255,.018);
+}
+.explore-dialogue-line.action span{
+  color:#aaa9a3!important;
+  font-style:italic;
+}
+.exploration-log-dialogue .action span{
+  color:#9f9e98;
+  font-style:italic;
+}
+.explore-dialogue-line b,
+.exploration-log-dialogue b{
+  font-weight:950!important;
+  text-shadow:0 0 10px color-mix(in srgb,currentColor 18%,transparent);
+}
+.comment-dialog-title{
+  display:inline-block;
+  color:#e5ded2;
+  -webkit-text-stroke:1px #050608;
+  paint-order:stroke fill;
+  text-shadow:
+    1px 0 #050608,-1px 0 #050608,0 1px #050608,0 -1px #050608,
+    2px 2px 0 rgba(0,0,0,.35);
+  letter-spacing:1.5px;
+}
+
+/* Shop buttons must remain readable on desktop and Safari/Chromium */
+.shop-buy{
+  -webkit-appearance:none!important;
+  appearance:none!important;
+  background:linear-gradient(180deg,#303239,#202127)!important;
+  color:#f2ede4!important;
+  -webkit-text-fill-color:#f2ede4!important;
+  border:1px solid #777981!important;
+  font-weight:900!important;
+  opacity:1!important;
+}
+.shop-buy:hover:not(:disabled){
+  border-color:#c2a35d!important;
+  background:linear-gradient(180deg,#40382a,#27231c)!important;
+  color:#f5d77e!important;
+  -webkit-text-fill-color:#f5d77e!important;
+}
+.shop-buy:disabled{
+  background:#191a1e!important;
+  color:#76776f!important;
+  -webkit-text-fill-color:#76776f!important;
+  border-color:#3f4147!important;
+  opacity:.7!important;
+}
+
+/* Statistics fallback module */
+.stats-module-empty{padding:14px;border:1px solid #44464d;background:#141519;color:var(--muted)}
+.stats-table{display:flex;flex-direction:column;gap:5px;margin-top:9px}
+.stats-table-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;padding:7px 8px;border-bottom:1px solid #34363d;font-size:10px}
+.stats-table-row strong{color:#ddd8ce}
+.stats-period-label{font-size:9px;color:#aaa59a;letter-spacing:.8px;margin:7px 0}
