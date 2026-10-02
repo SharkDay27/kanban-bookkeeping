@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="終端記錄">
 <title>RPG 化記帳工具</title>
-<link rel="stylesheet" href="styles.css?v=20261002x">
+<link rel="stylesheet" href="styles.css?v=20261002y">
 </head>
 <body>
 <script>
@@ -162,19 +162,15 @@ window.addEventListener('pageshow',function(){
   <section id="quests" class="section">
     <div class="main-grid">
       <div class="wood panel">
-        <div style="font-size:18px;font-weight:900">每日執行指令</div>
-        <div class="sub">依今日紀錄狀態自動判定執行完成，完成後即刻發放報酬。</div>
+        <div style="font-size:18px;font-weight:900">每日任務</div>
+        <div class="sub">每天會同時出現記帳與探索任務；達成後自動領取 EXP、金幣、補給或道具箱。</div>
+        <div id="questSummary" class="quest-summary"></div>
         <div class="quest-list command-sheet" id="questList"></div>
       </div>
       <div class="wood panel">
-        <div style="font-size:18px;font-weight:900">長期執行紀錄</div>
-        <div class="sub">每日完成至少一筆收入或支出紀錄，即視為當日作業成立。</div>
-        <div class="quest-list command-sheet">
-          <div class="quest wood panel"><div class="quest-name">連續 3 天</div><div class="quest-desc">獲得 1 個道具箱</div></div>
-          <div class="quest wood panel"><div class="quest-name">連續 7 天</div><div class="quest-desc">獲得 1 個道具箱</div></div>
-          <div class="quest wood panel"><div class="quest-name">連續 14 天</div><div class="quest-desc">獲得 2 個道具箱</div></div>
-          <div class="quest wood panel"><div class="quest-name">連續 30 天</div><div class="quest-desc">獲得 3 個道具箱</div></div>
-        </div>
+        <div style="font-size:18px;font-weight:900">作戰任務 / RPG OBJECTIVES</div>
+        <div class="sub">探索次數、怪異制壓、收容、罪人成長與裝備配置都會形成任務目標。</div>
+        <div class="quest-list command-sheet" id="rpgQuestList"></div>
       </div>
     </div>
   </section>
@@ -243,7 +239,7 @@ window.addEventListener('pageshow',function(){
           <div><div class="archive-id">FIELD // SUPPLY-STORAGE</div><div class="archive-title">背包 / FIELD PACK</div></div>
           <div class="archive-stamp">READY</div>
         </div>
-        <div class="sub">探索補給集中於此。罪人狀態過低時，系統會視庫存自動使用瓶裝水或小型治療藥水。</div>
+        <div class="sub">查看目前持有的補給品、探索裝備、管理支援裝備與材料；裝備卡會直接標示屬性與實際效果。</div>
         <div class="archive-header backpack-subhead">
           <div><div class="archive-id">CONSUMABLE // AUTO-USE</div><div class="archive-title">消耗品</div></div>
         </div>
@@ -296,7 +292,8 @@ window.addEventListener('pageshow',function(){
         <div><div class="archive-id">RECORD // ACHIEVEMENTS</div><div class="archive-title">成就系統</div></div>
         <div class="archive-stamp">MILESTONE</div>
       </div>
-      <div class="sub">完成里程碑會自動解鎖並獲得金幣；探索與收容進度也會列入判定。</div>
+      <div class="sub">完成記帳、探索、戰鬥、收容與裝備里程碑可解鎖成就，並取得金幣、道具箱或補給品。</div>
+      <div id="achievementSummary" class="achievement-summary"></div>
       <div id="achievementGrid" class="achievement-grid"></div>
     </div>
   </section>
@@ -428,10 +425,14 @@ window.addEventListener('pageshow',function(){
 </dialog>
 
 <script src="dialogues.js?v=20261002ad"></script>
-<script src="app.js?v=20261002za"></script>
+<script src="app.js?v=20261002zc"></script>
 <script src="sinner-management.js?v=20261002b"></script>
 <script src="bestiary.js?v=20261002a"></script>
 <script src="exploration.js?v=20261002c"></script>
-<script src="exploration-shop.js?v=20261002a"></script>
+<script src="exploration-shop.js?v=20261002b"></script>
+<script src="equipment.js?v=20261002a"></script>
+<script src="backpack.js?v=20261002a"></script>
+<script src="achievements.js?v=20261002a"></script>
+<script src="quests.js?v=20261002a"></script>
 </body>
 </html>
