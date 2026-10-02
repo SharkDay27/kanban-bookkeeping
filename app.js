@@ -460,13 +460,13 @@ function pickExplorationLoot(){
   const roll=Math.random();
   if(roll<.55){state.rpg.consumables.water++;return '瓶裝水 ×1'}
   if(roll<.8){state.rpg.consumables.potion++;return '小型治療藥水 ×1'}
-  state.rpg.chests.wood++;return '木箱 ×1';
+  state.rpg.itemBoxes=(state.rpg.itemBoxes||0)+1;return '道具箱 ×1';
 }
 function pickFieldGear(){
   ensureExplorationState();
   const ids=Object.keys(FIELD_GEAR),unowned=ids.filter(function(id){return !state.exploration.fieldGear.includes(id)});
   if(unowned.length){const id=unowned[Math.floor(Math.random()*unowned.length)];state.exploration.fieldGear.push(id);return FIELD_GEAR[id].name}
-  state.rpg.chests.silver++;return '銀箱 ×1（重複裝備轉換）';
+  state.rpg.itemBoxes=(state.rpg.itemBoxes||0)+1;return '道具箱 ×1（重複裝備轉換）';
 }
 function explorationEventKind(){
   const r=Math.random();
@@ -695,9 +695,9 @@ function damageBoss(base){
     b.defeated=true;
     const spec=BOSS_CATALOG.find(function(x){return x.id===b.id})||BOSS_CATALOG[0];
     state.rpg.gold+=100;
-    state.rpg.chests.gold+=1;
+    state.rpg.itemBoxes=(state.rpg.itemBoxes||0)+1;
     if(!state.rpg.inventory.includes(spec.reward))state.rpg.inventory.unshift(spec.reward);
-    state.rpg.rewardLog='月度 BOSS 鎮壓完成！\n獲得 100 金幣、1 個金箱與 '+spec.reward+'。';
+    state.rpg.rewardLog='月度 BOSS 鎮壓完成！\n獲得 100 金幣、道具箱 ×1 與 '+spec.reward+'。';
   }
 }
 function anyPositiveMonth(){
@@ -806,10 +806,10 @@ function damageMonster(amount,allowCounter=true){
   if(m.hp===0){
     m.defeated=true;
     state.rpg.gold+=20;
-    state.rpg.chests.wood+=1;
+    state.rpg.itemBoxes=(state.rpg.itemBoxes||0)+1;
     drop=MONSTER_DROPS[m.id]||'';
     if(drop&&!state.rpg.inventory.includes(drop))state.rpg.inventory.unshift(drop);
-    state.rpg.rewardLog='每日收容單位處置完成！\n獲得 20 金幣、1 個木箱'+(drop?' 與 '+drop:'')+'。';
+    state.rpg.rewardLog='每日收容單位處置完成！\n獲得 20 金幣、道具箱 ×1'+(drop?' 與 '+drop:'')+'。';
   }else if(allowCounter){
     counter=monsterCounterAttack();
   }
