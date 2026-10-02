@@ -959,8 +959,11 @@ function sinnerInteractiveReply(sinner,previous,entry){
 }
 function publicPreviousSpeaker(line){
   if(!line)return null;
-  if(line.visibility==='user-only'||String(line.speaker||'').includes('阿賴耶（刀鞘內）'))return null;
+  if(line.visibility==='user-only'||line.kind==='inner-voice'||String(line.speaker||'').includes('阿賴耶（刀鞘內）'))return null;
   return line;
+}
+function sinnerCanUnderstandLine(line){
+  return !!publicPreviousSpeaker(line);
 }
 function scabbardObservedReaction(sinner){
   const reactions={
@@ -980,11 +983,28 @@ function scabbardObservedReaction(sinner){
 }
 function interactiveSinnerLines(members,entry){
   if(!members||!members.length)return [];
-  const lines=[{speaker:members[0].name,text:sinnerLine(members[0],entry)}];
+  const lines=[{speaker:members[0].name,text:sinnerLine(members[0],entry),visibility:'public'}];
   for(let i=1;i<members.length;i++){
     const current=members[i],previous=members[i-1];
-    lines.push({speaker:current.name,text:sinnerInteractiveReply(current,previous,entry)});
+    lines.push({speaker:current.name,text:sinnerInteractiveReply(current,previous,entry),visibility:'public'});
   }
+  return lines;
+}
+function appendSinnerAfterAraya(lines,sinner,entry){
+  // 阿賴耶的「意思／內在聲音」只有使用者能理解。
+  // 罪人若在阿賴耶識之後接話，只能對刀鞘的晃動、震動或聲響做出反應。
+  if(!Array.isArray(lines))lines=[];
+  const observed=[...lines].reverse().find(function(line){return line&&line.visibility!=='user-only'});
+  if(observed&&observed.kind==='scabbard'){
+    lines.push({speaker:sinner.name,text:scabbardObservedReaction(sinner),visibility:'public'});
+    return lines;
+  }
+  const previous=observed&&SINNERS.find(function(s){return s.name===observed.speaker});
+  lines.push({
+    speaker:sinner.name,
+    text:previous?sinnerInteractiveReply(sinner,previous,entry):sinnerLine(sinner,entry),
+    visibility:'public'
+  });
   return lines;
 }
 
