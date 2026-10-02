@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="終端記錄">
 <title>RPG 化記帳工具</title>
-<link rel="stylesheet" href="styles.css?v=20261002i">
+<link rel="stylesheet" href="styles.css?v=20261002j">
 </head>
 <body>
 <div class="wrap">
@@ -24,10 +24,9 @@
     </div>
   </div>
 
-  <div class="notice wood panel">資料只保存在目前瀏覽器 localStorage。GitHub Pages 不會儲存你的發票、收入、初始金額或進度資料。換裝置或清除 Safari 網站資料前，請先備份 JSON。</div>
-  <div id="salaryAlert" class="salary-alert wood"><div class="salary-npc" id="salaryNpc"></div><div class="salary-copy"><b id="salaryTitle">薪資精靈提醒</b><div id="salaryMessage">—</div></div></div>
+  <div class="notice wood panel zone zone-privacy">資料只保存在目前瀏覽器 localStorage。GitHub Pages 不會儲存你的發票、收入、初始金額或進度資料。換裝置或清除 Safari 網站資料前，請先備份 JSON。</div>
 
-  <div class="actions">
+  <div class="actions zone zone-actions">
     <label class="btn wood">匯入發票 CSV<input id="csv" type="file" accept=".csv" multiple></label>
     <button id="export" class="wood">匯出 CSV</button>
     <button id="backup" class="wood">備份 JSON</button>
@@ -37,7 +36,7 @@
     <button id="addIncome" class="wood income-btn">＋新增收入</button>
   </div>
 
-  <div class="currency-console wood panel" id="currencyConsole">
+  <div class="currency-console wood panel zone zone-currency" id="currencyConsole">
     <div class="currency-compact">
       <div>
         <div class="currency-eyebrow">PRIMARY CURRENCY / 主要幣別</div>
@@ -52,7 +51,7 @@
     </div>
   </div>
 
-  <div class="summary">
+  <div class="summary zone zone-summary">
     <div class="stat wood panel"><div class="k">初始金額</div><div class="v" id="initialAmount">$0</div><div class="s">由你自行設定</div></div>
     <div class="stat wood panel"><div class="k">累計收入</div><div class="v" id="allIncome">$0</div><div class="s">所有收入記錄</div></div>
     <div class="stat wood panel"><div class="k">累計支出</div><div class="v" id="allExpense">$0</div><div class="s">所有支出記錄</div></div>
@@ -61,7 +60,7 @@
     <div class="stat wood panel"><div class="k">連續記錄</div><div class="v" id="streak">0 天</div><div class="s" id="bestStreak">最長 0 天</div></div>
   </div>
 
-  <div class="tabs">
+  <div class="tabs zone zone-tabs">
     <button class="wood active" data-tab="adventure">終端</button>
     <button class="wood" data-tab="book">記錄</button>
     <button class="wood" data-tab="quests">任務</button>
@@ -76,7 +75,6 @@
     <div class="npc-strip">
       <div class="npc-card wood panel"><div class="npc-face" id="npcClerk"></div><div><div class="npc-name">ARCHIVIST M-01 / 米娜</div><div class="npc-talk">交易紀錄已歸檔。請保持資料完整性。</div></div></div>
       <div class="npc-card wood panel"><div class="npc-face" id="npcMerchant"></div><div><div class="npc-name">AUDITOR T-02 / 托比</div><div class="npc-talk">支出是結果；淨額才是本期報表的結論。</div></div></div>
-      <div class="npc-card wood panel"><div class="npc-face" id="npcFairy"></div><div><div class="npc-name">PAYROLL L-03 / 露露</div><div class="npc-talk">薪資週期已登錄。到期時將顯示提示。</div></div></div>
     </div>
     <div class="main-grid">
       <div class="wood panel">
@@ -251,12 +249,10 @@
   <section id="settings" class="section">
     <div class="wood panel">
       <div style="font-size:18px;font-weight:900">資金設定</div>
-      <div class="sub">初始金額、角色名稱與每月薪資日可在這裡調整。</div>
+      <div class="sub">初始金額與顯示名稱可在這裡調整。</div>
       <div class="settings-grid" style="margin-top:10px">
         <div class="field"><label>初始金額</label><input id="initialInput" class="wood" type="number" min="0" step="1" placeholder="例如 30000"></div>
         <div class="field"><label>顯示名稱</label><input id="playerName" class="wood" placeholder="帳本終端者"></div>
-        <div class="field"><label>每月薪資日</label><input id="salaryDay" class="wood" type="number" min="1" max="31" step="1" placeholder="例如 5"></div>
-        <div class="field"><label>提前提醒</label><select id="salaryAdvance" class="wood"><option value="0">薪資日當天</option><option value="1">提前 1 天</option><option value="3">提前 3 天</option></select></div>
       </div>
       <div style="margin-top:10px"><button id="saveSettings" class="wood primary">儲存設定</button></div>
       <div class="settings-note">目前剩餘金額的計算方式為：<b>初始金額 ＋ 累計收入 − 累計支出</b>。匯入的發票 CSV 會自動視為支出；收入請由你手動新增。</div>
@@ -340,6 +336,6 @@
 </dialog>
 
 <script src="dialogues.js?v=20261002t"></script>
-<script src="app.js?v=20261002i"></script>
+<script src="app.js?v=20261002j"></script>
 </body>
 </html>
