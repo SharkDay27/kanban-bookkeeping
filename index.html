@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="終端記錄">
 <title>RPG 化記帳工具</title>
-<link rel="stylesheet" href="styles.css?v=20261002k">
+<link rel="stylesheet" href="styles.css?v=20261002l">
 </head>
 <body>
 <div class="wrap">
@@ -64,6 +64,7 @@
     <button class="wood active" data-tab="adventure">終端</button>
     <button class="wood" data-tab="book">記錄</button>
     <button class="wood" data-tab="quests">任務</button>
+    <button class="wood" data-tab="backpack">背包</button>
     <button class="wood" data-tab="bestiary">圖鑑</button>
     <button class="wood" data-tab="progress">成就</button>
     <button class="wood" data-tab="commentary">評議</button>
@@ -97,7 +98,6 @@
               <button class="wood gold-btn" data-chest="gold">開金箱</button>
             </div>
             <div class="rewardlog wood" id="rewardLog">開始記錄來啟動管理流程。</div>
-            <div class="inventory" id="inventory"></div>
           </div>
         </div>
       </div>
@@ -112,6 +112,11 @@
             <div class="hp" style="margin-top:8px"><div class="hpfill" id="hpFill"></div><div class="hptext" id="hpText">60 / 60</div></div>
             <div class="monster-meta" id="monsterMeta">新增記錄造成 8 傷害；完成任務造成 10 傷害</div>
             <div class="monster-meta" id="monsterState">戰鬥中</div>
+            <div class="operator-hp-block">
+              <div class="row"><span class="k">OPERATOR HP / 使用者生命</span><span id="operatorHpState" class="monster-meta">STABLE</span></div>
+              <div class="operator-hp"><div id="operatorHpFill"></div><span id="operatorHpText">100 / 100</span></div>
+              <div class="monster-meta" id="combatLog">收容單位目前沒有造成傷害。</div>
+            </div>
           </div>
         </div>
         <div style="margin-top:14px;font-size:18px;font-weight:900">作業摘要</div>
@@ -172,37 +177,23 @@
     </div>
   </section>
 
-
-  
-  <section id="bestiary" class="section">
-    <div class="wood panel">
-      <div class="archive-header">
-        <div><div class="archive-id">ARCHIVE // ENTITY-CATALOG</div><div class="archive-title">怪物圖鑑 / CONTAINMENT INDEX</div></div>
-        <div class="archive-stamp">CATALOG</div>
-      </div>
-      <div class="sub">每日出現的收容單位會自動登錄。擊敗後會追加「處置完成」標記。</div>
-      <div id="bestiaryGrid" class="bestiary-grid" style="margin-top:12px"></div>
-    </div>
-  </section>
-
-  <section id="progress" class="section">
-    <div class="progress-grid">
-      <div class="wood panel">
+  <section id="backpack" class="section">
+    <div class="backpack-grid">
+      <div class="wood panel backpack-status-panel">
         <div class="archive-header">
-          <div><div class="archive-id">RECORD // ACHIEVEMENTS</div><div class="archive-title">成就系統</div></div>
-          <div class="archive-stamp">MILESTONE</div>
+          <div><div class="archive-id">PERSONNEL // FIELD-STATUS</div><div class="archive-title">背包 / FIELD PACK</div></div>
+          <div class="archive-stamp">READY</div>
         </div>
-        <div class="sub">完成里程碑會自動解鎖並獲得金幣。既有紀錄也會回溯判定。</div>
-        <div id="achievementGrid" class="achievement-grid"></div>
-      </div>
-      <div class="wood panel">
-        <div class="archive-header">
-          <div><div class="archive-id">EQUIPMENT // ACTIVE-SLOTS</div><div class="archive-title">裝備系統</div></div>
-          <div class="archive-stamp">3 SLOTS</div>
+        <div class="sub">裝備、消耗品與收容材料集中於此。使用者生命低於 45% 時，如有瓶裝水會自動飲用 1 瓶補血。</div>
+        <div class="backpack-hp-card">
+          <div class="row"><div><div class="k">使用者生命</div><div class="backpack-hp-number" id="backpackHpNumber">100 / 100</div></div><div id="backpackHpState" class="class-chip">STABLE</div></div>
+          <div class="operator-hp backpack-hp"><div id="backpackHpFill"></div><span id="backpackHpText">100 / 100</span></div>
+          <div class="backpack-combat-log" id="backpackCombatLog">尚無受擊紀錄。</div>
         </div>
-        <div class="sub">點擊裝備檔案即可裝備／卸下。最多同時裝備 3 件；材料類道具無法裝備。</div>
-        <div id="equipmentSlots" class="equipment-slots"></div>
-        <div id="equipmentSummary" class="equipment-summary">尚未啟用裝備效果。</div>
+        <div class="archive-header backpack-subhead">
+          <div><div class="archive-id">CONSUMABLE // AUTO-USE ENABLED</div><div class="archive-title">消耗品</div></div>
+        </div>
+        <div id="backpackConsumables" class="backpack-items"></div>
       </div>
     </div>
   </section>
@@ -336,6 +327,6 @@
 </dialog>
 
 <script src="dialogues.js?v=20261002w"></script>
-<script src="app.js?v=20261002j"></script>
+<script src="app.js?v=20261002k"></script>
 </body>
 </html>
