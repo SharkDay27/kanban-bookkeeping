@@ -876,11 +876,39 @@ function ryoshuArayaInteraction(entry){
   return arayaScabbardLines(s[0],s[1],entry);
 }
 
+function ryoshuAddressFor(name){
+  const map={
+    '浮士德':['白毛'],
+    '堂吉訶德':['D.Q.'],
+    '鴻璐':['富家少爺'],
+    '希斯克利夫':['愛哭鬼','H.C.'],
+    '以實瑪利':['橘毛'],
+    '辛克萊':['小鬼','香檳毛','M.T.L.'],
+    '格里高爾':['B.G.','毛蟲','老傢伙']
+  };
+  const pool=map[name];
+  return pool&&pool.length?pick(pool):'';
+}
+function ryoshuInteractiveReply(previous,entry){
+  const nick=ryoshuAddressFor(previous.name);
+  const own=sinnerLine(SINNERS.find(function(s){return s.name==='良秀'}),entry);
+  const prefix=nick?pick([
+    nick+'。吵。',
+    nick+'，省點口水。',
+    '呵。'+nick+'。'
+  ]):pick([
+    '呵。話太多。',
+    '省點口水。',
+    '不對。漏了一刀。'
+  ]);
+  return prefix+' '+own;
+}
 function sinnerInteractiveReply(sinner,previous,entry){
   const prevName=previous.name;
   const own=sinnerLine(sinner,entry);
   const cat=entry.category||'這筆';
   const tier=amountTier(entry);
+  if(sinner.name==='良秀')return ryoshuInteractiveReply(previous,entry);
   const replies={
     '李箱':[
       prevName+'所言並非無理。不過若只凝視這一筆，恐怕仍看不見整條流向。 '+own,
@@ -893,11 +921,6 @@ function sinnerInteractiveReply(sinner,previous,entry){
     '堂吉訶德':[
       '喔！'+prevName+'之言甚有道理！然吾亦有一言——'+own,
       prevName+'！此番見解吾已聽見！那麼也請聽聽吾之判斷！ '+own
-    ],
-    '良秀':[
-      '呵。'+prevName+'，話太多。 '+own,
-      prevName+'。可。我的結論——'+own,
-      '不對。'+prevName+'漏了一刀。 '+own
     ],
     '默爾索':[
       '我已理解'+prevName+'的意見。補充如下：'+own,
