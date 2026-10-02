@@ -967,19 +967,19 @@ function sinnerCanUnderstandLine(line){
 }
 function scabbardObservedReaction(sinner){
   const reactions={
-    '李箱':['刀鞘似乎有所回應。其意，吾等無從得知。'],
-    '浮士德':['可觀測到刀鞘產生反應；其內容無法由現有資訊解讀。'],
-    '堂吉訶德':['喔！刀鞘方才確實動了！然其中深意，吾尚未能參透！'],
-    '默爾索':['確認刀鞘發生震動。無法判讀其含義。'],
-    '鴻璐':['它剛才是在回應嗎？真有趣，可惜我聽不懂。'],
-    '希斯克利夫':['……那刀鞘又在動什麼？算了，反正我聽不懂。'],
-    '以實瑪利':['刀鞘又有反應了。不過那不是我們能理解的訊息。'],
-    '羅佳':['欸，它剛剛是不是又晃了一下？完全看不懂呢。'],
-    '辛克萊':['剛、剛才刀鞘是不是響了？我不知道那代表什麼……'],
-    '奧提斯':['刀鞘出現反應。其含義不明，執行經理。'],
-    '格里高爾':['又動了啊……老實說，我到現在還是看不懂那是在表達什麼。']
+    '李箱':['刀鞘微微一震。','方才似有輕響。'],
+    '浮士德':['刀鞘產生了可觀測的反應。','刀鞘剛才震動了一次。'],
+    '堂吉訶德':['喔！刀鞘方才動了！','方才那聲輕響，吾確實聽見了！'],
+    '默爾索':['刀鞘發生震動。','確認有一聲輕響。'],
+    '鴻璐':['它剛剛是不是動了一下？','啊，刀鞘又響了。'],
+    '希斯克利夫':['……那刀鞘又動了。','嘖，又響了。'],
+    '以實瑪利':['刀鞘剛才震了一下。','……又有反應了。'],
+    '羅佳':['欸，剛剛是不是晃了一下？','又響了耶。'],
+    '辛克萊':['剛、剛才刀鞘是不是響了？','它好像動了一下……'],
+    '奧提斯':['刀鞘出現反應，執行經理。','確認刀鞘有震動。'],
+    '格里高爾':['又動了啊。','嗯？剛才是不是響了一聲？']
   };
-  return pick(reactions[sinner.name]||['刀鞘有反應，但無法理解其含義。']);
+  return pick(reactions[sinner.name]||['刀鞘輕輕動了一下。']);
 }
 function interactiveSinnerLines(members,entry){
   if(!members||!members.length)return [];
@@ -996,7 +996,10 @@ function appendSinnerAfterAraya(lines,sinner,entry){
   if(!Array.isArray(lines))lines=[];
   const observed=[...lines].reverse().find(function(line){return line&&line.visibility!=='user-only'});
   if(observed&&observed.kind==='scabbard'){
-    lines.push({speaker:sinner.name,text:scabbardObservedReaction(sinner),visibility:'public'});
+    // 多數情況下罪人只把刀鞘反應當作背景，不特地解讀或評論。
+    // 偶爾才簡短注意到它，避免每次都出現「看不懂／別解讀」之類的重複對話。
+    const text=Math.random()<0.32?scabbardObservedReaction(sinner):sinnerLine(sinner,entry);
+    lines.push({speaker:sinner.name,text:text,visibility:'public'});
     return lines;
   }
   const previous=observed&&SINNERS.find(function(s){return s.name===observed.speaker});
