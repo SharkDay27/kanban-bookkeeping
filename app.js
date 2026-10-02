@@ -1074,6 +1074,9 @@ function setTab(id){
   document.querySelectorAll('.bottom [data-goto]').forEach(function(btn){btn.classList.toggle('active',btn.dataset.goto===id)});
   if($('mainMenuCurrent'))$('mainMenuCurrent').textContent=TAB_LABELS[id]||'主功能';
   setMainMenuOpen(false);
+  if(id==='sinners'&&typeof window.forceRenderSinnerManagement==='function'){
+    window.forceRenderSinnerManagement();
+  }
 }
 function drawSprite(kind){
   if(kind==='star')return `<svg viewBox="0 0 64 64" width="44" height="44" aria-hidden="true"><circle cx="32" cy="32" r="23" fill="#1c1d22" stroke="#b52d2d" stroke-width="4"/><path d="M32 16l4 12 12 4-12 4-4 12-4-12-12-4 12-4z" fill="#d6d2c7"/></svg>`;
