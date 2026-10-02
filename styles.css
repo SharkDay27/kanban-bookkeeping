@@ -1,8 +1,8 @@
 :root{
-  --bg:#0d0d0f; --bg2:#151518; --panel:#17181c; --panel2:#1f2025; --panel3:#262830;
-  --text:#e8e6df; --muted:#9a978f; --line:#4d4e55; --line2:#6d6e76;
-  --accent:#b52d2d; --accent2:#d7d3c8; --gold:#a98b4d; --green:#6e8f77; --red:#a83c3c;
-  --shadow:rgba(0,0,0,.35);
+  --bg:#eaf8fb; --bg2:#f7fcfd; --panel:#ffffff; --panel2:#f8fdfe; --panel3:#eef9fb;
+  --text:#24414a; --muted:#6d8a91; --line:#c9e4e8; --line2:#9fcfd6;
+  --accent:#ff7d5c; --accent2:#55c3cf; --gold:#d5a13f; --green:#55a977; --red:#d95d65;
+  --shadow:rgba(57,111,122,.12);
 }
 *{box-sizing:border-box}
 html,body{margin:0;font-family:"Noto Sans TC","Segoe UI",Arial,sans-serif;color:var(--text);background:
@@ -1657,3 +1657,342 @@ dialog#dlg .entry-wide{
 :root[data-theme="light"] .archive-id,:root[data-theme="light"] .currency-eyebrow,:root[data-theme="light"] .shop-kicker{color:#e36b50!important}:root[data-theme="light"] .title,:root[data-theme="light"] .archive-title,:root[data-theme="light"] .tabs-directory-title,:root[data-theme="light"] .money-overview-title{color:#264851!important}
 :root[data-theme="light"] .sub,:root[data-theme="light"] .s,:root[data-theme="light"] .k,:root[data-theme="light"] .pack-desc,:root[data-theme="light"] .shop-item-desc{color:#6f8d94!important}:root[data-theme="light"] .bar,:root[data-theme="light"] .hp,:root[data-theme="light"] .sinner-hp-bar{background:#e8f5f7!important;border-color:#9fd2d8!important}:root[data-theme="light"] .barfill{background:linear-gradient(90deg,#66cbd5,#95dde3)!important}:root[data-theme="light"] .theme-switch button.active{background:#63c7d1!important;color:#fff!important}
 @media(max-width:1200px){.money-overview .compact-summary{grid-template-columns:repeat(3,minmax(0,1fr))!important}}@media(max-width:700px){.money-overview .compact-summary{grid-template-columns:repeat(2,minmax(0,1fr))!important}.top-tools{width:100%;justify-content:space-between}}
+
+
+/* ===== LIGHT-ONLY VISUAL SYSTEM ===== */
+html,body{
+  color:var(--text)!important;
+  background:
+    linear-gradient(180deg,rgba(97,199,211,.10),transparent 180px),
+    linear-gradient(90deg,rgba(80,167,179,.07) 1px,transparent 1px),
+    linear-gradient(0deg,rgba(80,167,179,.07) 1px,transparent 1px),
+    linear-gradient(180deg,var(--bg2),var(--bg))!important;
+  background-size:auto,24px 24px,24px 24px,auto!important;
+}
+body,button,input,select,textarea{color:var(--text)!important}
+.wood{
+  border-color:var(--line2)!important;
+  box-shadow:0 7px 22px var(--shadow)!important;
+}
+.wood:before{border-color:rgba(63,130,141,.04)!important}
+.panel,
+.notice,
+.currency-console,
+.section.active,
+.stat,
+.day,
+.card,
+.quest,
+.chart-card,
+.sinner-file,
+.exploration-area-card,
+.bestiary-card,
+.record-console,
+.equipment-card-v2,
+.pack-item,
+.shop-item,
+.exploration-log-entry,
+.containment-feedback,
+.explore-result,
+.exploration-shop,
+dialog form.modal{
+  background:#fff!important;
+  color:var(--text)!important;
+  border-color:var(--line2)!important;
+}
+
+/* Main shells: emphasis comes from color bars, not dark fill */
+.zone-actions{
+  background:linear-gradient(90deg,#eef9fb,#fff)!important;
+  border:1px solid var(--line2)!important;
+  border-left:4px solid #72cbd5!important;
+  padding:8px!important;
+}
+.actions .wood,.btn,.mini-btn,
+.filters input,.filters select,input,select,textarea,
+.tabs button,.record-mode-switch button,.shop-mode-switch button,
+.achievement-view-switch button,.language-switch button{
+  background:#fff!important;
+  color:var(--text)!important;
+  border-color:var(--line2)!important;
+  box-shadow:none!important;
+}
+.actions .wood:hover,.btn:hover,.mini-btn:hover,.tabs button:hover{
+  background:#f2fafb!important;
+}
+.primary{
+  background:#eef7fa!important;
+  border-left:4px solid #6ca8bc!important;
+  color:#315764!important;
+}
+.income-btn{
+  background:#eef9f2!important;
+  border-left:4px solid var(--green)!important;
+  color:#326b47!important;
+}
+.danger{
+  background:#fff1f1!important;
+  border-left:4px solid var(--red)!important;
+  color:#9f4348!important;
+}
+.gold-btn{
+  background:#fff8e9!important;
+  border-left:4px solid var(--gold)!important;
+  color:#8a6a23!important;
+}
+
+/* Headers and collapsibles */
+.tabs-directory-head,
+.money-overview-head,
+.backpack-category-head,
+.containment-overview-summary{
+  background:linear-gradient(90deg,#f4fbfc,#fff)!important;
+  color:var(--text)!important;
+  border-color:var(--line2)!important;
+}
+.tabs.zone-tabs{
+  background:#f4fbfc!important;
+  border-color:var(--line2)!important;
+}
+.tabs.zone-tabs button.active{
+  background:#fff0eb!important;
+  color:#ae503a!important;
+  border-color:#ff9b83!important;
+  box-shadow:inset 4px 0 0 #ff7d5c!important;
+}
+.money-overview.zone-summary{
+  background:#fff!important;
+  border-color:var(--line2)!important;
+  border-left-color:#72b48a!important;
+}
+.money-overview .compact-summary{
+  background:#f6fbfc!important;
+}
+.money-overview .compact-summary .stat{
+  background:#fff!important;
+  border-color:#b7dce1!important;
+}
+.money-overview .compact-summary .stat:nth-child(1){border-top-color:#9baeb4!important}
+.money-overview .compact-summary .stat:nth-child(2){border-top-color:#66b285!important}
+.money-overview .compact-summary .stat:nth-child(3){border-top-color:#de6d72!important}
+.money-overview .compact-summary .stat:nth-child(4){border-top-color:#cfaa57!important}
+.money-overview .compact-summary .stat:nth-child(5){border-top-color:#6fa8c9!important}
+.money-overview .compact-summary .stat:nth-child(6){border-top-color:#a183c0!important}
+
+/* Typography */
+.title,.archive-title,.tabs-directory-title,.money-overview-title,
+.store,.sinner-name,.bestiary-name,.exploration-log-title,.explore-result-title,
+.shop-title,.quest-name,.achievement-name{
+  color:#24414a!important;
+}
+.archive-id,.report-code,.currency-eyebrow,.shop-kicker{
+  color:#ef7055!important;
+}
+.sub,.s,.k,.currency-note,.pack-desc,.shop-item-desc,.quest-desc,
+.exploration-log-meta,.exploration-record-meta,.sinner-card-sub{
+  color:#718d94!important;
+}
+.archive-stamp{
+  background:#fff8f5!important;
+  color:#c6604f!important;
+  border-color:#e29c8f!important;
+}
+
+/* Information blocks that were previously black */
+.rewardlog,
+.containment-feedback,
+.exploration-log-entry,
+.exploration-record-card,
+.explore-result,
+.combat-report-row,
+.entry-comment-preview,
+.commentary-line,
+.commentary-archive-card,
+.stats-module-empty,
+.rpg-module-error{
+  background:#f7fbfc!important;
+  color:var(--text)!important;
+  border-color:#b9dde2!important;
+}
+.rewardlog{
+  border-left:4px solid #ff8a6e!important;
+}
+.containment-feedback{
+  border-left:4px solid #d1a74d!important;
+}
+.exploration-log-entry{
+  border-left:4px solid #7eb4c6!important;
+}
+.exploration-log-dialogue{
+  border-top-color:#c6e3e7!important;
+}
+.class-chip,.badge,.record-kind-badge,.bestiary-card .abno-type,.equipment-attr span{
+  background:#f6fbfc!important;
+  color:#496872!important;
+  border-color:#b9d9de!important;
+}
+
+/* Combat report keeps semantic colors on light surfaces */
+.combat-report-row.enemy{
+  background:#fff3f3!important;border-left-color:#d95d65!important
+}
+.combat-report-row.enemy .combat-report-label,.combat-report-row.enemy strong{color:#bd4c55!important}
+.combat-report-row.ally{
+  background:#eef8fc!important;border-left-color:#579fc1!important
+}
+.combat-report-row.ally .combat-report-label,.combat-report-row.ally strong{color:#3c86a7!important}
+.combat-report-row.outcome{
+  background:#fff9ec!important;border-left-color:#d0a145!important
+}
+.combat-report-row.outcome .combat-report-label,.combat-report-row.outcome strong{color:#9c7729!important}
+.combat-report-row.outcome.success{
+  background:#eff9f2!important;border-left-color:#62a978!important
+}
+.combat-report-row.outcome.success .combat-report-label,.combat-report-row.outcome.success strong{color:#45865a!important}
+
+/* Progress / chart surfaces */
+.quest-progress,.bar,.hp,.sinner-hp-bar,.operator-hp{
+  background:#eaf5f7!important;
+  border-color:#a9d2d8!important;
+}
+.quest-progress>div,.barfill{
+  background:linear-gradient(90deg,#6bcbd4,#98dfe4)!important;
+}
+.pie{
+  border-color:#a9d2d8!important;
+  box-shadow:inset 0 0 0 18px #f1fafb!important;
+}
+.pie:after{
+  background:#fff!important;border-color:#b8dce1!important
+}
+.kpi,.mini{
+  background:#f8fcfd!important;
+  border-color:#c3e0e4!important;
+}
+
+/* Bestiary & containment list: remove black strips */
+.bestiary-status,
+.containment-row,
+.containment-list-row,
+.monster-progress-row{
+  background:#f4fafb!important;
+  color:#4b6972!important;
+  border-color:#c3dfe3!important;
+}
+.bestiary-card.locked{opacity:.72!important}
+.bestiary-card.locked .specimen{
+  background:#edf5f6!important;
+}
+.bestiary-code,.bestiary-meta,.abno-area{color:#6b8990!important}
+
+/* Record archive */
+.day{
+  background:#fff!important;
+}
+.transaction-card{
+  background:#fff!important;
+  border-color:#bddde2!important;
+}
+.badge{
+  background:#f3f9fa!important;
+}
+.badge.expense{background:#fff0f1!important;color:#a94b52!important;border-color:#e5a1a6!important}
+.badge.income{background:#eff9f2!important;color:#447e57!important;border-color:#9fc7aa!important}
+.entry-comment-preview{
+  border-left:3px solid #91b8c3!important;
+}
+.board{scrollbar-color:#9ccbd2 #eef8fa}
+
+/* Shop */
+.exploration-shop{
+  background:#fffdf7!important;
+  border-color:#e1c987!important;
+}
+.shop-head,.shop-flavor{
+  border-color:#eadfbf!important;
+}
+.shop-wallet b,.shop-price{color:#a87e21!important}
+.shop-mode-switch button.active{
+  background:#fff5dc!important;
+  color:#8d6720!important;
+  border-color:#d3ab54!important;
+}
+.shop-item{
+  background:#fff!important;
+}
+.shop-buy{
+  background:#f1f9fb!important;
+  color:#35616d!important;
+  -webkit-text-fill-color:#35616d!important;
+  border-color:#9fcfd6!important;
+}
+.shop-sell{
+  background:#eff9f2!important;
+  color:#3f7e53!important;
+  border-color:#9bc8a8!important;
+}
+
+/* Backpack */
+.backpack-category-head{
+  background:#f6fbfc!important;
+}
+.backpack-category-body{
+  background:#fff!important;
+  border-top-color:#c5e1e5!important;
+}
+.equipment-card-v2.equipped{
+  background:#fff9eb!important;
+}
+
+/* Rarity on light backgrounds */
+.rarity-common{--rarity:#87949b!important}
+.rarity-uncommon{--rarity:#3ea665!important}
+.rarity-rare{--rarity:#4089cf!important}
+.rarity-epic{--rarity:#9860c9!important}
+.rarity-legendary{--rarity:#d8892e!important}
+.equipment-card-v2[class*="rarity-"],.pack-item[class*="rarity-"],.shop-item[class*="rarity-"]{
+  background:#fff!important;
+  border-color:color-mix(in srgb,var(--rarity) 58%,#d7eaed)!important;
+  box-shadow:inset 4px 0 0 var(--rarity)!important;
+}
+.rarity-legendary{
+  background:linear-gradient(90deg,#fff8ed,#fff)!important;
+}
+
+/* Modal/dialog/light overlays */
+dialog::backdrop{background:rgba(66,100,108,.28)!important}
+dialog#dlg form.modal,
+dialog#commentDlg{
+  background:#fff!important;
+  color:var(--text)!important;
+}
+.entry-type-switch{
+  background:#f3f9fa!important;
+}
+.entry-type-switch button{
+  background:#fff!important;color:var(--text)!important;border-color:#bedde2!important
+}
+
+/* Bottom navigation */
+.bottom{
+  background:rgba(248,253,254,.97)!important;
+  border-top-color:#9fcfd6!important;
+  box-shadow:0 -8px 22px rgba(57,111,122,.10)!important;
+}
+.bottom button{color:#718d94!important;background:transparent!important}
+.bottom button.active{color:#b9503e!important;background:#fff0eb!important}
+
+/* remove old theme switch styles / ensure only one visual mode */
+.theme-switch{display:none!important}
+
+@media(max-width:700px){
+  .section.active{background:rgba(255,255,255,.82)!important}
+}
+
+:root,:root[data-theme="dark"],:root[data-theme="light"]{
+  color-scheme:light!important;
+  --bg:#eaf8fb!important;--bg2:#f7fcfd!important;--panel:#fff!important;--panel2:#f8fdfe!important;--panel3:#eef9fb!important;
+  --text:#24414a!important;--muted:#6d8a91!important;--line:#c9e4e8!important;--line2:#9fcfd6!important;
+  --accent:#ff7d5c!important;--accent2:#55c3cf!important;--gold:#d5a13f!important;--green:#55a977!important;--red:#d95d65!important;
+  --shadow:rgba(57,111,122,.12)!important;
+}
