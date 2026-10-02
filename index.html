@@ -5,75 +5,120 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow,noarchive">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="冒險記帳">
-<title>冒險記帳 RPG v4</title>
+<meta name="apple-mobile-web-app-title" content="終端記錄">
+<title>終端記錄管理終端 v5</title>
 <style>
+
 :root{
-  --sky1:#9dd7ff; --sky2:#dff4ff; --grass:#8ed16f; --grass2:#69b64c;
-  --wood:#8c5f3d; --wood2:#6f4a2f; --paper:#fff8ea; --paper2:#fff1d1;
-  --text:#3b2c23; --muted:#7b6b5f; --panel:#ffffffcc; --line:#c9b28d;
-  --blue:#59aef8; --green:#57c56a; --gold:#f5b735; --red:#ff6d7a; --pink:#ff9dcc; --purple:#9a8cff;
-  --shadow:rgba(71,42,20,.18);
+  --bg:#0d0d0f; --bg2:#151518; --panel:#17181c; --panel2:#1f2025; --panel3:#262830;
+  --text:#e8e6df; --muted:#9a978f; --line:#4d4e55; --line2:#6d6e76;
+  --accent:#b52d2d; --accent2:#d7d3c8; --gold:#a98b4d; --green:#6e8f77; --red:#a83c3c;
+  --shadow:rgba(0,0,0,.35);
 }
 *{box-sizing:border-box}
-html,body{margin:0;font-family:"Trebuchet MS","PingFang TC","Microsoft JhengHei",sans-serif;color:var(--text);background:linear-gradient(180deg,var(--sky1),var(--sky2) 240px,#d8f4c7 240px,#bce89a 100%)}
+html,body{margin:0;font-family:"Noto Sans TC","Segoe UI",Arial,sans-serif;color:var(--text);background:
+  linear-gradient(180deg,rgba(181,45,45,.08),transparent 180px),
+  linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px),
+  linear-gradient(0deg,rgba(255,255,255,.03) 1px,transparent 1px),
+  linear-gradient(180deg,var(--bg2),var(--bg));background-size:auto,24px 24px,24px 24px,auto}
 body{padding-bottom:88px}
 button,input,select,textarea{font:inherit;color:var(--text)}
 button{cursor:pointer}
-.wrap{max-width:1220px;margin:auto;padding:14px}
-.wood{border:3px solid var(--wood2);border-radius:18px;box-shadow:0 6px 0 var(--wood2),0 10px 24px var(--shadow)}
-.panel{background:linear-gradient(180deg,var(--paper),var(--paper2));padding:14px}
+.wrap{max-width:1240px;margin:auto;padding:16px}
+.wood{border:1px solid var(--line2);border-radius:0;box-shadow:0 0 0 1px rgba(255,255,255,.03) inset,0 8px 24px var(--shadow);position:relative}
+.wood:before{content:"";position:absolute;inset:0;border:1px solid rgba(255,255,255,.03);pointer-events:none}
+.panel{background:linear-gradient(180deg,var(--panel2),var(--panel));padding:14px}
 .top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
-.brand{display:flex;align-items:center;gap:12px}
-.logo{width:58px;height:58px;border-radius:16px;background:linear-gradient(180deg,#fff6c1,#ffd567);display:grid;place-items:center;overflow:hidden}
-.title{font-size:28px;font-weight:900;letter-spacing:.5px;color:#4f351e;text-shadow:0 2px 0 #fff2c7}
-.sub{font-size:13px;color:var(--muted);line-height:1.55;margin-top:4px}
-.notice{margin:12px 0;padding:12px 14px;background:rgba(255,255,255,.75);font-size:12px;line-height:1.6}
+.brand{display:flex;align-items:center;gap:14px}
+.logo{width:60px;height:60px;background:linear-gradient(180deg,#2a2b31,#111216);display:grid;place-items:center;overflow:hidden}
+.title{font-size:28px;font-weight:900;letter-spacing:1px;color:#f0ece2;text-transform:uppercase}
+.sub{font-size:13px;color:var(--muted);line-height:1.6;margin-top:4px}
+.notice{margin:12px 0;padding:12px 14px;background:linear-gradient(180deg,#1b1c20,#141519);font-size:12px;line-height:1.7;border-left:4px solid var(--accent)}
 .actions{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
-.btn, .actions button, .filters input, .filters select, .tabs button, .mini-btn, input, select, textarea{
-  border:3px solid var(--wood2);border-radius:14px;background:white;padding:10px 12px;
+.btn,.actions button,.filters input,.filters select,.tabs button,.mini-btn,input,select,textarea{
+  border:1px solid var(--line2);border-radius:0;background:linear-gradient(180deg,#2a2b31,#1a1b20);padding:10px 12px;color:var(--text)
 }
-.btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;background:#fffdf5;cursor:pointer}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;cursor:pointer}
 .btn input{display:none}
-.primary{background:linear-gradient(180deg,#84d8ff,#54b5ff)!important;color:#0b4366}
-.income-btn{background:linear-gradient(180deg,#b7f4b3,#7ddd78)!important;color:#1f5d22}
-.danger{background:linear-gradient(180deg,#ffd4d8,#ff9aa7)!important;color:#7d2630}
-.gold-btn{background:linear-gradient(180deg,#ffe69e,#ffc53d)!important;color:#6e4c00}
+.primary{background:linear-gradient(180deg,#383a43,#24262d)!important;border-left:4px solid #8d8f99!important}
+.income-btn{background:linear-gradient(180deg,#243128,#1b221d)!important;border-left:4px solid var(--green)!important}
+.danger{background:linear-gradient(180deg,#3a2323,#261818)!important;border-left:4px solid var(--red)!important}
+.gold-btn{background:linear-gradient(180deg,#393326,#27231b)!important;border-left:4px solid var(--gold)!important}
 .summary{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
-.stat{background:rgba(255,255,255,.82);padding:12px}.k{font-size:11px;color:var(--muted);font-weight:700}.v{font-size:24px;font-weight:900;margin-top:6px}.s{font-size:11px;color:var(--muted);margin-top:3px;line-height:1.4}
-.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}.tabs button{background:#fff7df}.tabs button.active{background:linear-gradient(180deg,#fff1b8,#ffd66f)}
+.stat{background:linear-gradient(180deg,#1f2025,#141519);padding:12px}.k{font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.8px;text-transform:uppercase}.v{font-size:24px;font-weight:900;margin-top:6px}.s{font-size:11px;color:var(--muted);margin-top:3px;line-height:1.4}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}.tabs button{background:linear-gradient(180deg,#23242a,#17181c);text-transform:uppercase;letter-spacing:.8px}.tabs button.active{background:linear-gradient(180deg,#312224,#1f1618);border-color:#8a4a4a;color:#fff}
 .section{display:none}.section.active{display:block}
 .main-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:12px}
 .hero{display:grid;grid-template-columns:90px 1fr;gap:12px;margin-top:12px}
-.avatar,.monster-icon{width:90px;height:90px;border-radius:18px;background:linear-gradient(180deg,#e8f7ff,#cdefff);display:grid;place-items:center;overflow:hidden;border:3px solid var(--wood2)}
+.avatar,.monster-icon{width:90px;height:90px;background:linear-gradient(180deg,#23252b,#111216);display:grid;place-items:center;overflow:hidden;border:1px solid var(--line2)}
 .row{display:flex;justify-content:space-between;gap:8px;align-items:center}
-.bar,.hp{height:22px;background:#fff;border:3px solid var(--wood2);border-radius:999px;overflow:hidden;position:relative}
-.barfill{height:100%;background:linear-gradient(90deg,#92ef95,#56d86d);width:0%}
-.hpfill{height:100%;background:linear-gradient(90deg,#ff9fb1,#ff6579);width:0%}
-.bartext,.hptext{position:absolute;inset:0;display:grid;place-items:center;font-size:11px;font-weight:900;color:#4b3518}
-.mini-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}.mini{padding:9px;background:rgba(255,255,255,.7);text-align:center}.mini .num{font-size:20px;font-weight:900;margin-top:4px}
-.rewardlog{margin-top:10px;background:rgba(255,255,255,.82);padding:10px;min-height:70px;font-size:12px;line-height:1.6;white-space:pre-wrap}
-.inventory{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.loot{background:#fff6d4;padding:5px 8px;font-size:11px;border:2px solid #cfaf61;border-radius:999px}
-.monster{display:grid;grid-template-columns:90px 1fr;gap:12px;align-items:center;margin-top:12px}.monster-meta{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.45}
-.quest-list{display:flex;flex-direction:column;gap:9px;margin-top:10px}.quest{background:rgba(255,255,255,.75);padding:10px}.quest.done{opacity:.75}.quest-name{font-size:13px;font-weight:900}.quest-desc{font-size:11px;color:var(--muted);line-height:1.45;margin-top:3px}.quest-progress{height:12px;background:#fff;border:2px solid var(--wood2);border-radius:999px;overflow:hidden;margin-top:7px}.quest-progress>div{height:100%;background:linear-gradient(90deg,#8eceff,#59aef8)}.quest-reward{font-size:10px;color:#9c6f00;font-weight:700}
+.bar,.hp{height:22px;background:#0f1013;border:1px solid var(--line2);overflow:hidden;position:relative}
+.barfill{height:100%;background:linear-gradient(90deg,#bdb9ae,#7a7870);width:0%}
+.hpfill{height:100%;background:linear-gradient(90deg,#cb4b4b,#7b2323);width:0%}
+.bartext,.hptext{position:absolute;inset:0;display:grid;place-items:center;font-size:11px;font-weight:900;color:#e8e6df;letter-spacing:.6px}
+.mini-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}.mini{padding:9px;background:linear-gradient(180deg,#1b1c20,#141519);text-align:center}.mini .num{font-size:20px;font-weight:900;margin-top:4px}
+.rewardlog{margin-top:10px;background:linear-gradient(180deg,#121316,#0f1012);padding:10px;min-height:70px;font-size:12px;line-height:1.7;white-space:pre-wrap;border-left:4px solid var(--accent)}
+.inventory{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.loot{background:#23252b;padding:5px 8px;font-size:11px;border:1px solid #6f6249;color:#d7c9a5}
+.monster{display:grid;grid-template-columns:90px 1fr;gap:12px;align-items:center;margin-top:12px}.monster-meta{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.5}
+.quest-list{display:flex;flex-direction:column;gap:9px;margin-top:10px}.quest{background:linear-gradient(180deg,#1b1c20,#141519);padding:10px}.quest.done{opacity:.8}.quest-name{font-size:13px;font-weight:900;letter-spacing:.4px}.quest-desc{font-size:11px;color:var(--muted);line-height:1.45;margin-top:3px}.quest-progress{height:12px;background:#0f1013;border:1px solid var(--line2);overflow:hidden;margin-top:7px}.quest-progress>div{height:100%;background:linear-gradient(90deg,#9e9a90,#626059)}.quest-reward{font-size:10px;color:#c0ac75;font-weight:700}
 .filters{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.filters #search{min-width:220px}
-.board{display:flex;gap:10px;overflow-x:auto;align-items:flex-start;padding-bottom:4px}.day{width:320px;min-width:320px;background:rgba(255,255,255,.78);padding:10px}.dayhead{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;margin-bottom:8px}.daytotal{font-weight:900;color:#7a5316}.daynet.plus{color:#1f8a38}.daynet.minus{color:#d34b58}
-.card{background:#fff;padding:10px;margin-bottom:9px}.store{font-weight:900}.amt{font-weight:900}.amt.expense{color:#d34b58}.amt.income{color:#1f8a38}.badges{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}.badge{font-size:10px;padding:3px 7px;border-radius:999px;background:#ffefc7;border:2px solid #d2af60}.badge.expense{background:#ffd9df;border-color:#e09aa7}.badge.income{background:#d6ffd9;border-color:#8fd08f}.items{font-size:11px;color:#65584f;margin-top:6px;line-height:1.45}.card-actions{display:flex;gap:7px;margin-top:8px}.mini-btn{padding:6px 10px;background:#fffaf0;font-size:12px}
-.settings-grid,.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field{display:flex;flex-direction:column;gap:6px}.field label{font-size:11px;color:var(--muted);font-weight:700}textarea{min-height:76px;resize:vertical}.settings-note{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.55}
-.empty{padding:22px;text-align:center;color:var(--muted);background:rgba(255,255,255,.75)}
-.toast{position:fixed;top:16px;right:16px;z-index:100;display:none;background:#fffaf0;padding:10px 12px;max-width:320px}
+.board{display:flex;gap:10px;overflow-x:auto;align-items:flex-start;padding-bottom:4px}.day{width:320px;min-width:320px;background:linear-gradient(180deg,#1a1b20,#121316);padding:10px}.dayhead{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;margin-bottom:8px}.daytotal{font-weight:900;color:#c8baa1}.daynet.plus{color:#8caf95}.daynet.minus{color:#ca6b6b}
+.card{background:linear-gradient(180deg,#23252b,#1a1b20);padding:10px;margin-bottom:9px}.store{font-weight:900}.amt{font-weight:900}.amt.expense{color:#d08a8a}.amt.income{color:#a7c5af}.badges{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}.badge{font-size:10px;padding:3px 7px;background:#2a2c32;border:1px solid #6b6355;color:#d8d2c2}.badge.expense{border-color:#915757;color:#e4c2c2}.badge.income{border-color:#5c7b61;color:#c8ddcd}.items{font-size:11px;color:#aba79e;margin-top:6px;line-height:1.45}.card-actions{display:flex;gap:7px;margin-top:8px}.mini-btn{padding:6px 10px;background:#1d1f24;font-size:12px}
+.settings-grid,.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field{display:flex;flex-direction:column;gap:6px}.field label{font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.6px;text-transform:uppercase}textarea{min-height:76px;resize:vertical}.settings-note{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.55}
+.empty{padding:22px;text-align:center;color:var(--muted);background:linear-gradient(180deg,#1b1c20,#141519)}
+.toast{position:fixed;top:16px;right:16px;z-index:100;display:none;background:linear-gradient(180deg,#1b1c20,#141519);padding:10px 12px;max-width:320px;border-left:4px solid var(--accent)}
 .fab,.bottom{display:none}
-dialog{border:0;background:transparent;padding:0}form.modal{width:min(640px,calc(100vw - 20px));background:linear-gradient(180deg,var(--paper),var(--paper2));padding:16px}.foot{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}
+dialog{border:0;background:transparent;padding:0}form.modal{width:min(640px,calc(100vw - 20px));background:linear-gradient(180deg,#1d1f24,#121316);padding:16px}.foot{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}
+.map-grid{filter:grayscale(.15) contrast(1.02)}
 svg{shape-rendering:geometricPrecision}
 @media(max-width:980px){.summary{grid-template-columns:repeat(3,1fr)}.main-grid{grid-template-columns:1fr}}
-@media(max-width:700px){.wrap{padding:10px}.actions{display:grid;grid-template-columns:1fr 1fr}.actions>*{width:100%}.summary{grid-template-columns:1fr 1fr}.hero,.monster{grid-template-columns:74px 1fr}.avatar,.monster-icon{width:74px;height:74px}.mini-grid{grid-template-columns:1fr 1fr}.filters{display:grid;grid-template-columns:1fr 1fr;position:sticky;top:0;z-index:40;background:rgba(223,244,255,.94);backdrop-filter:blur(7px);padding:8px 0}.filters #search{grid-column:1/-1;min-width:0}.filters select,.filters input{width:100%}.board{display:block;overflow:visible}.day{width:100%;min-width:0;margin-bottom:10px}.settings-grid,.form-grid{grid-template-columns:1fr}.tabs{overflow-x:auto;flex-wrap:nowrap}.fab{display:block;position:fixed;right:16px;bottom:76px;width:58px;height:58px;border-radius:50%;background:linear-gradient(180deg,#84d8ff,#54b5ff);color:#114663;font-size:28px;z-index:41;border:3px solid var(--wood2)}.bottom{display:grid;grid-template-columns:repeat(4,1fr);position:fixed;left:0;right:0;bottom:0;z-index:35;background:#fff4d8;border-top:3px solid var(--wood2)}.bottom button{min-height:58px;border:0;background:transparent;font-weight:800;color:#6b4d24}}
+@media(max-width:700px){.wrap{padding:10px}.actions{display:grid;grid-template-columns:1fr 1fr}.actions>*{width:100%}.summary{grid-template-columns:1fr 1fr}.hero,.monster{grid-template-columns:74px 1fr}.avatar,.monster-icon{width:74px;height:74px}.mini-grid{grid-template-columns:1fr 1fr}.filters{display:grid;grid-template-columns:1fr 1fr;position:sticky;top:0;z-index:40;background:rgba(13,13,15,.95);backdrop-filter:blur(7px);padding:8px 0}.filters #search{grid-column:1/-1;min-width:0}.filters select,.filters input{width:100%}.board{display:block;overflow:visible}.day{width:100%;min-width:0;margin-bottom:10px}.settings-grid,.form-grid{grid-template-columns:1fr}.tabs{overflow-x:auto;flex-wrap:nowrap}.fab{display:block;position:fixed;right:16px;bottom:76px;width:58px;height:58px;border-radius:0;background:linear-gradient(180deg,#3a3d46,#202227);color:#f0ece2;font-size:28px;z-index:41;border:1px solid var(--line2)}.bottom{display:grid;grid-template-columns:repeat(4,1fr);position:fixed;left:0;right:0;bottom:0;z-index:35;background:#121316;border-top:1px solid var(--line2)}.bottom button{min-height:58px;border:0;background:transparent;font-weight:800;color:#b8b3a6}}
 
-/* v4: 童話 MMORPG 地圖、NPC 與統計 */
-.salary-alert{display:none;margin:12px 0;padding:12px 14px;background:linear-gradient(180deg,#fff7bf,#ffe37a);font-size:13px;line-height:1.55;align-items:center;gap:12px}.salary-alert.show{display:flex}.salary-npc{width:58px;height:58px;flex:0 0 58px;border-radius:50%;background:#fff7df;border:3px solid var(--wood2);display:grid;place-items:center}.salary-copy b{color:#8c5c00}
-.map-scene{position:relative;min-height:260px;overflow:hidden;background:linear-gradient(180deg,#a8ddff 0 47%,#e7f7ff 47% 50%,#82d56a 50% 64%,#65b64d 64% 100%);padding:14px;margin-bottom:12px}.cloud{position:absolute;background:#fff;border-radius:999px;opacity:.9;height:24px;width:72px}.cloud:before,.cloud:after{content:"";position:absolute;background:#fff;border-radius:50%}.cloud:before{width:28px;height:28px;left:12px;top:-12px}.cloud:after{width:34px;height:34px;right:10px;top:-16px}.hill{position:absolute;border-radius:50% 50% 0 0;background:#57a95a;bottom:54px}.map-path{position:absolute;left:-5%;right:-5%;bottom:8px;height:74px;background:#d7b982;transform:rotate(-2deg);border-top:4px solid #b08d5f}.map-title{position:relative;z-index:3;display:inline-block;background:#fff7df;padding:7px 10px;font-weight:900}.map-nodes{position:relative;z-index:4;display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:84px}.map-node{background:rgba(255,250,231,.93);padding:10px;text-align:center;cursor:pointer;transition:transform .15s}.map-node:hover{transform:translateY(-3px)}.map-node .map-icon{height:58px;display:grid;place-items:center}.map-node b{display:block;font-size:13px}.map-node span{font-size:10px;color:var(--muted)}
-.npc-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0}.npc-card{display:grid;grid-template-columns:64px 1fr;gap:10px;align-items:center}.npc-face{width:64px;height:64px;border-radius:50%;background:#eef8ff;border:3px solid var(--wood2);display:grid;place-items:center}.npc-name{font-weight:900}.npc-talk{font-size:11px;color:var(--muted);line-height:1.5;margin-top:3px}
-.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.chart-card{min-height:330px}.pie-wrap{display:grid;grid-template-columns:180px 1fr;gap:14px;align-items:center;margin-top:14px}.pie{width:180px;height:180px;border-radius:50%;border:5px solid #fff;box-shadow:0 0 0 3px var(--wood2),0 5px 10px var(--shadow);background:#ddd;position:relative}.pie:after{content:"";position:absolute;inset:42px;background:var(--paper);border-radius:50%;border:3px solid var(--wood2)}.legend-list{display:flex;flex-direction:column;gap:7px}.legend-row{display:grid;grid-template-columns:14px 1fr auto;gap:7px;align-items:center;font-size:12px}.legend-dot{width:12px;height:12px;border-radius:3px;border:1px solid rgba(0,0,0,.15)}.chart-empty{color:var(--muted);font-size:12px;padding:30px 0}.month-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.kpi{background:rgba(255,255,255,.76);padding:10px;text-align:center}.kpi strong{display:block;font-size:20px;margin-top:3px}
-@media(max-width:800px){.map-nodes{grid-template-columns:1fr 1fr;margin-top:62px}.npc-strip,.stats-grid{grid-template-columns:1fr}.pie-wrap{grid-template-columns:1fr;justify-items:center}.legend-list{width:100%}.month-kpis{grid-template-columns:1fr}.map-scene{min-height:390px}}
+
+/* ===== v6 dossier / containment refinements ===== */
+.map-scene{min-height:250px;padding:18px;background:linear-gradient(180deg,rgba(181,45,45,.10),transparent 70%),linear-gradient(180deg,#17181c,#101114);overflow:hidden}
+.map-title{display:inline-block;padding:7px 12px;background:#101114;border-left:4px solid var(--accent);font-size:13px;font-weight:900;letter-spacing:1.2px;text-transform:uppercase}
+.map-nodes{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:26px}
+.map-node{min-height:116px;padding:12px;background:linear-gradient(180deg,#202126,#15161a);display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-end;cursor:pointer}
+.map-node:hover{border-color:#8a4a4a;transform:translateY(-1px)}
+.map-node b{font-size:13px;letter-spacing:.5px}.map-node span{font-size:10px;color:var(--muted);margin-top:4px}.map-icon{position:absolute;right:10px;top:10px;opacity:.68}
+.npc-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0}
+.npc-card{display:grid;grid-template-columns:62px 1fr;gap:10px;align-items:center}
+.npc-face{width:62px;height:62px;background:#111216;border:1px solid var(--line);display:grid;place-items:center}
+.npc-name{font-size:12px;font-weight:900;letter-spacing:.6px;text-transform:uppercase}.npc-talk{font-size:11px;color:var(--muted);line-height:1.5;margin-top:4px}
+.archive-header{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+.archive-id{font-size:10px;color:#b05f5f;letter-spacing:1.6px}.archive-title{font-size:18px;font-weight:900;letter-spacing:.7px}
+.archive-stamp{border:1px solid #7f3838;color:#c67777;padding:5px 8px;font-size:10px;transform:rotate(-2deg);letter-spacing:1px}
+.containment-frame{position:relative}
+.classification-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.class-chip{border:1px solid #5e6068;background:#17181c;padding:4px 7px;font-size:9px;color:#c6c2b8;letter-spacing:.8px}
+.class-chip.red{border-color:#703838;color:#d28b8b}
+.command-sheet{counter-reset:directive}
+.quest{position:relative;padding-left:42px!important}
+.quest:before{counter-increment:directive;content:counter(directive,decimal-leading-zero);position:absolute;left:9px;top:9px;width:24px;height:24px;display:grid;place-items:center;border:1px solid #696b72;background:#0f1013;color:#c8c4b9;font-size:10px;font-weight:900}
+.quest.done:after{content:"EXECUTED";position:absolute;right:8px;bottom:7px;color:#7f9a84;font-size:9px;letter-spacing:1.4px;border:1px solid #536d58;padding:2px 5px}
+.quest-reward:before{content:"REWARD / "}
+.stats-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.chart-card{background:linear-gradient(180deg,#1b1c20,#121316)}
+.report-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;border-bottom:1px solid var(--line);padding-bottom:9px;margin-bottom:10px}
+.report-code{font-size:9px;color:#b26060;letter-spacing:1.5px}
+.pie-wrap{display:grid;grid-template-columns:145px 1fr;gap:16px;align-items:center;margin-top:12px}
+.pie{width:138px;height:138px;border-radius:50%;position:relative;border:1px solid #5a5c63;box-shadow:inset 0 0 0 18px #121316}
+.pie:after{content:"";position:absolute;inset:36px;border-radius:50%;background:#15161a;border:1px solid #494b52}
+.legend-list{display:flex;flex-direction:column;gap:6px}.legend-row{display:grid;grid-template-columns:12px 1fr auto;gap:7px;align-items:center;border-bottom:1px solid #303138;padding-bottom:5px;font-size:11px}
+.legend-dot{width:9px;height:9px}.legend-row strong{font-variant-numeric:tabular-nums}.chart-empty{font-size:11px;color:var(--muted)}
+.month-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.kpi{background:#111216;padding:10px}.kpi strong{display:block;font-size:20px;margin-top:4px}
+.inventory{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}
+.loot{background:linear-gradient(180deg,#222329,#15161a);padding:9px 10px;border:1px solid #53555d;color:#ddd8cc;display:grid;grid-template-columns:38px 1fr;gap:9px;align-items:center}
+.loot-icon{width:38px;height:38px;border:1px solid #5d5f67;background:#0f1013;display:grid;place-items:center;color:#a88d53;font-weight:900;font-size:12px}
+.loot-file strong{display:block;font-size:11px}.loot-file small{display:block;color:var(--muted);font-size:9px;margin-top:3px}.loot-grade{font-size:9px;color:#bd6e6e;letter-spacing:1px;margin-top:3px}
+.day{position:relative}.day:before{content:"TRANSACTION ARCHIVE";display:block;color:#7b7d85;font-size:9px;letter-spacing:1.4px;border-bottom:1px solid #34353b;padding-bottom:6px;margin-bottom:8px}
+.card{position:relative;padding-top:13px}.card:before{content:"IDENTITY";position:absolute;right:8px;top:6px;font-size:8px;letter-spacing:1px;color:#656771}
+.badge{border-radius:0!important}
+.report-table{width:100%;border-collapse:collapse;margin-top:10px;font-size:11px}.report-table th,.report-table td{border:1px solid #3b3d44;padding:7px 8px;text-align:left}.report-table th{background:#111216;color:#99978f;font-size:9px;letter-spacing:1px}.report-table td:last-child{text-align:right;font-variant-numeric:tabular-nums}
+@media(max-width:900px){.map-nodes,.npc-strip{grid-template-columns:repeat(2,1fr)}.stats-grid{grid-template-columns:1fr}}
+@media(max-width:700px){.map-nodes,.npc-strip{grid-template-columns:1fr}.pie-wrap{grid-template-columns:1fr;justify-items:center}.legend-list{width:100%}.inventory{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body>
@@ -82,13 +127,13 @@ svg{shape-rendering:geometricPrecision}
     <div class="brand">
       <div class="logo wood" id="logo"></div>
       <div>
-        <div class="title">冒險記帳 RPG v4</div>
-        <div class="sub">受楓之谷氣氛啟發的可愛奇幻風介面｜每日任務・收入/支出記帳・連續記帳・寶箱冒險<br>不直接使用官方素材，改以清新童話 MMORPG 風格呈現。</div>
+        <div class="title">終端記錄管理終端 v5</div>
+        <div class="sub">受《邊獄公司》氣氛啟發的暗色工業管理終端風介面｜每日執行指令・收入/支出記錄・連續記錄・寶箱管理<br>不直接使用官方素材或標誌，改以黑白灰與深紅點綴的原創控制終端風格呈現。</div>
       </div>
     </div>
   </div>
 
-  <div class="notice wood panel">資料只保存在目前瀏覽器 localStorage。GitHub Pages 不會儲存你的發票、收入、初始金額或 RPG 進度。換手機或清除 Safari 網站資料前，請先備份 JSON。</div>
+  <div class="notice wood panel">資料只保存在目前瀏覽器 localStorage。GitHub Pages 不會儲存你的發票、收入、初始金額或進度資料。換裝置或清除 Safari 網站資料前，請先備份 JSON。</div>
   <div id="salaryAlert" class="salary-alert wood"><div class="salary-npc" id="salaryNpc"></div><div class="salary-copy"><b id="salaryTitle">薪資精靈提醒</b><div id="salaryMessage">—</div></div></div>
 
   <div class="actions">
@@ -107,12 +152,12 @@ svg{shape-rendering:geometricPrecision}
     <div class="stat wood panel"><div class="k">累計支出</div><div class="v" id="allExpense">$0</div><div class="s">所有支出記錄</div></div>
     <div class="stat wood panel"><div class="k">目前剩餘</div><div class="v" id="balance">$0</div><div class="s">初始金額＋收入−支出</div></div>
     <div class="stat wood panel"><div class="k">本月淨額</div><div class="v" id="monthNet">$0</div><div class="s" id="monthLabel">—</div></div>
-    <div class="stat wood panel"><div class="k">連續記帳</div><div class="v" id="streak">0 天</div><div class="s" id="bestStreak">最長 0 天</div></div>
+    <div class="stat wood panel"><div class="k">連續記錄</div><div class="v" id="streak">0 天</div><div class="s" id="bestStreak">最長 0 天</div></div>
   </div>
 
   <div class="tabs">
-    <button class="wood active" data-tab="adventure">冒險</button>
-    <button class="wood" data-tab="book">記帳</button>
+    <button class="wood active" data-tab="adventure">終端</button>
+    <button class="wood" data-tab="book">記錄</button>
     <button class="wood" data-tab="quests">任務</button>
     <button class="wood" data-tab="stats">統計</button>
     <button class="wood" data-tab="settings">設定</button>
@@ -122,26 +167,26 @@ svg{shape-rendering:geometricPrecision}
     <div class="map-scene wood">
       <div class="cloud" style="left:8%;top:32px"></div><div class="cloud" style="right:12%;top:54px;transform:scale(.8)"></div>
       <div class="hill" style="width:240px;height:120px;left:-30px"></div><div class="hill" style="width:300px;height:145px;right:-60px;background:#63b85e"></div><div class="map-path"></div>
-      <div class="map-title wood">青芽村冒險地圖</div>
+      <div class="map-title wood">MANAGEMENT ARCHIVE / 管理區域總覽</div>
       <div class="map-nodes">
-        <div class="map-node wood" data-map-tab="book"><div class="map-icon" id="mapBookIcon"></div><b>記帳工會</b><span>收入與支出紀錄</span></div>
-        <div class="map-node wood" data-map-tab="quests"><div class="map-icon" id="mapQuestIcon"></div><b>任務告示牌</b><span>每日任務與連續獎勵</span></div>
-        <div class="map-node wood" data-map-tab="stats"><div class="map-icon" id="mapBankIcon"></div><b>金幣銀行</b><span>統計與資金流向</span></div>
-        <div class="map-node wood" data-map-tab="settings"><div class="map-icon" id="mapHomeIcon"></div><b>冒險者小屋</b><span>資金與薪資日設定</span></div>
+        <div class="map-node wood" data-map-tab="book"><div class="map-icon" id="mapBookIcon"></div><b>交易檔案室</b><span>收入／支出檔案索引</span></div>
+        <div class="map-node wood" data-map-tab="quests"><div class="map-icon" id="mapQuestIcon"></div><b>指令執行室</b><span>執行清單／連續作業</span></div>
+        <div class="map-node wood" data-map-tab="stats"><div class="map-icon" id="mapBankIcon"></div><b>財務分析室</b><span>管理報表／資金流向</span></div>
+        <div class="map-node wood" data-map-tab="settings"><div class="map-icon" id="mapHomeIcon"></div><b>個人設定檔</b><span>個人資料／薪資週期</span></div>
       </div>
     </div>
     <div class="npc-strip">
-      <div class="npc-card wood panel"><div class="npc-face" id="npcClerk"></div><div><div class="npc-name">米娜・記帳員</div><div class="npc-talk">「每一筆收入和支出，都是冒險旅程的一頁喔！」</div></div></div>
-      <div class="npc-card wood panel"><div class="npc-face" id="npcMerchant"></div><div><div class="npc-name">托比・金幣商人</div><div class="npc-talk">「別只看花了多少，記得看這個月到底存下多少金幣。」</div></div></div>
-      <div class="npc-card wood panel"><div class="npc-face" id="npcFairy"></div><div><div class="npc-name">露露・薪資精靈</div><div class="npc-talk">「設定發薪日後，我會在你打開帳本時提醒你登錄收入！」</div></div></div>
+      <div class="npc-card wood panel"><div class="npc-face" id="npcClerk"></div><div><div class="npc-name">ARCHIVIST M-01 / 米娜</div><div class="npc-talk">交易紀錄已歸檔。請保持資料完整性。</div></div></div>
+      <div class="npc-card wood panel"><div class="npc-face" id="npcMerchant"></div><div><div class="npc-name">AUDITOR T-02 / 托比</div><div class="npc-talk">支出是結果；淨額才是本期報表的結論。</div></div></div>
+      <div class="npc-card wood panel"><div class="npc-face" id="npcFairy"></div><div><div class="npc-name">PAYROLL L-03 / 露露</div><div class="npc-talk">薪資週期已登錄。到期時將顯示提示。</div></div></div>
     </div>
     <div class="main-grid">
       <div class="wood panel">
-        <div class="row"><div><div style="font-size:18px;font-weight:900">冒險者資訊</div><div class="sub">每新增一筆收入或支出都可獲得 EXP。</div></div><div class="sub">每筆紀錄 +10 EXP</div></div>
+        <div class="archive-header"><div><div class="archive-id">FILE // IDENTITY-ACCOUNT-01</div><div class="archive-title">人格檔案 / ACCOUNT IDENTITY</div></div><div class="archive-stamp">ACTIVE</div></div><div class="sub">每新增一筆收入或支出，該人格檔案獲得經驗值。每筆紀錄 +10 EXP。</div>
         <div class="hero">
           <div class="avatar" id="heroIcon"></div>
           <div>
-            <div class="row"><div id="rank" style="font-size:18px;font-weight:900">帳本冒險者｜新手村記錄員</div><div id="lv" style="font-size:18px;font-weight:900">Lv.1</div></div>
+            <div class="row"><div id="rank" style="font-size:18px;font-weight:900">帳本終端者｜新手村記錄員</div><div id="lv" style="font-size:18px;font-weight:900">Lv.1</div></div>
             <div style="margin:8px 0 6px;color:var(--muted);font-size:12px" id="xpText">0 / 100 EXP</div>
             <div class="bar"><div class="barfill" id="xpFill"></div><div class="bartext" id="xpPct">0%</div></div>
             <div class="mini-grid">
@@ -155,25 +200,25 @@ svg{shape-rendering:geometricPrecision}
               <button class="wood gold-btn" data-chest="silver">開銀箱</button>
               <button class="wood gold-btn" data-chest="gold">開金箱</button>
             </div>
-            <div class="rewardlog wood" id="rewardLog">開始記帳來踏上冒險吧！</div>
+            <div class="rewardlog wood" id="rewardLog">開始記錄來啟動管理流程。</div>
             <div class="inventory" id="inventory"></div>
           </div>
         </div>
       </div>
 
-      <div class="wood panel">
-        <div style="font-size:18px;font-weight:900">今日怪物</div>
-        <div class="sub">新增記帳會對怪物造成傷害，完成任務會追加傷害。</div>
+      <div class="wood panel containment-frame">
+        <div class="archive-header"><div><div class="archive-id">CONTAINMENT // DAILY-ENTITY</div><div class="archive-title">今日收容單位</div></div><div class="archive-stamp">OBSERVE</div></div>
+        <div class="sub">新增紀錄將視為一次作業；完成指令時追加處置效果。</div><div class="classification-row"><span class="class-chip red">RISK / LOW</span><span class="class-chip">STATUS / MONITORED</span><span class="class-chip">SHIFT / DAILY</span></div>
         <div class="monster">
           <div class="monster-icon" id="monsterIcon"></div>
           <div>
             <div class="row"><div style="font-size:18px;font-weight:900" id="monsterName">綠色史萊姆</div><div style="font-size:12px;color:var(--muted)" id="monsterDate">—</div></div>
             <div class="hp" style="margin-top:8px"><div class="hpfill" id="hpFill"></div><div class="hptext" id="hpText">60 / 60</div></div>
-            <div class="monster-meta" id="monsterMeta">新增記帳造成 8 傷害；完成任務造成 10 傷害</div>
+            <div class="monster-meta" id="monsterMeta">新增記錄造成 8 傷害；完成任務造成 10 傷害</div>
             <div class="monster-meta" id="monsterState">戰鬥中</div>
           </div>
         </div>
-        <div style="margin-top:14px;font-size:18px;font-weight:900">快速戰報</div>
+        <div style="margin-top:14px;font-size:18px;font-weight:900">作業摘要</div>
         <div class="mini-grid" style="margin-top:8px">
           <div class="mini wood panel"><div class="k">目前連續</div><div class="num" id="streakBig">0</div></div>
           <div class="mini wood panel"><div class="k">最長紀錄</div><div class="num" id="bestBig">0</div></div>
@@ -197,14 +242,14 @@ svg{shape-rendering:geometricPrecision}
   <section id="quests" class="section">
     <div class="main-grid">
       <div class="wood panel">
-        <div style="font-size:18px;font-weight:900">每日任務</div>
-        <div class="sub">任務會依照今天的記帳狀況自動完成並領獎。</div>
-        <div class="quest-list" id="questList"></div>
+        <div style="font-size:18px;font-weight:900">每日執行指令</div>
+        <div class="sub">依今日紀錄狀態自動判定執行完成，完成後即刻發放報酬。</div>
+        <div class="quest-list command-sheet" id="questList"></div>
       </div>
       <div class="wood panel">
-        <div style="font-size:18px;font-weight:900">連續記帳獎勵</div>
-        <div class="sub">只要每天至少記一筆收入或支出，就會累積 streak。</div>
-        <div class="quest-list">
+        <div style="font-size:18px;font-weight:900">長期執行紀錄</div>
+        <div class="sub">每日完成至少一筆收入或支出紀錄，即視為當日作業成立。</div>
+        <div class="quest-list command-sheet">
           <div class="quest wood panel"><div class="quest-name">連續 3 天</div><div class="quest-desc">獲得 1 個木箱</div></div>
           <div class="quest wood panel"><div class="quest-name">連續 7 天</div><div class="quest-desc">獲得 1 個銀箱</div></div>
           <div class="quest wood panel"><div class="quest-name">連續 14 天</div><div class="quest-desc">獲得 2 個銀箱</div></div>
@@ -217,26 +262,22 @@ svg{shape-rendering:geometricPrecision}
 
   <section id="stats" class="section">
     <div class="stats-grid">
-      <div class="wood panel chart-card">
-        <div style="font-size:18px;font-weight:900">本月收入 vs 支出</div>
-        <div class="sub">依目前月份篩選器統計。</div>
+      <div class="wood panel chart-card"><div class="report-head"><div><div class="report-code">FINANCIAL MANAGEMENT REPORT</div><div style="font-size:18px;font-weight:900">REPORT A-01 / 本月收支構成</div></div><div class="archive-stamp">MONTHLY</div></div>
+        <div class="sub">依目前月份篩選條件生成之管理報表。</div>
         <div class="pie-wrap"><div id="incomeExpensePie" class="pie"></div><div id="incomeExpenseLegend" class="legend-list"></div></div>
       </div>
-      <div class="wood panel chart-card">
-        <div style="font-size:18px;font-weight:900">支出分類</div>
-        <div class="sub">看看金幣主要流向哪些生活分類。</div>
+      <div class="wood panel chart-card"><div class="report-head"><div><div class="report-code">EXPENSE DISTRIBUTION REPORT</div><div style="font-size:18px;font-weight:900">REPORT A-02 / 支出分類分布</div></div><div class="archive-stamp">ANALYSIS</div></div>
+        <div class="sub">支出類別比例，供資金流向審閱。</div>
         <div class="pie-wrap"><div id="expenseCategoryPie" class="pie"></div><div id="expenseCategoryLegend" class="legend-list"></div></div>
       </div>
-      <div class="wood panel chart-card">
-        <div style="font-size:18px;font-weight:900">收入分類</div>
-        <div class="sub">薪資、獎金、退款等收入來源占比。</div>
+      <div class="wood panel chart-card"><div class="report-head"><div><div class="report-code">INCOME SOURCE REPORT</div><div style="font-size:18px;font-weight:900">REPORT A-03 / 收入來源分布</div></div><div class="archive-stamp">ANALYSIS</div></div>
+        <div class="sub">各收入來源占比與本期資金來源結構。</div>
         <div class="pie-wrap"><div id="incomeCategoryPie" class="pie"></div><div id="incomeCategoryLegend" class="legend-list"></div></div>
       </div>
-      <div class="wood panel chart-card">
-        <div style="font-size:18px;font-weight:900">本月冒險摘要</div>
-        <div class="sub">用三個數字快速掌握資金狀態。</div>
+      <div class="wood panel chart-card"><div class="report-head"><div><div class="report-code">MONTHLY EXECUTIVE SUMMARY</div><div style="font-size:18px;font-weight:900">REPORT A-04 / 月度管理摘要</div></div><div class="archive-stamp">REVIEW</div></div>
+        <div class="sub">關鍵數值摘要，用於本期財務狀態判讀。</div>
         <div class="month-kpis"><div class="kpi wood panel"><div class="k">收入</div><strong id="statsIncome">$0</strong></div><div class="kpi wood panel"><div class="k">支出</div><strong id="statsExpense">$0</strong></div><div class="kpi wood panel"><div class="k">淨額</div><strong id="statsNet">$0</strong></div></div>
-        <div class="rewardlog wood" id="statsComment">先建立一些收入與支出紀錄，就能看到完整分析。</div>
+        <div class="rewardlog wood" id="statsComment">先建立一些收入／支出檔案索引，就能看到完整分析。</div>
       </div>
     </div>
   </section>
@@ -247,7 +288,7 @@ svg{shape-rendering:geometricPrecision}
       <div class="sub">初始金額、角色名稱與每月薪資日可在這裡調整。</div>
       <div class="settings-grid" style="margin-top:10px">
         <div class="field"><label>初始金額</label><input id="initialInput" class="wood" type="number" min="0" step="1" placeholder="例如 30000"></div>
-        <div class="field"><label>顯示名稱</label><input id="playerName" class="wood" placeholder="帳本冒險者"></div>
+        <div class="field"><label>顯示名稱</label><input id="playerName" class="wood" placeholder="帳本終端者"></div>
         <div class="field"><label>每月薪資日</label><input id="salaryDay" class="wood" type="number" min="1" max="31" step="1" placeholder="例如 5"></div>
         <div class="field"><label>提前提醒</label><select id="salaryAdvance" class="wood"><option value="0">薪資日當天</option><option value="1">提前 1 天</option><option value="3">提前 3 天</option></select></div>
       </div>
@@ -260,15 +301,15 @@ svg{shape-rendering:geometricPrecision}
 <div id="toast" class="toast wood"></div>
 <button id="fab" class="fab">＋</button>
 <div class="bottom">
-  <button data-goto="adventure">冒險</button>
-  <button data-goto="book">記帳</button>
+  <button data-goto="adventure">終端</button>
+  <button data-goto="book">記錄</button>
   <button data-goto="quests">任務</button>
   <button id="bottomAdd">新增</button>
 </div>
 
 <dialog id="dlg">
   <form class="modal wood" method="dialog">
-    <h3 id="dlgTitle" style="margin:0 0 12px">新增記帳</h3>
+    <h3 id="dlgTitle" style="margin:0 0 12px">新增記錄</h3>
     <input id="eid" type="hidden">
     <div class="form-grid">
       <div class="field"><label>類型</label><select id="etype" class="wood"><option value="expense">支出</option><option value="income">收入</option></select></div>
@@ -290,8 +331,8 @@ const EXPENSE_CATS=['餐飲','飲料','便利商店','交通','購物','訂閱/�
 const INCOME_CATS=['薪資','獎金','退款','零用錢','投資','禮金','其他收入'];
 const XP_PER_ENTRY=10;
 const QUESTS=[
- {id:'q1',name:'今日第一筆',desc:'今天新增至少 1 筆記帳',goal:1,rewardXp:10},
- {id:'q2',name:'完整記錄',desc:'今天新增至少 3 筆記帳',goal:3,rewardXp:20},
+ {id:'q1',name:'今日第一筆',desc:'今天新增至少 1 筆記錄',goal:1,rewardXp:10},
+ {id:'q2',name:'完整記錄',desc:'今天新增至少 3 筆記錄',goal:3,rewardXp:20},
  {id:'q3',name:'分類探索',desc:'今天記錄至少 2 種不同分類',goal:2,rewardXp:15}
 ];
 let state=load();
@@ -301,7 +342,7 @@ function money(n){return '$'+Math.round(Number(n)||0).toLocaleString('zh-TW')}
 function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
 function toast(msg){const t=$('toast');t.textContent=msg;t.style.display='block';clearTimeout(toast._t);toast._t=setTimeout(()=>t.style.display='none',2400)}
 function saveLocal(){localStorage.setItem(KEY,JSON.stringify(state))}
-function defaultState(){return {entries:[],profile:{initialAmount:0,name:'帳本冒險者',salaryDay:0,salaryAdvance:1},rpg:{xp:0,gold:0,chests:{wood:0,silver:0,gold:0},inventory:[],rewardLog:'開始記帳來踏上冒險吧！',streakMilestones:[]},daily:{}}}
+function defaultState(){return {entries:[],profile:{initialAmount:0,name:'帳本終端者',salaryDay:0,salaryAdvance:1},rpg:{xp:0,gold:0,chests:{wood:0,silver:0,gold:0},inventory:[],rewardLog:'開始記錄來啟動管理流程。',streakMilestones:[]},daily:{}}}
 function normalizeEntry(x){return {...x,type:x.type||'expense',category:x.category||'其他',amount:Number(x.amount||0),date:x.date||today(),payment:x.payment||'未設定',store:x.store||'未命名紀錄',items:Array.isArray(x.items)?x.items:[],note:x.note||''}}
 function migrate(old){const s=defaultState();
   if(Array.isArray(old)){s.entries=old.map(v=>normalizeEntry(v));return s}
@@ -328,28 +369,28 @@ function ensureDaily(d){if(!state.daily[d])state.daily[d]={monster:{name:'綠色
 function computeStreak(){const dates=[...new Set(state.entries.map(x=>x.date))].sort();if(!dates.length)return {current:0,best:0};let best=1,run=1,bestEnding=dates[0],runEnding=dates[0];for(let i=1;i<dates.length;i++){const a=new Date(dates[i-1]+'T00:00:00'),b=new Date(dates[i]+'T00:00:00'),diff=Math.round((b-a)/86400000);if(diff===1){run++;runEnding=dates[i];if(run>best){best=run;bestEnding=runEnding}}else if(diff>1){run=1;runEnding=dates[i]}}let current=0;let last=dates[dates.length-1];let td=today();let yd=new Date();yd.setDate(yd.getDate()-1);const y=yd.toISOString().slice(0,10);if(last===td||last===y){current=run;let tempRun=1;for(let i=dates.length-1;i>0;i--){const a=new Date(dates[i-1]+'T00:00:00'),b=new Date(dates[i]+'T00:00:00'),diff=Math.round((b-a)/86400000);if(diff===1)tempRun++;else break}current=tempRun}return {current,best}}
 function grantXp(xp,reason){state.rpg.xp+=xp;state.rpg.rewardLog=`${reason}\nEXP +${xp}`}
 function damageMonster(amount){const d=today();ensureDaily(d);const m=state.daily[d].monster;if(m.defeated)return;m.hp=Math.max(0,m.hp-amount);if(m.hp===0){m.defeated=true;state.rpg.gold+=20;state.rpg.chests.wood+=1;state.rpg.rewardLog='你擊敗了今日史萊姆！\n獲得 20 金幣與 1 個木箱。'}}
-function checkStreakMilestones(){const s=computeStreak();const ms=[{n:3,type:'wood',count:1},{n:7,type:'silver',count:1},{n:14,type:'silver',count:2},{n:30,type:'gold',count:1}];for(const m of ms){if(s.current>=m.n&&!state.rpg.streakMilestones.includes(m.n)){state.rpg.streakMilestones.push(m.n);state.rpg.chests[m.type]+=m.count;state.rpg.rewardLog=`連續記帳 ${m.n} 天達成！\n獲得 ${m.count} 個${m.type==='wood'?'木':m.type==='silver'?'銀':'金'}寶箱。`;}}}
-function checkQuests(){const d=today();ensureDaily(d);const ds=dayStats(d);QUESTS.forEach(q=>{const progress=q.id==='q3'?ds.cats:ds.count;const claimed=state.daily[d].questClaims[q.id];if(progress>=q.goal&&!claimed){state.daily[d].questClaims[q.id]=true;grantXp(q.rewardXp,`完成每日任務：${q.name}`);damageMonster(10)}});checkStreakMilestones()}
+function checkStreakMilestones(){const s=computeStreak();const ms=[{n:3,type:'wood',count:1},{n:7,type:'silver',count:1},{n:14,type:'silver',count:2},{n:30,type:'gold',count:1}];for(const m of ms){if(s.current>=m.n&&!state.rpg.streakMilestones.includes(m.n)){state.rpg.streakMilestones.push(m.n);state.rpg.chests[m.type]+=m.count;state.rpg.rewardLog=`連續記錄 ${m.n} 天達成！\n獲得 ${m.count} 個${m.type==='wood'?'木':m.type==='silver'?'銀':'金'}寶箱。`;}}}
+function checkQuests(){const d=today();ensureDaily(d);const ds=dayStats(d);QUESTS.forEach(q=>{const progress=q.id==='q3'?ds.cats:ds.count;const claimed=state.daily[d].questClaims[q.id];if(progress>=q.goal&&!claimed){state.daily[d].questClaims[q.id]=true;grantXp(q.rewardXp,`完成每日執行指令：${q.name}`);damageMonster(10)}});checkStreakMilestones()}
 function openChest(type){if((state.rpg.chests[type]||0)<=0){toast('沒有這種寶箱');return}state.rpg.chests[type]--;const tables={wood:{g:[8,20],loot:['小型治療藥水','銅幣袋','史萊姆凝膠']},silver:{g:[20,45],loot:['銀色羽毛筆','見習短劍','幸運硬幣']},gold:{g:[50,90],loot:['黃金算盤','商人斗篷','王者徽章']}};const t=tables[type],loot=t.loot[Math.floor(Math.random()*t.loot.length)],gold=t.g[0]+Math.floor(Math.random()*(t.g[1]-t.g[0]+1));state.rpg.gold+=gold;state.rpg.inventory.unshift(loot);state.rpg.inventory=state.rpg.inventory.slice(0,16);state.rpg.rewardLog=`開啟${type==='wood'?'木':type==='silver'?'銀':'金'}寶箱！\n獲得 ${loot} 與 ${gold} 金幣。`;saveLocal();render();toast(`獲得 ${loot}`)}
-function rank(lv){if(lv>=20)return '傳奇帳本大師';if(lv>=12)return '黃金冒險家';if(lv>=7)return '熟練記帳戰士';if(lv>=4)return '見習帳本獵人';return '新手村記錄員'}
-function renderRpg(){const xp=state.rpg.xp,lv=Math.floor(xp/100)+1,cur=xp%100;$('lv').textContent=`Lv.${lv}`;$('rank').textContent=(state.profile.name||'帳本冒險者')+'｜'+rank(lv);$('xpText').textContent=`${cur} / 100 EXP`;$('xpFill').style.width=cur+'%';$('xpPct').textContent=cur+'%';$('gold').textContent=state.rpg.gold;$('woodChest').textContent=state.rpg.chests.wood||0;$('silverChest').textContent=state.rpg.chests.silver||0;$('goldChest').textContent=state.rpg.chests.gold||0;$('rewardLog').textContent=state.rpg.rewardLog;$('inventory').innerHTML=state.rpg.inventory.length?state.rpg.inventory.map(x=>`<span class="loot">${esc(x)}</span>`).join(''):'<span class="loot">尚未取得戰利品</span>';ensureDaily(today());const m=state.daily[today()].monster;$('monsterName').textContent=m.name;$('monsterDate').textContent=today();$('monsterState').textContent=m.defeated?'已擊敗':'戰鬥中';$('hpFill').style.width=Math.round(m.hp/m.maxHp*100)+'%';$('hpText').textContent=`${m.hp} / ${m.maxHp}`;$('monsterMeta').textContent=m.defeated?'明天會出現新的怪物':'新增記帳造成 8 傷害；完成任務造成 10 傷害';const ds=dayStats(today());$('todayCount').textContent=ds.count;$('todayNet').textContent=money(ds.net);$('todayNet').style.color=ds.net<0?'var(--red)':'var(--green)'}
+function rank(lv){if(lv>=20)return '傳奇帳本大師';if(lv>=12)return '黃金終端家';if(lv>=7)return '熟練記錄戰士';if(lv>=4)return '見習帳本獵人';return '新手村記錄員'}
+function renderRpg(){const xp=state.rpg.xp,lv=Math.floor(xp/100)+1,cur=xp%100;$('lv').textContent=`Lv.${lv}`;$('rank').textContent=(state.profile.name||'帳本終端者')+'｜'+rank(lv);$('xpText').textContent=`${cur} / 100 EXP`;$('xpFill').style.width=cur+'%';$('xpPct').textContent=cur+'%';$('gold').textContent=state.rpg.gold;$('woodChest').textContent=state.rpg.chests.wood||0;$('silverChest').textContent=state.rpg.chests.silver||0;$('goldChest').textContent=state.rpg.chests.gold||0;$('rewardLog').textContent=state.rpg.rewardLog;$('inventory').innerHTML=state.rpg.inventory.length?state.rpg.inventory.map((x,i)=>`<div class="loot"><div class="loot-icon">${String(i+1).padStart(2,'0')}</div><div class="loot-file"><strong>${esc(x)}</strong><small>ARCHIVE / EQUIPMENT-${String(i+1).padStart(3,'0')}</small><div class="loot-grade">${i<3?'GRADE II':'GRADE I'} · 已歸檔</div></div></div>`).join(''):'<div class="loot"><div class="loot-icon">--</div><div class="loot-file"><strong>無已登錄裝備</strong><small>ARCHIVE EMPTY</small></div></div>';ensureDaily(today());const m=state.daily[today()].monster;$('monsterName').textContent=m.name;$('monsterDate').textContent=today();$('monsterState').textContent=m.defeated?'已擊敗':'戰鬥中';$('hpFill').style.width=Math.round(m.hp/m.maxHp*100)+'%';$('hpText').textContent=`${m.hp} / ${m.maxHp}`;$('monsterMeta').textContent=m.defeated?'明天會出現新的怪物':'新增記錄造成 8 傷害；完成任務造成 10 傷害';const ds=dayStats(today());$('todayCount').textContent=ds.count;$('todayNet').textContent=money(ds.net);$('todayNet').style.color=ds.net<0?'var(--red)':'var(--green)'}
 function renderSummary(){const expense=state.entries.filter(x=>x.type==='expense').reduce((s,x)=>s+x.amount,0),income=state.entries.filter(x=>x.type==='income').reduce((s,x)=>s+x.amount,0),init=Number(state.profile.initialAmount||0),bal=init+income-expense,m=$('month').value||today().slice(0,7),monthEntries=state.entries.filter(x=>x.date.startsWith(m)),mIncome=monthEntries.filter(x=>x.type==='income').reduce((s,x)=>s+x.amount,0),mExpense=monthEntries.filter(x=>x.type==='expense').reduce((s,x)=>s+x.amount,0),monthNet=mIncome-mExpense,st=computeStreak();$('initialAmount').textContent=money(init);$('allIncome').textContent=money(income);$('allIncome').style.color='var(--green)';$('allExpense').textContent=money(expense);$('allExpense').style.color='var(--red)';$('balance').textContent=money(bal);$('balance').style.color=bal<0?'var(--red)':'var(--green)';$('monthNet').textContent=money(monthNet);$('monthNet').style.color=monthNet<0?'var(--red)':'var(--green)';$('monthLabel').textContent=m;$('streak').textContent=st.current+' 天';$('bestStreak').textContent='最長 '+st.best+' 天';$('streakBig').textContent=st.current;$('bestBig').textContent=st.best}
 function renderQuests(){ensureDaily(today());const ds=dayStats(today());$('questList').innerHTML=QUESTS.map(q=>{const p=q.id==='q3'?ds.cats:ds.count,done=p>=q.goal,claim=state.daily[today()].questClaims[q.id];return `<div class="quest wood panel ${done?'done':''}"><div class="row"><div class="quest-name">${done?'✓ ':'◇ '}${q.name}</div><div class="quest-reward">+${q.rewardXp} EXP</div></div><div class="quest-desc">${q.desc}</div><div class="quest-progress"><div style="width:${Math.min(100,Math.round(p/q.goal*100))}%"></div></div><div class="quest-desc">${Math.min(p,q.goal)} / ${q.goal}${claim?'・已領取':''}</div></div>`}).join('')}
 function filtered(){const m=$('month').value,t=$('typeFilter').value,c=$('cat').value,q=$('search').value.trim().toLowerCase();return state.entries.filter(x=>(!m||x.date.startsWith(m))&&(!t||x.type===t)&&(!c||x.category===c)&&(!q||[x.store,x.note,x.invoice,x.category,...(x.items||[]).map(i=>i.name)].join(' ').toLowerCase().includes(q))).sort((a,b)=>b.date.localeCompare(a.date)||b.amount-a.amount)}
 function renderBoard(){const rows=filtered(),groups={};rows.forEach(x=>(groups[x.date]??=[]).push(x));const dates=Object.keys(groups).sort().reverse();if(!dates.length){$('board').innerHTML='<div class="empty wood panel">目前沒有資料。先新增一筆收入或支出吧！</div>';return}$('board').innerHTML='<div class="board">'+dates.map(date=>{const items=groups[date],expense=items.filter(x=>x.type==='expense').reduce((s,x)=>s+x.amount,0),income=items.filter(x=>x.type==='income').reduce((s,x)=>s+x.amount,0),net=income-expense;return `<section class="day wood panel"><div class="dayhead"><div><div style="font-weight:900">${date}</div><div class="s">${items.length} 筆紀錄</div></div><div style="text-align:right"><div class="daytotal">支出 ${money(expense)}</div><div class="daynet ${net<0?'minus':'plus'}">淨額 ${money(net)}</div></div></div>${items.map(entry=>`<article class="card wood"><div class="row"><div class="store">${esc(entry.store)}</div><div class="amt ${entry.type}">${entry.type==='income'?'+ ':''}${money(entry.amount)}</div></div><div class="badges"><span class="badge ${entry.type}">${entry.type==='income'?'收入':'支出'}</span><span class="badge">${esc(entry.category||'其他')}</span><span class="badge">${esc(entry.payment||'未設定')}</span></div><div class="items">${(entry.items||[]).slice(0,3).map(i=>esc(i.name)).join('、')||esc(entry.note||'—')}</div><div class="card-actions"><button class="mini-btn" data-edit="${entry.id}">編輯</button></div></article>`).join('')}</section>`}).join('')+'</div>';document.querySelectorAll('[data-edit]').forEach(btn=>btn.onclick=()=>openEdit(btn.dataset.edit))}
-function render(){refreshFilters();renderSummary();renderRpg();renderQuests();renderBoard();renderCharts();renderSalaryReminder();$('initialInput').value=state.profile.initialAmount||'';$('playerName').value=state.profile.name||'帳本冒險者';$('salaryDay').value=state.profile.salaryDay||'';$('salaryAdvance').value=String(state.profile.salaryAdvance??1)}
-function openEdit(id,presetType){const entry=id?state.entries.find(x=>x.id===id):null;$('dlgTitle').textContent=entry?'編輯記帳':(presetType==='income'?'新增收入':'新增支出');$('eid').value=entry?.id||'';$('etype').value=entry?.type||presetType||'expense';updateCategoryOptions($('etype').value);$('edate').value=entry?.date||today();$('eamt').value=entry?.amount??'';$('estore').value=entry?.store||'';$('ecat').value=entry?.category||($('etype').value==='income'?'薪資':'其他');$('epay').value=entry?.payment||'未設定';$('enote').value=entry?.note||'';$('del').style.display=entry?'':'none';$('dlg').showModal()}
-function saveEntry(){const id=$('eid').value,old=state.entries.find(x=>x.id===id),type=$('etype').value,obj={...(old||{}),id:id||('manual-'+Date.now()),type,date:$('edate').value,amount:Number($('eamt').value||0),store:$('estore').value.trim()||'未命名紀錄',category:$('ecat').value,payment:$('epay').value,note:$('enote').value.trim(),source:old?.source||(type==='income'?'手動收入':'手動支出'),items:old?.items||[]};if(id){state.entries=state.entries.map(x=>x.id===id?obj:x);state.rpg.rewardLog=`已編輯記帳：${obj.store}\n編輯不會額外獲得 EXP。`;toast('已更新記帳')}else{state.entries.unshift(obj);grantXp(XP_PER_ENTRY,`${type==='income'?'新增收入':'新增支出'}：${obj.store}`);damageMonster(8)}checkQuests();saveLocal();$('dlg').close();render()}
-function deleteEntry(){const id=$('eid').value;if(!id)return;if(confirm('確定刪除這筆記帳？')){state.entries=state.entries.filter(x=>x.id!==id);state.rpg.rewardLog='你刪除了一筆記帳。';saveLocal();$('dlg').close();render();toast('已刪除記帳')}}
+function render(){refreshFilters();renderSummary();renderRpg();renderQuests();renderBoard();renderCharts();renderSalaryReminder();$('initialInput').value=state.profile.initialAmount||'';$('playerName').value=state.profile.name||'帳本終端者';$('salaryDay').value=state.profile.salaryDay||'';$('salaryAdvance').value=String(state.profile.salaryAdvance??1)}
+function openEdit(id,presetType){const entry=id?state.entries.find(x=>x.id===id):null;$('dlgTitle').textContent=entry?'編輯記錄':(presetType==='income'?'新增收入':'新增支出');$('eid').value=entry?.id||'';$('etype').value=entry?.type||presetType||'expense';updateCategoryOptions($('etype').value);$('edate').value=entry?.date||today();$('eamt').value=entry?.amount??'';$('estore').value=entry?.store||'';$('ecat').value=entry?.category||($('etype').value==='income'?'薪資':'其他');$('epay').value=entry?.payment||'未設定';$('enote').value=entry?.note||'';$('del').style.display=entry?'':'none';$('dlg').showModal()}
+function saveEntry(){const id=$('eid').value,old=state.entries.find(x=>x.id===id),type=$('etype').value,obj={...(old||{}),id:id||('manual-'+Date.now()),type,date:$('edate').value,amount:Number($('eamt').value||0),store:$('estore').value.trim()||'未命名紀錄',category:$('ecat').value,payment:$('epay').value,note:$('enote').value.trim(),source:old?.source||(type==='income'?'手動收入':'手動支出'),items:old?.items||[]};if(id){state.entries=state.entries.map(x=>x.id===id?obj:x);state.rpg.rewardLog=`已編輯記錄：${obj.store}\n編輯不會額外獲得 EXP。`;toast('已更新記錄')}else{state.entries.unshift(obj);grantXp(XP_PER_ENTRY,`${type==='income'?'新增收入':'新增支出'}：${obj.store}`);damageMonster(8)}checkQuests();saveLocal();$('dlg').close();render()}
+function deleteEntry(){const id=$('eid').value;if(!id)return;if(confirm('確定刪除這筆記錄？')){state.entries=state.entries.filter(x=>x.id!==id);state.rpg.rewardLog='你刪除了一筆記錄。';saveLocal();$('dlg').close();render();toast('已刪除記錄')}}
 function parseCSVLoose(text){const rows=[];let row=[],field='',q=false;for(let i=0;i<text.length;i++){const c=text[i],n=text[i+1];if(q){if(c==='"'&&n==='"'){field+='"';i++}else if(c==='"'){q=false}else field+=c}else{if(c==='"')q=true;else if(c===','){row.push(field);field=''}else if(c==='\n'){row.push(field);rows.push(row);row=[];field=''}else if(c!=='\r')field+=c}}if(field.length||row.length){row.push(field);rows.push(row)}if(!rows.length)return [];const head=rows[0],out=[];rows.slice(1).forEach(r=>{if(!r.some(Boolean))return;while(r.length<head.length)r.push('');if(r.length>head.length)r=[...r.slice(0,head.length-1),r.slice(head.length-1).join(',')];out.push(Object.fromEntries(head.map((k,i)=>[k,r[i]||'']))) });return out}
 function autoExpenseCategory(store,items){const t=(store+' '+items.join(' ')).toLowerCase(),rules=[['便利商店',['統一超商','7-eleven','全家便利','萊爾富','ok mart']],['飲料',['茶','咖啡','飲料','鮮奶','拿鐵']],['交通',['捷運','台鐵','高鐵','uber','停車','加油']],['訂閱/數位',['apple','google','icloud','netflix','spotify','youtube']],['餐飲',['餐盒','便當','早餐','午餐','晚餐','飯','麵','餐廳','雞腿','壽司','鍋']],['購物',['誠品','紀伊國屋','商場','百貨','服飾','uniqlo','無印良品']],['醫療',['藥局','診所','醫院']],['娛樂',['電影','影城','遊戲','steam']]];for(const [cat,kws] of rules){if(kws.some(k=>t.includes(k)))return cat}return '其他'}
 async function importCsvFiles(ev){const files=[...ev.target.files];if(!files.length)return;let added=0,updated=0;for(const file of files){const text=(await file.text()).replace(/^\ufeff/,'');const rows=parseCSVLoose(text);const groups={};rows.forEach(r=>{const inv=(r['發票號碼']||'').trim(),d=(r['發票日期']||'').trim();if(inv&&/^\d{8}$/.test(d))(groups[inv]??=[]).push(r)});for(const [inv,rs] of Object.entries(groups)){const d=rs[0]['發票日期'],date=`${d.slice(0,4)}-${d.slice(4,6)}-${d.slice(6,8)}`,store=(rs[0]['賣方名稱']||'未命名店家').trim(),items=rs.map(r=>({name:(r['消費明細_品名']||'未提供品名').trim(),amount:Number(r['消費明細_金額']||r['發票金額']||0)})),amount=items.reduce((s,i)=>s+i.amount,0),id='inv-'+inv,old=state.entries.find(x=>x.id===id),obj={id,type:'expense',date,invoice:inv,store,amount,category:old?.category||autoExpenseCategory(store,items.map(i=>i.name)),payment:old?.payment||'未設定',note:old?.note||'',items,source:'電子發票'};if(old){state.entries=state.entries.map(x=>x.id===id?obj:x);updated++}else{state.entries.push(obj);added++}}}
 if(added){grantXp(added*XP_PER_ENTRY,`匯入發票完成，共新增 ${added} 筆`);for(let i=0;i<added;i++)damageMonster(8)}else state.rpg.rewardLog=`匯入完成，沒有新增資料。更新了 ${updated} 筆資料。`;checkQuests();saveLocal();render();toast(`匯入完成：新增 ${added} 筆，更新 ${updated} 筆`);ev.target.value=''}
 function download(name,content,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([content],{type}));a.download=name;a.click()}
-function backupJson(){download('冒險記帳備份.json',JSON.stringify(state,null,2),'application/json')}
+function backupJson(){download('終端記錄備份.json',JSON.stringify(state,null,2),'application/json')}
 async function restoreJson(ev){const file=ev.target.files?.[0];if(!file)return;try{const parsed=JSON.parse(await file.text());if(!parsed||(!Array.isArray(parsed.entries)&&!Array.isArray(parsed)))throw new Error();if(confirm('確定用這份備份覆蓋目前資料？')){state=migrate(parsed);saveLocal();render();toast('已還原備份')}}catch(e){alert('無法還原：這不是有效的備份 JSON。')}ev.target.value=''}
-function clearLocalData(){if(confirm('確定清除這台裝置上的所有記帳與 RPG 進度？此動作無法復原。')){state=defaultState();saveLocal();render();toast('已清除本機資料')}}
-function exportCsv(){const rows=filtered();const head=['日期','類型','店家/用途/來源','金額','分類','付款方式','發票號碼','備註','來源'];const body=rows.map(x=>[x.date,x.type==='income'?'收入':'支出',x.store,x.amount,x.category,x.payment,x.invoice||'',x.note||'',x.source||'']);const q=v=>/[",\n]/.test(String(v??''))?`"${String(v).replaceAll('"','""')}"`:String(v??'');const text='\ufeff'+[head,...body].map(r=>r.map(q).join(',')).join('\n');download('冒險記帳匯出.csv',text,'text/csv;charset=utf-8')}
+function clearLocalData(){if(confirm('確定清除這台裝置上的所有記錄與 RPG 進度？此動作無法復原。')){state=defaultState();saveLocal();render();toast('已清除本機資料')}}
+function exportCsv(){const rows=filtered();const head=['日期','類型','店家/用途/來源','金額','分類','付款方式','發票號碼','備註','來源'];const body=rows.map(x=>[x.date,x.type==='income'?'收入':'支出',x.store,x.amount,x.category,x.payment,x.invoice||'',x.note||'',x.source||'']);const q=v=>/[",\n]/.test(String(v??''))?`"${String(v).replaceAll('"','""')}"`:String(v??'');const text='\ufeff'+[head,...body].map(r=>r.map(q).join(',')).join('\n');download('終端記錄匯出.csv',text,'text/csv;charset=utf-8')}
 
 function salaryStatus(){
   const day=Number(state.profile.salaryDay||0); if(!day)return null;
@@ -370,9 +411,9 @@ function renderSalaryReminder(){
   else if(st.diff>0&&st.diff<=adv){$('salaryTitle').textContent='薪資日快到了';$('salaryMessage').textContent=`距離 ${st.month}/${st.targetDay} 還有 ${st.diff} 天。準備迎接本月的金幣補給！`;box.classList.add('show')}
   else box.classList.remove('show');
 }
-const CHART_COLORS=['#59aef8','#ff8fa3','#ffd166','#69c86e','#9a8cff','#ffad63','#6ed4c8','#c7a56b','#88c7f2','#e990d0'];
+const CHART_COLORS=['#b52d2d','#d2cec4','#797b83','#8b7046','#59675d','#715a65','#8f6b6b','#555860','#aaa69c','#6f6251'];
 function pieData(rows,keyFn){const map={};rows.forEach(x=>{const k=keyFn(x)||'其他';map[k]=(map[k]||0)+Number(x.amount||0)});return Object.entries(map).sort((a,b)=>b[1]-a[1])}
-function setPie(pieId,legendId,data){const pie=$(pieId),legend=$(legendId),total=data.reduce((s,x)=>s+x[1],0);if(!total){pie.style.background='#e8dfcf';legend.innerHTML='<div class="chart-empty">目前沒有資料</div>';return}let acc=0,parts=[];data.forEach(([name,val],i)=>{const start=acc/total*360;acc+=val;const end=acc/total*360;parts.push(`${CHART_COLORS[i%CHART_COLORS.length]} ${start}deg ${end}deg`)});pie.style.background=`conic-gradient(${parts.join(',')})`;legend.innerHTML=data.map(([name,val],i)=>`<div class="legend-row"><span class="legend-dot" style="background:${CHART_COLORS[i%CHART_COLORS.length]}"></span><span>${esc(name)}</span><strong>${money(val)}</strong></div>`).join('')}
+function setPie(pieId,legendId,data){const pie=$(pieId),legend=$(legendId),total=data.reduce((s,x)=>s+x[1],0);if(!total){pie.style.background='#24262b';legend.innerHTML='<div class="chart-empty">目前沒有資料</div>';return}let acc=0,parts=[];data.forEach(([name,val],i)=>{const start=acc/total*360;acc+=val;const end=acc/total*360;parts.push(`${CHART_COLORS[i%CHART_COLORS.length]} ${start}deg ${end}deg`)});pie.style.background=`conic-gradient(${parts.join(',')})`;legend.innerHTML=data.map(([name,val],i)=>`<div class="legend-row"><span class="legend-dot" style="background:${CHART_COLORS[i%CHART_COLORS.length]}"></span><span>${esc(name)}</span><strong>${money(val)}</strong></div>`).join('')}
 function renderCharts(){
   const m=$('month').value||today().slice(0,7), rows=state.entries.filter(x=>x.date.startsWith(m)),incomeRows=rows.filter(x=>x.type==='income'),expenseRows=rows.filter(x=>x.type==='expense');
   const income=incomeRows.reduce((s,x)=>s+x.amount,0),expense=expenseRows.reduce((s,x)=>s+x.amount,0),net=income-expense;
@@ -380,17 +421,34 @@ function renderCharts(){
   setPie('expenseCategoryPie','expenseCategoryLegend',pieData(expenseRows,x=>x.category));
   setPie('incomeCategoryPie','incomeCategoryLegend',pieData(incomeRows,x=>x.category));
   $('statsIncome').textContent=money(income);$('statsIncome').style.color='var(--green)';$('statsExpense').textContent=money(expense);$('statsExpense').style.color='var(--red)';$('statsNet').textContent=money(net);$('statsNet').style.color=net<0?'var(--red)':'var(--green)';
-  $('statsComment').textContent=income||expense?(net>=0?`本月目前是正淨額 ${money(net)}。繼續維持記帳，就能看清楚金幣流向。`:`本月目前支出高於收入 ${money(Math.abs(net))}。這只是資訊提示，不影響 RPG 獎勵。`):'先建立一些收入與支出紀錄，就能看到完整分析。';
+  $('statsComment').textContent=income||expense?(net>=0?`本月目前是正淨額 ${money(net)}。繼續維持記錄，就能看清楚金幣流向。`:`本月目前支出高於收入 ${money(Math.abs(net))}。這只是資訊提示，不影響 RPG 獎勵。`):'先建立一些收入／支出檔案索引，就能看到完整分析。';
 }
 
-function saveSettings(){state.profile.initialAmount=Number($('initialInput').value||0);state.profile.name=$('playerName').value.trim()||'帳本冒險者';state.profile.salaryDay=Math.max(0,Math.min(31,Number($('salaryDay').value||0)));state.profile.salaryAdvance=Number($('salaryAdvance').value||0);saveLocal();render();toast('已儲存設定')}
+function saveSettings(){state.profile.initialAmount=Number($('initialInput').value||0);state.profile.name=$('playerName').value.trim()||'帳本終端者';state.profile.salaryDay=Math.max(0,Math.min(31,Number($('salaryDay').value||0)));state.profile.salaryAdvance=Number($('salaryAdvance').value||0);saveLocal();render();toast('已儲存設定')}
 function setTab(id){document.querySelectorAll('.section').forEach(el=>el.classList.toggle('active',el.id===id));document.querySelectorAll('.tabs button').forEach(btn=>btn.classList.toggle('active',btn.dataset.tab===id))}
-function drawSprite(kind){if(kind==='star')return `<svg viewBox="0 0 64 64" width="44" height="44" aria-hidden="true"><path d="M32 6l7 15 17 2-12 11 3 17-15-8-15 8 3-17L8 23l17-2z" fill="#ffd55e" stroke="#8c5f3d" stroke-width="4" stroke-linejoin="round"/></svg>`;if(kind==='hero')return `<svg viewBox="0 0 64 64" width="72" height="72"><circle cx="32" cy="20" r="12" fill="#ffe1c4" stroke="#8c5f3d" stroke-width="3"/><path d="M20 18c0-10 24-10 24 0v-6c0-7-24-7-24 0z" fill="#7a4d2c"/><path d="M20 40c4-6 20-6 24 0v14H20z" fill="#62b4ff" stroke="#8c5f3d" stroke-width="3"/><circle cx="27" cy="20" r="2" fill="#3b2c23"/><circle cx="37" cy="20" r="2" fill="#3b2c23"/><path d="M28 27c3 2 5 2 8 0" stroke="#c96b76" stroke-width="2" fill="none" stroke-linecap="round"/></svg>`;if(kind==='slime')return `<svg viewBox="0 0 64 64" width="70" height="70"><path d="M14 40c0-15 9-24 18-24s18 9 18 24c0 7-5 12-11 12H25c-6 0-11-5-11-12z" fill="#8eea7c" stroke="#4a9a3d" stroke-width="3"/><circle cx="25" cy="35" r="3" fill="#2b3b22"/><circle cx="39" cy="35" r="3" fill="#2b3b22"/><path d="M26 44c4 3 8 3 12 0" stroke="#d67288" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg>`;return ''}
-function npcSprite(kind){
-  const palettes={clerk:['#7a4d2c','#ffcf86','#75c9ff'],merchant:['#5f3f27','#f3c99e','#ffd15c'],fairy:['#7d55b8','#ffe0c8','#9fe6ff']};const p=palettes[kind]||palettes.clerk;
-  return `<svg viewBox="0 0 64 64" width="54" height="54"><circle cx="32" cy="22" r="12" fill="${p[1]}" stroke="#8c5f3d" stroke-width="3"/><path d="M19 21c1-14 25-16 27 0-4-6-22-8-27 0z" fill="${p[0]}"/><circle cx="27" cy="23" r="2" fill="#3b2c23"/><circle cx="37" cy="23" r="2" fill="#3b2c23"/><path d="M21 43c4-10 18-12 22 0v11H21z" fill="${p[2]}" stroke="#8c5f3d" stroke-width="3"/></svg>`
+function drawSprite(kind){
+  if(kind==='star')return `<svg viewBox="0 0 64 64" width="44" height="44" aria-hidden="true"><circle cx="32" cy="32" r="23" fill="#1c1d22" stroke="#b52d2d" stroke-width="4"/><path d="M32 16l4 12 12 4-12 4-4 12-4-12-12-4 12-4z" fill="#d6d2c7"/></svg>`;
+  if(kind==='hero')return `<svg viewBox="0 0 64 64" width="72" height="72"><rect x="14" y="8" width="36" height="20" rx="2" fill="#d8d3c7" stroke="#5c5d64" stroke-width="3"/><rect x="18" y="28" width="28" height="22" rx="2" fill="#2a2b31" stroke="#7a7b84" stroke-width="3"/><circle cx="26" cy="20" r="2.6" fill="#141519"/><circle cx="38" cy="20" r="2.6" fill="#141519"/><path d="M25 37h14" stroke="#b52d2d" stroke-width="3"/><path d="M18 12h28" stroke="#8c8d96" stroke-width="3"/></svg>`;
+  if(kind==='slime')return `<svg viewBox="0 0 64 64" width="70" height="70"><path d="M14 40c0-15 9-24 18-24s18 9 18 24c0 7-5 12-11 12H25c-6 0-11-5-11-12z" fill="#c7c3b8" stroke="#666870" stroke-width="3"/><circle cx="25" cy="35" r="3" fill="#1b1c20"/><circle cx="39" cy="35" r="3" fill="#1b1c20"/><path d="M26 44c4 3 8 3 12 0" stroke="#b52d2d" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg>`;
+  return ''
 }
-function mapIcon(kind){const icons={book:'📖',quest:'📜',bank:'💰',home:'🏡'};return `<div style="font-size:38px;filter:drop-shadow(0 2px 0 rgba(0,0,0,.15))">${icons[kind]||'⭐'}</div>`}
+function npcSprite(kind){
+  const art={
+    clerk:`<svg viewBox="0 0 64 64" width="64" height="64"><rect x="18" y="8" width="28" height="18" fill="#d8d3c7" stroke="#666870" stroke-width="3"/><rect x="20" y="28" width="24" height="20" fill="#2a2b31" stroke="#7a7b84" stroke-width="3"/><path d="M22 38h20" stroke="#b52d2d" stroke-width="3"/><circle cx="28" cy="18" r="2.5" fill="#15161a"/><circle cx="36" cy="18" r="2.5" fill="#15161a"/></svg>`,
+    merchant:`<svg viewBox="0 0 64 64" width="64" height="64"><rect x="17" y="9" width="30" height="17" fill="#cfc8b6" stroke="#666870" stroke-width="3"/><rect x="20" y="28" width="24" height="22" fill="#322a22" stroke="#7b6647" stroke-width="3"/><path d="M20 12h24" stroke="#a98b4d" stroke-width="3"/><circle cx="28" cy="18" r="2.5" fill="#15161a"/><circle cx="37" cy="18" r="2.5" fill="#15161a"/></svg>`,
+    fairy:`<svg viewBox="0 0 64 64" width="64" height="64"><circle cx="32" cy="20" r="10" fill="#dedad1" stroke="#6c6d73" stroke-width="3"/><path d="M22 40c3-7 17-7 20 0v10H22z" fill="#292b32" stroke="#767882" stroke-width="3"/><path d="M18 28l8 6M46 28l-8 6" stroke="#b52d2d" stroke-width="3"/><circle cx="28" cy="20" r="2.2" fill="#15161a"/><circle cx="36" cy="20" r="2.2" fill="#15161a"/></svg>`
+  };
+  return art[kind]||art.clerk
+}
+function mapIcon(kind){
+  const icons={
+    book:`<svg viewBox="0 0 64 64" width="38" height="38"><rect x="14" y="12" width="36" height="40" fill="#d4d0c5" stroke="#5f6067" stroke-width="3"/><path d="M24 12v40" stroke="#8b8d96" stroke-width="3"/></svg>`,
+    quest:`<svg viewBox="0 0 64 64" width="38" height="38"><rect x="18" y="10" width="28" height="42" fill="#d4d0c5" stroke="#5f6067" stroke-width="3"/><path d="M24 22h16M24 30h16M24 38h10" stroke="#b52d2d" stroke-width="3"/></svg>`,
+    bank:`<svg viewBox="0 0 64 64" width="38" height="38"><rect x="14" y="22" width="36" height="26" fill="#24262d" stroke="#7a6c51" stroke-width="3"/><path d="M12 22l20-10 20 10" fill="none" stroke="#a98b4d" stroke-width="3"/></svg>`,
+    home:`<svg viewBox="0 0 64 64" width="38" height="38"><path d="M14 28l18-14 18 14v22H14z" fill="#24262d" stroke="#7a7b84" stroke-width="3"/><path d="M27 50V34h10v16" stroke="#b52d2d" stroke-width="3"/></svg>`
+  };
+  return `<div style="display:grid;place-items:center">${icons[kind]||icons.book}</div>`
+}
 function mountIcons(){$('logo').innerHTML=drawSprite('star');$('heroIcon').innerHTML=drawSprite('hero');$('monsterIcon').innerHTML=drawSprite('slime');$('salaryNpc').innerHTML=npcSprite('fairy');$('npcClerk').innerHTML=npcSprite('clerk');$('npcMerchant').innerHTML=npcSprite('merchant');$('npcFairy').innerHTML=npcSprite('fairy');$('mapBookIcon').innerHTML=mapIcon('book');$('mapQuestIcon').innerHTML=mapIcon('quest');$('mapBankIcon').innerHTML=mapIcon('bank');$('mapHomeIcon').innerHTML=mapIcon('home');document.querySelectorAll('[data-map-tab]').forEach(n=>n.onclick=()=>setTab(n.dataset.mapTab))}
 $('etype').addEventListener('change',()=>updateCategoryOptions($('etype').value));
 $('save').onclick=saveEntry;$('del').onclick=deleteEntry;$('csv').addEventListener('change',importCsvFiles);$('export').onclick=exportCsv;$('backup').onclick=backupJson;$('restore').addEventListener('change',restoreJson);$('clear').onclick=clearLocalData;$('saveSettings').onclick=saveSettings;$('addExpense').onclick=()=>openEdit('', 'expense');$('addIncome').onclick=()=>openEdit('', 'income');$('fab').onclick=()=>openEdit('', 'expense');$('bottomAdd').onclick=()=>openEdit('', 'expense');['month','typeFilter','cat','search'].forEach(id=>$(id).addEventListener('input',render));document.querySelectorAll('[data-chest]').forEach(btn=>btn.onclick=()=>openChest(btn.dataset.chest));document.querySelectorAll('.tabs button').forEach(btn=>btn.onclick=()=>setTab(btn.dataset.tab));document.querySelectorAll('[data-goto]').forEach(btn=>btn.onclick=()=>setTab(btn.dataset.goto));if(!$('month').value){$('month').value=new Date().toISOString().slice(0,7)}mountIcons();render();
