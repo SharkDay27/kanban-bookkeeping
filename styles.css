@@ -658,47 +658,26 @@ dialog#dlg .foot button[value="cancel"]{
 
 /* ===== v9.8 primary currency selector ===== */
 .currency-console{
-  display:grid;grid-template-columns:minmax(220px,.85fr) minmax(0,1.65fr);
-  gap:12px;align-items:stretch;margin:10px 0 12px;
-  padding:10px;background:linear-gradient(180deg,#1c1d22,#121316);
+  margin:8px 0 10px;padding:8px 10px;
+  background:linear-gradient(180deg,#1c1d22,#121316);
   border-left:4px solid #8f454b;
 }
-.currency-current{padding:6px 8px;display:flex;flex-direction:column;justify-content:center}
-.currency-eyebrow{font-size:9px;letter-spacing:1.4px;color:#a85d63;font-weight:900}
-.currency-display{display:flex;align-items:baseline;gap:8px;margin-top:5px;white-space:nowrap}
-.currency-display #currencySymbol{font-size:27px;font-weight:900;color:#f2ece2}
-.currency-display #currencyCode{font-size:18px;letter-spacing:1px}
-.currency-display #currencyName{font-size:12px;color:var(--muted)}
-.currency-note{font-size:9px;color:var(--muted);line-height:1.5;margin-top:5px}
-.currency-picks{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
-.currency-pick{
-  min-width:0;min-height:66px;padding:7px 5px;border:1px solid #494b52;
-  background:linear-gradient(180deg,#202126,#15161a);color:#aaa69d;
-  display:grid;place-items:center;align-content:center;gap:1px;
+.currency-compact{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
 }
-.currency-pick b{font-size:17px;color:#d6d1c7}
-.currency-pick span{font-size:10px;letter-spacing:1px;font-weight:900}
-.currency-pick small{font-size:9px;color:#85827b}
-.currency-pick.active{
-  border-color:#b35a62;background:linear-gradient(180deg,#48262a,#251719);
-  box-shadow:inset 4px 0 0 #c25b64,0 7px 18px rgba(0,0,0,.24);color:#fff;
+.currency-eyebrow{font-size:9px;letter-spacing:1.3px;color:#a85d63;font-weight:900}
+.currency-note{font-size:9px;color:var(--muted);line-height:1.45;margin-top:2px}
+.currency-select{
+  width:min(280px,42vw);min-height:40px;padding:8px 34px 8px 10px;
+  background:#15161a;border:1px solid #666871;color:#eee9df;
+  font-size:12px;font-weight:800;
 }
-.currency-pick.active b{color:#fff}
-.currency-pick.active small{color:#c7bcb7}
 @media(max-width:700px){
-  .currency-console{grid-template-columns:1fr;gap:7px;padding:8px;margin:8px 0 9px}
-  .currency-current{padding:3px 4px 1px}
-  .currency-display{margin-top:2px}
-  .currency-display #currencySymbol{font-size:24px}
-  .currency-display #currencyCode{font-size:16px}
-  .currency-note{font-size:9px;margin-top:2px}
-  .currency-picks{grid-template-columns:repeat(4,1fr);gap:4px}
-  .currency-pick{min-height:58px;padding:5px 2px}
-  .currency-pick b{font-size:15px}
-  .currency-pick span{font-size:9px}
-  .currency-pick small{font-size:8px}
+  .currency-console{margin:7px 0 8px;padding:7px 8px}
+  .currency-compact{gap:8px}
+  .currency-note{display:none}
+  .currency-select{width:56%;min-height:38px;font-size:11px;padding:7px 28px 7px 8px}
 }
-
 
 /* ===== v9.9 traditional / simplified language switch ===== */
 .language-switch{
