@@ -63,14 +63,20 @@ window.addEventListener('pageshow',function(){
     </div>
   </div>
 
-  <div class="summary zone zone-summary">
-    <div class="stat wood panel"><div class="k">初始金額</div><div class="v" id="initialAmount">$0</div><div class="s">由你自行設定</div></div>
-    <div class="stat wood panel"><div class="k">累計收入</div><div class="v" id="allIncome">$0</div><div class="s">所有收入記錄</div></div>
-    <div class="stat wood panel"><div class="k">累計支出</div><div class="v" id="allExpense">$0</div><div class="s">所有支出記錄</div></div>
-    <div class="stat wood panel"><div class="k">目前剩餘</div><div class="v" id="balance">$0</div><div class="s">初始金額＋收入−支出</div></div>
-    <div class="stat wood panel"><div class="k">本月淨額</div><div class="v" id="monthNet">$0</div><div class="s" id="monthLabel">—</div></div>
-    <div class="stat wood panel"><div class="k">連續記錄</div><div class="v" id="streak">0 天</div><div class="s" id="bestStreak">最長 0 天</div></div>
-  </div>
+  <details class="money-overview wood zone zone-summary" open>
+    <summary class="money-overview-head">
+      <div><div class="archive-id">FINANCE // OVERVIEW</div><div class="money-overview-title">資金概要</div></div>
+      <span class="money-overview-chevron">⌄</span>
+    </summary>
+    <div class="summary compact-summary">
+      <div class="stat wood panel"><div class="k">初始金額</div><div class="v" id="initialAmount">$0</div><div class="s">自行設定</div></div>
+      <div class="stat wood panel"><div class="k">累計收入</div><div class="v" id="allIncome">$0</div><div class="s">所有收入</div></div>
+      <div class="stat wood panel"><div class="k">累計支出</div><div class="v" id="allExpense">$0</div><div class="s">所有支出</div></div>
+      <div class="stat wood panel"><div class="k">目前剩餘</div><div class="v" id="balance">$0</div><div class="s">初始＋收入−支出</div></div>
+      <div class="stat wood panel"><div class="k">本月淨額</div><div class="v" id="monthNet">$0</div><div class="s" id="monthLabel">—</div></div>
+      <div class="stat wood panel"><div class="k">連續記錄</div><div class="v" id="streak">0 天</div><div class="s" id="bestStreak">最長 0 天</div></div>
+    </div>
+  </details>
 
   <button type="button" class="tabs-directory-head wood" id="mainMenuToggle" aria-expanded="false" aria-controls="mainMenuTabs">
     <div>
@@ -152,11 +158,34 @@ window.addEventListener('pageshow',function(){
   </section>
 
   <section id="book" class="section">
-    <div class="filters">
-      <input id="month" class="wood" type="month">
-      <select id="typeFilter" class="wood"><option value="">全部類型</option><option value="expense">支出</option><option value="income">收入</option></select>
-      <select id="cat" class="wood"><option value="">所有分類</option></select>
-      <input id="search" class="wood" placeholder="搜尋店家、品項、備註">
+    <div class="wood panel record-console">
+      <div class="archive-header">
+        <div><div class="archive-id">ARCHIVE // RECORDS</div><div class="archive-title">紀錄系統</div></div>
+        <div class="archive-stamp">LOG</div>
+      </div>
+      <div class="record-mode-switch" role="tablist" aria-label="紀錄類型">
+        <button type="button" class="active" data-record-mode="bookkeeping">記帳紀錄</button>
+        <button type="button" data-record-mode="exploration">探索紀錄</button>
+      </div>
+      <div id="bookkeepingFilters" class="filters record-filters">
+        <input id="month" class="wood" type="month">
+        <select id="typeFilter" class="wood"><option value="">全部類型</option><option value="expense">支出</option><option value="income">收入</option></select>
+        <select id="cat" class="wood"><option value="">所有分類</option></select>
+        <input id="search" class="wood" placeholder="搜尋店家、品項、備註、發票">
+      </div>
+      <div id="explorationRecordFilters" class="filters record-filters" hidden>
+        <select id="exploreRecordArea" class="wood"><option value="">所有區域</option></select>
+        <select id="exploreRecordKind" class="wood">
+          <option value="">所有結果</option>
+          <option value="abnormality">怪異遭遇</option>
+          <option value="event">隨機事件</option>
+          <option value="supply">補給</option>
+          <option value="gear">裝備</option>
+          <option value="shop">商店</option>
+          <option value="revive">復活</option>
+        </select>
+        <input id="exploreRecordSearch" class="wood" placeholder="搜尋區域、罪人、事件、結果">
+      </div>
     </div>
     <div id="board"></div>
   </section>
@@ -440,7 +469,7 @@ window.addEventListener('pageshow',function(){
 <script src="sinners.js?v=20261002a"></script>
 <script src="dialogues.js?v=20261002ae"></script>
 <script src="exploration-dialogues.js?v=20261002b"></script>
-<script src="app.js?v=20261002zh"></script>
+<script src="app.js?v=20261002zi"></script>\n<script src="item-rarity.js?v=20261002a"></script>\n<script src="records.js?v=20261002a"></script>
 <script src="sinner-management.js?v=20261002c"></script>
 <script src="bestiary.js?v=20261002a"></script>
 <script src="exploration.js?v=20261002c"></script>
