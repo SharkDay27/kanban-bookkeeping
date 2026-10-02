@@ -1232,3 +1232,28 @@ button.tabs-directory-head:hover{border-color:#747780;border-left-color:#a5535a}
 .exploration-log-reward{font-size:10px;color:#d2bd7c;margin-top:6px}
 .exploration-log-dialogue{margin-top:8px;padding-top:7px;border-top:1px solid #383a41;font-size:10px;line-height:1.55}
 .exploration-log-dialogue b{color:#d08b91;margin-right:5px}
+
+
+/* Sinner representative colors and combat HP */
+.team-sinner.down{opacity:.45;filter:grayscale(.35)}
+.sinner-hp-row{display:flex;justify-content:space-between;gap:8px;margin-top:7px;font-size:10px;color:#aaa59a}
+.sinner-hp-row b{color:#eee9df}
+.sinner-hp-bar{height:15px;background:#0d0e11;border:1px solid #4d4f57;margin-top:5px;overflow:hidden}
+.sinner-hp-bar>div{height:100%;background:linear-gradient(90deg,#744045,#a15b55)}
+.sinner-revive-btn{width:100%;margin-top:7px;min-height:36px;border-color:#925057!important}
+.exploration-log-dialogue b,.explore-dialogue-line b{font-weight:900}
+.manager-reward-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+.manager-box-note{margin-top:7px;line-height:1.45}
+
+/* Collapsible containment overview */
+.containment-overview-collapse{padding:0!important;overflow:hidden}
+.containment-overview-summary{
+  list-style:none;display:flex;align-items:center;justify-content:space-between;gap:12px;
+  cursor:pointer;padding:12px 13px;
+}
+.containment-overview-summary::-webkit-details-marker{display:none}
+.containment-overview-right{display:flex;align-items:center;gap:8px}
+.collapse-chevron{width:28px;height:28px;display:grid;place-items:center;border:1px solid #575962;transition:transform .18s ease}
+.containment-overview-collapse[open] .collapse-chevron{transform:rotate(180deg)}
+.containment-overview-body{padding:0 13px 13px;border-top:1px solid #3d3f46}
+.containment-overview-body>.sub{margin-top:10px}
