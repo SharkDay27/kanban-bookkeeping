@@ -60,7 +60,7 @@
     box.innerHTML=rows.map(function(log){
       const names=(log.names||[]).map(function(n){const color=typeof sinnerColorForSpeaker==='function'?sinnerColorForSpeaker(n):'#c9c5bb';return '<span style="color:'+color+';font-weight:900">'+safe(n)+'</span>'}).join(' ＋ ');
       const combat=log.combat&&typeof renderCombatBreakdown==='function'?renderCombatBreakdown(log.combat):'';
-      return '<article class="wood exploration-record-card"><div class="exploration-record-head"><div><div class="exploration-record-title">'+safe(log.title||'探索紀錄')+'</div><div class="exploration-record-meta">'+safe(formatTime(log.at))+' · '+safe(log.area||'未知區域')+' · '+names+'</div></div><span class="record-kind-badge">'+safe(log.stamp||String(log.kind||'FIELD').toUpperCase())+'</span></div>'+
+      return '<article class="wood exploration-record-card"><div class="exploration-record-head"><div><div class="exploration-record-title">'+safe(log.title||'探索紀錄')+'</div><div class="exploration-record-meta">'+safe(formatTime(log.at))+' · '+safe(log.area||'未知區域')+' · '+names+'</div></div><span class="record-kind-badge '+explorationStatusClass(log.stamp)+'">'+safe(log.stamp||String(log.kind||'FIELD').toUpperCase())+'</span></div>'+
         (combat||'<div class="exploration-record-detail">'+safe(log.detail||'')+'</div>')+
         (log.reward?'<div class="exploration-record-reward">REWARD / '+safe(log.reward)+'</div>':'')+'</article>';
     }).join('');

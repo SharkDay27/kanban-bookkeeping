@@ -429,6 +429,7 @@ function runExploration(){
   if(typeof window!=='undefined'&&typeof window.checkRpgQuests==='function')window.checkRpgQuests();
   checkAchievements();
   try{renderExploration();renderSinnerManagement();renderBestiary();renderBackpack();renderQuests();renderProgress()}catch(e){console.error('exploration render',e)}
+  if($('exploreReportPanel'))$('exploreReportPanel').open=true;
   toast('探索完成：'+title);
 }
 function containedAbnormalityCount(){
@@ -449,6 +450,13 @@ function renderCombatBreakdown(combat){
   const progress='收容進度 '+Number(result.progress||0)+' / '+Number(result.required||0);
   const resultHtml='<div class="combat-report-row outcome '+(result.success?'success':'pending')+'"><div class="combat-report-label">RESULT / 結果</div><div class="combat-report-main"><strong>'+resultText+'</strong><span>'+progress+'</span></div></div>';
   return '<div class="combat-report">'+enemyHtml+allyHtml+resultHtml+'</div>';
+}
+function explorationStatusClass(stamp){
+  const classes={RESOLVED:'resolved',ENGAGED:'engaged',SUPPLY:'supply',GEAR:'gear',SHOP:'shop',CONTAINED:'contained',SUPPRESSED:'suppressed',INCIDENT:'incident'};
+  return 'status-'+(classes[String(stamp||'').toUpperCase()]||'field');
+}
+function reviewedExplorationLines(lines){
+  return typeof reviewExplorationDialogue==='function'?reviewExplorationDialogue(lines):(Array.isArray(lines)?lines:[]);
 }
 function renderExploration(){
   ensureExplorationState();const ex=state.exploration;
@@ -493,14 +501,17 @@ function renderExploration(){
   }
 
   const r=ex.lastResult;
-  if($('exploreResultStamp'))$('exploreResultStamp').textContent=r?r.stamp:'STANDBY';
+  if($('exploreResultStamp')){
+    $('exploreResultStamp').textContent=r?r.stamp:'STANDBY';
+    $('exploreResultStamp').className='archive-stamp '+explorationStatusClass(r&&r.stamp);
+  }
   if($('exploreResult'))$('exploreResult').innerHTML=r
     ?'<div class="explore-result-title">'+esc(r.title)+'</div><div class="explore-result-meta">'+esc(r.area)+' / '+esc(r.names.join('＋'))+' / EXP +'+r.xp+'</div>'+
       (r.combat?renderCombatBreakdown(r.combat):'<div class="explore-result-detail">'+esc(r.detail)+'</div>')+
       (r.reward?'<div class="explore-reward">REWARD / '+esc(r.reward)+'</div>':'')
     :'等待探索命令。';
   if($('exploreDialogue'))$('exploreDialogue').innerHTML=r&&r.dialogue&&r.dialogue.length
-    ?'<div class="explore-dialogue-head">EVENT DIALOGUE / 現場對話</div>'+r.dialogue.map(function(line){
+    ?'<div class="explore-dialogue-head">EVENT DIALOGUE / 現場對話</div>'+reviewedExplorationLines(r.dialogue).map(function(line){
       const speaker=typeof normalizeExplorationTraditional==='function'?normalizeExplorationTraditional(line.speaker):line.speaker;
       const txt=typeof normalizeExplorationTraditional==='function'?normalizeExplorationTraditional(line.text):line.text;
       const color=typeof sinnerColorForSpeaker==='function'?sinnerColorForSpeaker(speaker):'#d08b91';
@@ -519,12 +530,12 @@ function renderExploration(){
       const when=new Date(log.at);
       const time=isNaN(when.getTime())?'':when.toLocaleString('zh-TW',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
       return '<article class="exploration-log-entry wood">'+
-        '<div class="exploration-log-head"><span>'+esc(log.stamp||'FIELD')+'</span><time>'+esc(time)+'</time></div>'+
+        '<div class="exploration-log-head"><span class="record-kind-badge '+explorationStatusClass(log.stamp)+'">'+esc(log.stamp||'FIELD')+'</span><time>'+esc(time)+'</time></div>'+
         '<div class="exploration-log-title">'+esc(log.title||'探索紀錄')+'</div>'+
         '<div class="exploration-log-meta">'+esc(log.area||'未知區域')+' / '+esc((log.names||[]).join('＋'))+' / EXP +'+Number(log.xp||0)+'</div>'+
         (log.combat?renderCombatBreakdown(log.combat):'<div class="exploration-log-detail">'+esc(log.detail||'')+'</div>')+
         (log.reward?'<div class="exploration-log-reward">REWARD / '+esc(log.reward)+'</div>':'')+
-        (Array.isArray(log.dialogue)&&log.dialogue.length?'<div class="exploration-log-dialogue">'+log.dialogue.map(function(line){
+        (Array.isArray(log.dialogue)&&log.dialogue.length?'<div class="exploration-log-dialogue">'+reviewedExplorationLines(log.dialogue).map(function(line){
           const speaker=typeof normalizeExplorationTraditional==='function'?normalizeExplorationTraditional(line.speaker):line.speaker;
           const txt=typeof normalizeExplorationTraditional==='function'?normalizeExplorationTraditional(line.text):line.text;
           const color=(typeof sinnerColorForSpeaker==='function'?sinnerColorForSpeaker(speaker):'#d08b91');
@@ -539,7 +550,13 @@ function renderExploration(){
   if(home){
     const rows=Object.entries(ABNORMALITY_CATALOG).map(function(pair){
       const id=pair[0],ab=pair[1],p=ex.abnormalityProgress[id]||{kills:0,contained:false};
-      return '<div class="containment-progress-row '+(p.contained?'done':'')+'"><span>'+id+' / '+esc(ab.name)+'</span><b>'+(p.contained?'CONTAINED':Math.min(p.kills,ab.kills)+' / '+ab.kills)+'</b></div>';
+      const required=Math.max(1,Number(ab.kills)||1),kills=p.contained?required:Math.max(0,Math.min(Number(p.kills)||0,required)),pct=Math.round(kills/required*100);
+      return '<article class="containment-progress-row '+(p.contained?'done':'')+'">'+
+        '<div class="containment-file-head"><span class="containment-file-id">'+esc(id)+'</span>'+
+        (p.contained?'<span class="contained-seal" aria-label="已收容">已收容</span>':'<span class="containment-pending">'+(kills?'收容中':'未收容')+'</span>')+'</div>'+
+        '<div class="containment-file-name">'+esc(ab.name)+'</div>'+
+        '<div class="containment-file-progress"><span>制壓進度</span><b>'+kills+' / '+required+'</b></div>'+
+        '<div class="containment-meter" role="progressbar" aria-label="'+esc(ab.name)+'收容進度" aria-valuemin="0" aria-valuemax="'+required+'" aria-valuenow="'+kills+'"><span style="width:'+pct+'%"></span></div></article>';
     });
     home.innerHTML=rows.join('');
   }
@@ -833,7 +850,7 @@ function renderRpg(){
   if($('todayCount'))$('todayCount').textContent=ds.count;
   if($('todayNet')){$('todayNet').textContent=money(ds.net);$('todayNet').style.color=ds.net<0?'var(--red)':'var(--green)'}
 }
-function renderSummary(){const expense=state.entries.filter(x=>x.type==='expense').reduce((s,x)=>s+x.amount,0),income=state.entries.filter(x=>x.type==='income').reduce((s,x)=>s+x.amount,0),init=Number(state.profile.initialAmount||0),bal=init+income-expense,m=$('month').value||today().slice(0,7),monthEntries=state.entries.filter(x=>x.date.startsWith(m)),mIncome=monthEntries.filter(x=>x.type==='income').reduce((s,x)=>s+x.amount,0),mExpense=monthEntries.filter(x=>x.type==='expense').reduce((s,x)=>s+x.amount,0),monthNet=mIncome-mExpense,st=computeStreak();$('initialAmount').textContent=money(init);$('allIncome').textContent=money(income);$('allIncome').style.color='var(--green)';$('allExpense').textContent=money(expense);$('allExpense').style.color='var(--red)';$('balance').textContent=money(bal);$('balance').style.color=bal<0?'var(--red)':'var(--green)';$('monthNet').textContent=money(monthNet);$('monthNet').style.color=monthNet<0?'var(--red)':'var(--green)';$('monthLabel').textContent=m;$('streak').textContent=st.current+' 天';$('bestStreak').textContent='最長 '+st.best+' 天';$('streakBig').textContent=st.current;$('bestBig').textContent=st.best}
+function renderSummary(){const expense=state.entries.filter(x=>x.type==='expense').reduce((s,x)=>s+x.amount,0),income=state.entries.filter(x=>x.type==='income').reduce((s,x)=>s+x.amount,0),init=Number(state.profile.initialAmount||0),bal=init+income-expense,m=$('month').value||today().slice(0,7),monthEntries=state.entries.filter(x=>x.date.startsWith(m)),mIncome=monthEntries.filter(x=>x.type==='income').reduce((s,x)=>s+x.amount,0),mExpense=monthEntries.filter(x=>x.type==='expense').reduce((s,x)=>s+x.amount,0),monthNet=mIncome-mExpense,st=computeStreak();$('initialAmount').textContent=money(init);$('allIncome').textContent=money(income);$('allIncome').style.color='var(--green)';$('allExpense').textContent=money(expense);$('allExpense').style.color='var(--red)';$('balance').textContent=money(bal);$('balance').style.color=bal<0?'var(--red)':'var(--green)';$('monthNet').textContent=money(monthNet);$('monthNet').style.color=monthNet<0?'var(--red)':'var(--green)';$('monthLabel').textContent=m;$('streak').textContent=st.current+' 天';$('bestStreak').textContent='最長 '+st.best+' 天';if($('streakBig'))$('streakBig').textContent=st.current;if($('bestBig'))$('bestBig').textContent=st.best}
 function renderQuests(){
   if(typeof window!=='undefined'&&typeof window.forceRenderRpgQuests==='function')return window.forceRenderRpgQuests();
   const box=$('questList');if(box)box.innerHTML='<div class="empty">任務模組載入中。</div>';
@@ -1191,3 +1208,4 @@ if($('mainMenuToggle'))$('mainMenuToggle').onclick=toggleMainMenu;
 document.querySelectorAll('[data-language]').forEach(function(btn){btn.onclick=function(){setLanguage(btn.dataset.language)}});if($('currencySelect'))$('currencySelect').addEventListener('change',function(){setCurrency(this.value)});
 $('etype').addEventListener('change',syncEntryTypeUI);document.querySelectorAll('[data-entry-type]').forEach(b=>b.onclick=()=>{$('etype').value=b.dataset.entryType;syncEntryTypeUI()});$('dlg').addEventListener('click',e=>{if(e.target===$('dlg'))$('dlg').close()});$('ecat').addEventListener('change',renderQuickCats);
 $('save').onclick=()=>saveEntry(false);$('saveAgain').onclick=()=>saveEntry(true);$('closeDlg').onclick=()=>$('dlg').close();$('closeCommentDlg').onclick=()=>$('commentDlg').close();$('commentViewTime').onclick=()=>setCommentaryView('time');$('commentViewSinner').onclick=()=>setCommentaryView('sinner');$('goCommentArchive').onclick=()=>{$('commentDlg').close();setTab('commentary')};$('del').onclick=deleteEntry;$('csv').addEventListener('change',importCsvFiles);$('export').onclick=exportCsv;$('backup').onclick=backupJson;$('restore').addEventListener('change',restoreJson);$('clear').onclick=clearLocalData;$('saveSettings').onclick=saveSettings;if($('exploreBtn'))$('exploreBtn').onclick=runExploration;$('addExpense').onclick=()=>openEdit('', 'expense');$('addIncome').onclick=()=>openEdit('', 'income');$('fab').onclick=()=>openEdit('', 'expense');$('bottomAdd').onclick=()=>openEdit('', 'expense');['month','typeFilter','cat','search'].forEach(id=>$(id).addEventListener('input',render));if($('openItemBox'))$('openItemBox').onclick=openItemBox;document.querySelectorAll('.tabs button').forEach(btn=>btn.onclick=()=>setTab(btn.dataset.tab));document.querySelectorAll('[data-goto]').forEach(btn=>btn.onclick=()=>setTab(btn.dataset.goto));if(!$('month').value){$('month').value=new Date().toISOString().slice(0,7)}mountIcons();render();setupIphoneSafariInput();setupLanguageObserver();
+

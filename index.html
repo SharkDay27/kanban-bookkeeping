@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="終端記錄">
 <title>RPG 化記帳工具</title>
-<link rel="stylesheet" href="styles.css?v=20261002zh">
+<link rel="stylesheet" href="styles.css?v=20261003a">
 </head>
 <body>
 <script>
@@ -43,14 +43,8 @@ window.addEventListener('pageshow',function(){
   <div class="actions zone zone-actions">
     <label class="btn wood action-main">匯入發票 CSV<input id="csv" type="file" accept=".csv" multiple></label>
     <button id="export" class="wood action-main">匯出 CSV</button>
-    <div class="action-with-note">
-      <button id="backup" class="wood action-main">備份 JSON</button>
-      <small>下載完整存檔</small>
-    </div>
-    <div class="action-with-note">
-      <label class="btn wood action-main">還原 JSON<input id="restore" type="file" accept=".json"></label>
-      <small>匯入存檔並覆蓋目前資料</small>
-    </div>
+    <button id="backup" class="wood action-main action-with-note"><span>備份 JSON</span><small>下載完整存檔</small></button>
+    <label class="btn wood action-main action-with-note"><span>還原 JSON</span><small>匯入存檔並覆蓋目前資料</small><input id="restore" type="file" accept=".json"></label>
     <button id="addExpense" class="wood primary action-main">＋新增支出</button>
     <button id="addIncome" class="wood income-btn action-main">＋新增收入</button>
     <button id="clear" class="wood danger clear-local-compact">清除本機資料</button>
@@ -239,24 +233,28 @@ window.addEventListener('pageshow',function(){
         <button type="button" id="exploreBtn" class="wood primary explore-btn">執行探索</button>
       </div>
 
-      <div class="wood panel exploration-result-panel">
-        <div class="archive-header">
+      <details id="exploreReportPanel" class="wood panel exploration-result-panel exploration-collapse" open>
+        <summary class="archive-header exploration-collapse-head">
           <div><div class="archive-id">RESULT // FIELD-REPORT</div><div class="archive-title">探索報告</div></div>
-          <div class="archive-stamp" id="exploreResultStamp">STANDBY</div>
-        </div>
+          <div class="exploration-collapse-right"><span class="archive-stamp" id="exploreResultStamp">STANDBY</span><span class="collapse-chevron" aria-hidden="true">⌄</span></div>
+        </summary>
+        <div class="exploration-collapse-body">
         <div id="exploreResult" class="explore-result">等待探索命令。</div>
         <div id="exploreDialogue" class="explore-dialogue"></div>
         <div id="explorationShop" class="exploration-shop" hidden></div>
-      </div>
-
-      <div class="wood panel exploration-result-panel">
-        <div class="archive-header">
-          <div><div class="archive-id">ARCHIVE // EXPLORATION-LOG</div><div class="archive-title">探索紀錄 LOG</div></div>
-          <div class="archive-stamp">LATEST 100</div>
         </div>
+      </details>
+
+      <details id="exploreLogPanel" class="wood panel exploration-result-panel exploration-collapse">
+        <summary class="archive-header exploration-collapse-head">
+          <div><div class="archive-id">ARCHIVE // EXPLORATION-LOG</div><div class="archive-title">探索紀錄 LOG</div></div>
+          <div class="exploration-collapse-right"><span class="archive-stamp">LATEST 100</span><span class="collapse-chevron" aria-hidden="true">⌄</span></div>
+        </summary>
+        <div class="exploration-collapse-body">
         <div class="sub">每次探索都會保留區域、編成、結果、EXP、掉落與現場對話。</div>
         <div id="explorationLog" class="exploration-log"></div>
-      </div>
+        </div>
+      </details>
     </div>
   </section>
 
@@ -444,14 +442,14 @@ window.addEventListener('pageshow',function(){
   </form>
 </dialog>
 
-<script src="sinners.js?v=20261002c"></script>
+<script src="sinners.js?v=20261003a"></script>
 <script src="dialogues.js?v=20261002ae"></script>
-<script src="exploration-dialogues.js?v=20261002b"></script>
-<script src="app.js?v=20261002zj"></script>
+<script src="exploration-dialogues.js?v=20261003a"></script>
+<script src="app.js?v=20261003a"></script>
 <script src="item-rarity.js?v=20261002b"></script>
 <script src="equipment.js?v=20261002d"></script>
 <script src="item-economy.js?v=20261002a"></script>
-<script src="records.js?v=20261002a"></script>
+<script src="records.js?v=20261003a"></script>
 <script src="sinner-management.js?v=20261002c"></script>
 <script src="bestiary.js?v=20261002a"></script>
 <script src="exploration.js?v=20261002c"></script>

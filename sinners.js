@@ -14,18 +14,18 @@ const SINNERS=[
  {id:'13',name:'格里高爾',address:'經理'}
 ];
 const SINNER_COLORS={
-  '李箱':'#5f86b8',
-  '浮士德':'#63c6d4',
-  '堂吉訶德':'#e0bd4f',
-  '良秀':'#d34f57',
-  '默爾索':'#6b8ba6',
-  '鴻璐':'#5ec9c8',
-  '希斯克利夫':'#8a6bb7',
-  '以實瑪利':'#d88749',
-  '羅佳':'#c8617b',
-  '辛克萊':'#79a95a',
-  '奧提斯':'#8e9a55',
-  '格里高爾':'#9a7358',
+  '李箱':'#3e6798',
+  '浮士德':'#237682',
+  '堂吉訶德':'#866511',
+  '良秀':'#b43e49',
+  '默爾索':'#4d6b85',
+  '鴻璐':'#227b79',
+  '希斯克利夫':'#78539e',
+  '以實瑪利':'#a45c24',
+  '羅佳':'#a74360',
+  '辛克萊':'#4d7737',
+  '奧提斯':'#65712f',
+  '格里高爾':'#886047',
   '阿賴耶':'#355f9f',
   '阿賴耶識':'#29456f'
 };
@@ -34,7 +34,7 @@ function sinnerColorForSpeaker(speaker){
   for(const name of Object.keys(SINNER_COLORS)){
     if(s.includes(name))return SINNER_COLORS[name];
   }
-  return '#c9c5bb';
+  return '#496b75';
 }
 
 const SINNER_FIELD_PROFILES={
@@ -218,3 +218,4 @@ window.sinnerCombatDamage=sinnerCombatDamage;
 window.sinnerIncomingDamage=sinnerIncomingDamage;
 window.fieldGearAssignedElsewhere=fieldGearAssignedElsewhere;
 window.assignFieldGear=assignFieldGear;
+

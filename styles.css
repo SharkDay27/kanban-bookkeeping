@@ -2286,3 +2286,167 @@ dialog .comment-dialog,
     margin-top:4px;
   }
 }
+
+/* ===== Field reports and light interaction surfaces ===== */
+.zone-actions{align-items:stretch!important;gap:10px!important}
+.zone-actions>.action-main,.zone-actions>.clear-local-compact{
+  box-sizing:border-box;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  height:68px!important;min-height:68px!important;padding:10px 16px!important;
+  margin:0!important;line-height:1.35;font-size:16px!important;flex:0 0 auto;
+}
+.zone-actions>.action-with-note{gap:4px;min-width:174px}
+.zone-actions .action-with-note small{
+  padding:0;font-size:12px;line-height:1.35;color:#526f79;letter-spacing:0;
+}
+.zone-actions>#addExpense{
+  background:#f7d8ce!important;color:#843b2e!important;border:1px solid #dea28f!important;
+}
+.zone-actions>#addIncome{
+  background:#d9edde!important;color:#2e6042!important;border:1px solid #9cc6ab!important;
+}
+.zone-actions>#clear{
+  background:#ecdce9!important;color:#713c62!important;border:1px solid #c9a4be!important;
+  font-size:12px!important;padding-inline:12px!important;min-width:0!important;opacity:1;align-self:stretch;
+}
+.zone-actions>#addExpense:hover{background:#f3cdbf!important}
+.zone-actions>#addIncome:hover{background:#cce5d4!important}
+.zone-actions>#clear:hover{background:#e5cde0!important}
+
+/* Every report status has its own color and retains its text label. */
+.record-kind-badge.status-resolved,.archive-stamp.status-resolved{background:#dcefe8!important;color:#25654c!important;border-color:#8bbda8!important}
+.record-kind-badge.status-engaged,.archive-stamp.status-engaged{background:#fbe3df!important;color:#994437!important;border-color:#df9e95!important}
+.record-kind-badge.status-supply,.archive-stamp.status-supply{background:#dff1f4!important;color:#246b77!important;border-color:#87bbc6!important}
+.record-kind-badge.status-gear,.archive-stamp.status-gear{background:#e3ebfa!important;color:#395c96!important;border-color:#a0b5dc!important}
+.record-kind-badge.status-shop,.archive-stamp.status-shop{background:#eee3f4!important;color:#73458b!important;border-color:#bca0cf!important}
+.record-kind-badge.status-contained,.archive-stamp.status-contained{background:#d2e8d8!important;color:#285d39!important;border-color:#7fa98b!important}
+.record-kind-badge.status-suppressed,.archive-stamp.status-suppressed{background:#fff0d4!important;color:#80601c!important;border-color:#d4b477!important}
+.record-kind-badge.status-incident,.archive-stamp.status-incident{background:#f5dce5!important;color:#91334f!important;border-color:#d898ad!important}
+.record-kind-badge.status-field{background:#e8eef0!important;color:#506671!important;border-color:#abc1c9!important}
+.record-kind-badge{font-size:12px!important;font-weight:700;line-height:1.3;padding:6px 9px!important;white-space:nowrap}
+.exploration-record-head{gap:14px}
+.exploration-record-title{font-size:16px;line-height:1.45}
+.exploration-record-meta,.explore-result-meta,.exploration-log-meta{color:#536f7b!important;font-size:12px!important;line-height:1.6;letter-spacing:0}
+.exploration-record-detail,.exploration-log-detail{font-size:14px!important;line-height:1.7}
+.explore-reward,.exploration-record-reward,.exploration-log-reward{
+  background:#fff3d9!important;color:#795514!important;border:1px solid #e8d4a5!important;
+  border-left:4px solid #c59b45!important;padding:9px 12px!important;
+  font-size:14px!important;line-height:1.65;margin-top:10px!important;
+}
+.exploration-log-head{align-items:center}
+.exploration-log-head time{color:#536f7b!important;font-size:12px!important}
+.explore-dialogue-head{font-size:12px;color:#536f7b;letter-spacing:.7px}
+.explore-dialogue-line{grid-template-columns:112px minmax(0,1fr);border-bottom-color:#d4e6eb;padding:11px 0;gap:14px}
+.explore-dialogue-line b{font-size:14px}
+.explore-dialogue-line span,.exploration-log-dialogue div{font-size:14px;line-height:1.75}
+.explore-dialogue-line.action span,.exploration-log-dialogue .action span{color:#526b75!important;opacity:1;font-style:normal}
+
+.exploration-collapse{padding:0!important;align-self:start}
+.exploration-collapse-head{
+  list-style:none;cursor:pointer;padding:16px!important;margin:0!important;
+  display:flex;align-items:center;justify-content:space-between;gap:14px;
+  border-bottom:0!important;min-height:78px;box-sizing:border-box;
+}
+.exploration-collapse-head::-webkit-details-marker{display:none}
+.exploration-collapse-head::marker{content:""}
+.exploration-collapse-right{display:flex;align-items:center;gap:12px;flex-shrink:0}
+.exploration-collapse .collapse-chevron{
+  width:28px;height:28px;display:grid;place-items:center;background:#eaf5f8;
+  border:1px solid #bddbe2;color:#315c68;font-size:18px;transform:rotate(-90deg);transition:transform .15s;
+}
+.exploration-collapse[open] .collapse-chevron{transform:rotate(0)}
+.exploration-collapse[open] .exploration-collapse-head{border-bottom:1px solid #c9e3e8!important}
+.exploration-collapse-body{padding:16px}
+.exploration-collapse-head:hover{background:#f4fafc}
+.exploration-collapse-head:focus-visible{outline:3px solid #427e92;outline-offset:-3px}
+.exploration-collapse .archive-id{font-size:12px}
+
+/* Compact containment files with an actual completion seal. */
+.home-containment-progress{gap:12px;margin-top:14px}
+.home-containment-progress .containment-progress-row{
+  display:block!important;position:relative;padding:14px!important;background:#f8fcfd!important;
+  border:1px solid #bcdbe3!important;border-left:3px solid #90b9c6!important;color:#2c4c57!important;
+}
+.containment-file-head{display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:32px}
+.containment-file-id{font-size:12px;letter-spacing:.8px;color:#587583}
+.containment-pending{font-size:12px;color:#526f7c;padding:4px 8px;background:#e9f3f6}
+.containment-file-name{font-size:16px;font-weight:800;margin:8px 0 12px;line-height:1.45}
+.containment-file-progress{display:flex;justify-content:space-between;font-size:12px;color:#536e7a}
+.home-containment-progress .containment-progress-row b{color:#365968!important;font-size:13px;font-variant-numeric:tabular-nums}
+.containment-meter{height:6px;background:#e2edf1;border-radius:3px;overflow:hidden;margin-top:7px}
+.containment-meter>span{display:block;height:100%;background:#6fa5b7}
+.home-containment-progress .containment-progress-row.done{background:#f3faf5!important;border-color:#b8d6c1!important;border-left-color:#73a584!important}
+.containment-progress-row.done .containment-meter>span{background:#75a584}
+.contained-seal{
+  display:inline-block;flex-shrink:0;color:#316b46;background:#edf7ef;border:2px solid #79a489;
+  outline:1px solid #79a489;outline-offset:2px;padding:3px 8px;font-size:14px;font-weight:900;
+  letter-spacing:2px;transform:rotate(-7deg);line-height:1.3;
+}
+
+/* Stat explanations and quick entry: overwrite every legacy inner dark surface. */
+.sinner-stat-help{background:#eef7fa!important;border-color:#bedbe4!important;border-top:3px solid #84b3c5!important;padding:12px}
+.sinner-stat-help b{color:#2d5665!important;font-size:14px;line-height:1.45}
+.sinner-stat-help span{color:#496977!important;font-size:12px;line-height:1.65}
+dialog#dlg .archive-header,dialog#dlg .quick-type,dialog#dlg .entry-primary{
+  background:#f3f9fc!important;border-color:#bfdbe4!important;box-shadow:none!important;
+}
+dialog#dlg .archive-header{border-left-color:#cf8e7b!important}
+dialog#dlg .field>label{color:#345867!important;font-size:14px!important}
+dialog#dlg #dlgTitle{color:#254b59!important}
+dialog#dlg input,dialog#dlg select,dialog#dlg textarea{color:#294f5c!important;background:#fff!important;font-size:16px}
+dialog#dlg input::placeholder,dialog#dlg textarea::placeholder{color:#687d86!important;opacity:1}
+dialog#dlg .quick-type button{font-size:16px!important;color:#436875!important;background:#fff!important;border-color:#adcdd8!important}
+dialog#dlg .quick-type button.active[data-entry-type="expense"]{background:#f7d8ce!important;color:#843b2e!important;border-color:#d69783!important;box-shadow:inset 4px 0 0 #c8765f!important}
+dialog#dlg .quick-type button.active[data-entry-type="income"]{background:#d9edde!important;color:#2e6042!important;border-color:#8fb69b!important;box-shadow:inset 4px 0 0 #679477!important}
+dialog#dlg .quick-type button.active::before{color:inherit}
+dialog#dlg .quick-cat{background:#f7fbfd!important;color:#486774!important;border-color:#c2dbe3!important;font-size:13px!important}
+dialog#dlg .quick-cat.active{
+  background:color-mix(in srgb,var(--cat-accent,#c8765f) 17%,white)!important;
+  color:#294c5b!important;border-color:var(--cat-accent,#c8765f)!important;
+}
+dialog#dlg .entry-advanced{background:#f8fcfd!important;border-color:#c5dde5!important}
+dialog#dlg .quick-hint{color:#526e7b!important;font-size:12px!important;line-height:1.6}
+dialog#dlg .foot{background:#f0f7fa!important;border-color:#c3dce5!important;box-shadow:0 -6px 18px rgba(58,100,119,.08)!important}
+dialog#dlg .foot button{color:#355866!important;background:#fff!important;border-color:#aacbd7!important;font-size:14px!important;min-height:44px!important}
+dialog#dlg .foot button[value="cancel"]{background:#e8f1f5!important;color:#3d5c6b!important}
+dialog#dlg #save{background:#f7d8ce!important;color:#843b2e!important;border-color:#d69783!important;box-shadow:none!important}
+dialog#dlg.type-income #save{background:#d9edde!important;color:#2e6042!important;border-color:#8fb69b!important;box-shadow:none!important}
+dialog#dlg #saveAgain{background:#dcecf4!important;color:#345d76!important;border-color:#a4c6d7!important}
+dialog#dlg #del{background:#ecdce9!important;color:#713c62!important;border-color:#c9a4be!important}
+dialog#dlg .dialog-close{color:#426b7a!important;background:#e9f3f7!important;border-color:#b3d0dc!important}
+
+/* Commentary popup: readable rewards, speech, and light filled controls. */
+#commentDlg .comment-dialog{background:#fff!important;border-color:#b8d6e1!important}
+#commentDlg .entry-reward-notice{
+  color:#6b511e!important;background:#fff3d9!important;border-color:#dfc589!important;
+  border-left-color:#c59b45!important;font-size:14px;line-height:1.65;padding:12px 14px;
+}
+#commentDlg .entry-reward-notice strong{color:#78541b!important;font-size:16px}
+.commentary-text{color:#2d5260!important;line-height:1.75;font-size:14px}
+.commentary-meta{color:#526f7d!important;font-size:12px;line-height:1.6}
+.commentary-speaker{font-size:14px;line-height:1.75;text-shadow:none!important}
+.commentary-line{grid-template-columns:110px minmax(0,1fr);padding:10px 12px;gap:14px}
+#commentDlg .comment-dialog-title{text-shadow:none!important;-webkit-text-stroke:0!important;color:#254b59!important}
+#commentDlg #goCommentArchive{background:#e4eff7!important;color:#365a77!important;border-color:#a5c2d7!important}
+#commentDlg #closeCommentDlg{background:#dceee3!important;color:#356146!important;border-color:#9dc4ac!important}
+#commentDlg .comment-dialog-actions button{min-height:44px;font-size:14px;padding:10px 16px;box-shadow:none!important}
+
+@media(max-width:700px){
+  .zone-actions{flex-wrap:wrap!important;overflow:visible!important;gap:8px!important;align-items:stretch!important;margin-inline:0!important;padding:10px!important}
+  .zone-actions>.action-main{flex:1 1 calc(50% - 8px);min-width:0!important;padding:8px 10px!important;font-size:14px!important}
+  .zone-actions>.action-with-note{flex-basis:calc(50% - 8px)}
+  .zone-actions>#clear{flex:0 0 auto;min-width:0!important;height:68px!important;font-size:12px!important}
+  .zone-actions .action-with-note small{font-size:12px}
+  .exploration-collapse-head{padding:12px!important;min-height:74px;gap:8px}
+  .exploration-collapse-right{gap:6px}
+  .exploration-collapse .archive-stamp{font-size:10px;letter-spacing:.5px}
+  .exploration-collapse .archive-id{font-size:10px;letter-spacing:.6px}
+  .exploration-collapse-body{padding:12px}
+  .exploration-record-head{flex-wrap:wrap;gap:8px}
+  .explore-dialogue-line,.commentary-line{grid-template-columns:1fr;gap:4px}
+  .sinner-stat-guide{gap:8px}
+  dialog#dlg .foot button{padding:9px 7px!important}
+  dialog#dlg .entry-wide{grid-column:1/-1!important}
+}
+
+/* Match the entry window accent strip to its light surfaces. */
+dialog#dlg form.modal::before{background:linear-gradient(90deg,#cf8e7b 0 38%,#9abac8 38% 100%)!important}
