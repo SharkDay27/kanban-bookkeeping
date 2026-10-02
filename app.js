@@ -326,7 +326,9 @@ function runExploration(){
   let title='',detail='',reward='',stamp='FIELD',xp=18,ctx={area:area.name,kind:kind},combat=null;
   let resultSuccess=true;
 
-  if(kind==='abnormality'){
+  if(kind==='enemy'){
+    const fight=enemyCombat(names,area);({title,detail,reward,stamp,xp,combat}=fight);resultSuccess=fight.success;ctx.enemyId=fight.enemyId;
+  }else if(kind==='abnormality'){
     const id=area.abnos[Math.floor(Math.random()*area.abnos.length)],ab=ABNORMALITY_CATALOG[id];
     if(!ex.seenAbnormalities.includes(id))ex.seenAbnormalities.push(id);
     const prog=ex.abnormalityProgress[id]||{kills:0,contained:false};
@@ -379,6 +381,7 @@ function runExploration(){
     title='隨機事件：'+ev.name;detail=ev.desc;
     if(resultSuccess){ex.stats.eventsResolved++;reward='安全通過；獲得額外探索資料';xp=24+area.level*2;stamp='RESOLVED'}
     else{detail+=' 判斷失誤，探索隊提前撤離。';xp=12;stamp='INCIDENT'}
+    const eventProgress=ex.eventProgress[ev.id]||(ex.eventProgress[ev.id]={encounters:0,resolved:0});eventProgress.encounters++;if(resultSuccess)eventProgress.resolved++;
     ctx.event=ev.name;ctx.eventId=ev.id;ctx.success=resultSuccess;
   }else if(kind==='supply'){
     title='補給發現';reward=pickExplorationLoot();
@@ -392,6 +395,7 @@ function runExploration(){
       :'探索途中遇到一名臨時補給商。';
     reward='可使用金幣購買補給品或探索裝備';
     xp=12+area.level;stamp='SHOP';
+    if(shop){const key='shop-'+area.id;const p=ex.eventProgress[key]||(ex.eventProgress[key]={encounters:0,resolved:0});p.encounters++;}
     ctx.shopName=shop?shop.name:'臨時補給商';ctx.success=true;
   }else{
     title='裝備回收';reward=pickFieldGear();detail='發現可供罪人配置的探索裝備。';xp=22+area.level;stamp='GEAR';
@@ -403,12 +407,12 @@ function runExploration(){
   const xpBySinner={};
   names.forEach(function(n){xpBySinner[n]=sinnerExplorationXp(n,xp,{area,kind,success:resultSuccess});const res=awardSinnerExp(n,xpBySinner[n]);if(res.after>res.before)levelUps.push(n+' Lv.'+res.after)});
   if(levelUps.length)reward+=(reward?'；':'')+'升級：'+levelUps.join('、');
-  const dialogue=typeof generateExplorationDialogue==='function'?generateExplorationDialogue(names,kind,ctx):[];
-  ex.lastResult={at:new Date().toISOString(),areaId:area.id,area:area.name,names:names,kind:kind,title:title,detail:detail,reward:reward,stamp:stamp,xp:xp,dialogue:dialogue,combat:combat,eventId:ctx.eventId,dialogueVersion:4,xpBySinner:xpBySinner};
+  const dialogue=kind==='enemy'?[]:typeof generateExplorationDialogue==='function'?generateExplorationDialogue(names,kind,ctx):[];
+  ex.lastResult={at:new Date().toISOString(),areaId:area.id,area:area.name,names:names,kind:kind,title:title,detail:detail,reward:reward,stamp:stamp,xp:xp,dialogue:dialogue,combat:combat,eventId:ctx.eventId,enemyId:ctx.enemyId,dialogueVersion:4,xpBySinner:xpBySinner};
   ex.logs=Array.isArray(ex.logs)?ex.logs:[];
   ex.logs.unshift({
     at:ex.lastResult.at,areaId:area.id,area:area.name,names:[...names],kind:kind,title:title,detail:detail,
-    reward:reward,stamp:stamp,xp:xp,dialogue:Array.isArray(dialogue)?dialogue:[],combat:combat,eventId:ctx.eventId,dialogueVersion:4,xpBySinner:xpBySinner
+    reward:reward,stamp:stamp,xp:xp,dialogue:Array.isArray(dialogue)?dialogue:[],combat:combat,eventId:ctx.eventId,enemyId:ctx.enemyId,dialogueVersion:4,xpBySinner:xpBySinner
   });
   ex.logs=ex.logs.slice(0,100);
   // spent 已增加，重新依記帳筆數校正剩餘行動點數。
@@ -427,21 +431,21 @@ function containedAbnormalityCount(){
 }
 function renderCombatBreakdown(combat){
   if(!combat||!combat.enemy)return '';
-  const enemy=combat.enemy,result=combat.result||{},allies=Array.isArray(combat.allies)?combat.allies:[];
-  const enemyHtml='<div class="combat-report-row enemy"><div class="combat-report-label">ENEMY / 怪異</div><div class="combat-report-main"><strong>'+esc(enemy.name)+'</strong><span>HP '+enemy.maxHp+' → '+enemy.remaining+' · Lv.'+enemy.level+(enemy.type?' · '+esc(enemy.type):'')+'</span></div></div>';
+  const enemy=combat.enemy,result=combat.result||{},ordinary=enemy.category==='ordinary',allies=Array.isArray(combat.allies)?combat.allies:[];
+  const enemyHtml='<div class="combat-report-row enemy"><div class="combat-report-label">ENEMY / '+(ordinary?'敵方':'怪異')+'</div><div class="combat-report-main"><strong>'+esc(enemy.name)+'</strong><span>HP '+enemy.maxHp+' → '+enemy.remaining+' · Lv.'+enemy.level+(enemy.type?' · '+esc(enemy.type):'')+'</span></div></div>';
   const allyHtml=allies.map(function(x){
     const notes=x.notes&&x.notes.length?' · '+esc(x.notes.join('、')):'';
     const taken=x.taken>0?' · 受到 '+x.taken+' 傷害':' · 未受傷';
     const healed=x.healed&&x.healed.amount?' · '+esc(x.healed.item)+' +'+x.healed.amount:'';
     return '<div class="combat-report-row ally"><div class="combat-report-label">ALLY / 我方</div><div class="combat-report-main"><strong>'+esc(x.name)+'</strong><span>造成 '+x.damage+' 傷害'+notes+taken+' · HP '+x.hp+' / '+x.maxHp+healed+'</span></div></div>';
   }).join('');
-  const resultText=result.contained?'正式收容完成':result.success?'有效制壓完成':'怪異未被擊倒';
-  const progress='收容進度 '+Number(result.progress||0)+' / '+Number(result.required||0);
+  const resultText=ordinary?(result.success?'戰鬥勝利':'隊伍停止交戰'):result.contained?'正式收容完成':result.success?'有效制壓完成':'怪異未被擊倒';
+  const progress=ordinary?'交戰 '+Number(result.rounds||1)+' 回合':'收容進度 '+Number(result.progress||0)+' / '+Number(result.required||0);
   const resultHtml='<div class="combat-report-row outcome '+(result.success?'success':'pending')+'"><div class="combat-report-label">RESULT / 結果</div><div class="combat-report-main"><strong>'+resultText+'</strong><span>'+progress+'</span></div></div>';
   return '<div class="combat-report">'+enemyHtml+allyHtml+resultHtml+'</div>';
 }
 function explorationStatusClass(stamp){
-  const classes={RESOLVED:'resolved',ENGAGED:'engaged',SUPPLY:'supply',GEAR:'gear',SHOP:'shop',CONTAINED:'contained',SUPPRESSED:'suppressed',INCIDENT:'incident'};
+  const classes={VICTORY:'victory',DEFEAT:'defeat',RESOLVED:'resolved',ENGAGED:'engaged',SUPPLY:'supply',GEAR:'gear',SHOP:'shop',CONTAINED:'contained',SUPPRESSED:'suppressed',INCIDENT:'incident'};
   return 'status-'+(classes[String(stamp||'').toUpperCase()]||'field');
 }
 function reviewedExplorationLines(lines){
@@ -780,6 +784,7 @@ function monsterSprite(shape,locked=false){
   return `<svg viewBox="0 0 64 64" width="70" height="70"><path d="M14 40c0-15 9-24 18-24s18 9 18 24c0 7-5 12-11 12H25c-6 0-11-5-11-12z" fill="${base}" stroke="${edge}" stroke-width="3"/><circle cx="25" cy="35" r="3" fill="#1b1c20"/><circle cx="39" cy="35" r="3" fill="#1b1c20"/><path d="M26 44c4 3 8 3 12 0" stroke="${red}" stroke-width="2.5" fill="none"/></svg>`;
 }
 function renderBestiary(){
+  if(typeof window.forceRenderBestiary==='function')return window.forceRenderBestiary();
   ensureExplorationState();
   const grid=$('bestiaryGrid');if(!grid)return;
   const ex=state.exploration;
@@ -896,7 +901,7 @@ function render(){
 }
 
 function speakerMarkup(name){
- const value=String(name||'');if(value.includes('阿賴耶'))return '<span class="speaker-main">阿賴耶</span><small class="speaker-role">（刀鞘）</small>';
+ const value=String(name||'');if(value.includes('阿賴耶'))return '<span class="speaker-main">阿賴耶</span>';
  return esc(value);
 }
 function recordRandomEvent(event){
@@ -914,7 +919,7 @@ function showSinnerComment(comment){
   if(!comment)return;
   const dlg=$('commentDlg'),body=$('commentDlgBody'),tag=$('commentDlgTag');
   if(!dlg||!body)return;
-  body.innerHTML='<div class="commentary-meta" style="margin-bottom:8px">'+esc(comment.category||'未分類')+(comment.amount!=null?' / '+money(comment.amount):'')+'</div>'+renderCommentLines(comment);
+  body.innerHTML='<div class="commentary-meta" style="margin-bottom:8px">'+esc(comment.category||'未分類')+(arayaAgeLabel(comment)?' · 阿賴耶／'+esc(arayaAgeLabel(comment)):'')+(comment.amount!=null?' / '+money(comment.amount):'')+'</div>'+renderCommentLines(comment);
   if(tag)tag.textContent=commentKindLabel(comment.kind).replace(/^.*\/\s*/,'');
   if(dlg.open)dlg.close();
   requestAnimationFrame(function(){
@@ -951,7 +956,7 @@ function commentEntryCard(entry,opts){
   }
   if(!lines.length)return '';
   const copy={...entry.comment,lines:lines};
-  return '<div class="commentary-entry wood kind-'+esc(entry.comment.kind)+' '+(opts.sinner?'compact-by-sinner':'')+'"><div class="commentary-head"><div><b>'+esc(entry.store)+'</b><div class="commentary-meta">'+esc(entry.date)+' / '+(entry.type==='income'?'收入':'支出')+' / '+esc(entry.category||'其他')+' / '+money(entry.amount)+'</div></div><span class="commentary-tag '+(rare?'rare':'')+'">'+commentKindLabel(entry.comment.kind)+'</span></div><div class="commentary-lines">'+renderCommentLines(copy)+'</div></div>';
+  return '<div class="commentary-entry wood kind-'+esc(entry.comment.kind)+' '+(opts.sinner?'compact-by-sinner':'')+'"><div class="commentary-head"><div><b>'+esc(entry.store)+'</b><div class="commentary-meta">'+esc(entry.date)+' / '+(entry.type==='income'?'收入':'支出')+' / '+esc(entry.category||'其他')+' / '+money(entry.amount)+(arayaAgeLabel(entry.comment)?' · 阿賴耶／'+esc(arayaAgeLabel(entry.comment)):'')+'</div></div><span class="commentary-tag '+(rare?'rare':'')+'">'+commentKindLabel(entry.comment.kind)+'</span></div><div class="commentary-lines">'+renderCommentLines(copy)+'</div></div>';
 }
 function setCommentaryView(view){
   commentaryView=view==='sinner'?'sinner':'time';

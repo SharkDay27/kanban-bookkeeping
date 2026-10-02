@@ -77,6 +77,15 @@ function ensureExplorationState(){
   state.exploration.actions=Math.max(0,state.exploration.earned-state.exploration.spent);
   state.exploration.logs=Array.isArray(state.exploration.logs)?state.exploration.logs:[];
   state.exploration.activeShop=state.exploration.activeShop||null;
+  state.exploration.enemyProgress=state.exploration.enemyProgress||{};
+  if(!state.exploration.eventProgress){
+    state.exploration.eventProgress={};
+    (state.exploration.logs||[]).forEach(l=>{
+      const ev=typeof EXPLORATION_EVENTS!=='undefined'?EXPLORATION_EVENTS.find(e=>String(l.title||'').includes(e.name)):null;
+      const id=l.kind==='event'?(l.eventId||ev?.id):l.kind==='shop'&&l.areaId?'shop-'+l.areaId:null;
+      if(!id)return;const p=state.exploration.eventProgress[id]||(state.exploration.eventProgress[id]={encounters:0,resolved:0});p.encounters++;if(l.stamp==='RESOLVED')p.resolved++;
+    });
+  }
   state.exploration.encounters=state.exploration.encounters||Object.fromEntries((state.exploration.seenAbnormalities||[]).map(id=>[id,1]));
   state.exploration.stats=state.exploration.stats||{};
   state.exploration.stats.visited=Array.isArray(state.exploration.stats.visited)?state.exploration.stats.visited: [...new Set(state.exploration.logs.map(l=>l.areaId).filter(Boolean))];
@@ -160,7 +169,7 @@ function reviveSinner(name){
 function sinnerCombatDamage(name,ab,area){
  const st=sinnerEffectiveStats(name,{ab,area}),lv=sinnerLevel(state.exploration.sinners[name]),ef=sinnerSkillEffects(name,{ab,area});
  const support=equipmentEffects().allDamage||0,flat=(ef.flatDamage||0)+support;
- const notes=unlockedFieldSkills(name).filter(s=>Object.keys(s.effects||{}).some(k=>['damageBonus','flatDamage','highLevelDamage','temporalObserve','combat','observe'].includes(k))&&(!s.when||sinnerSkillEffects(name,{ab,area})[Object.keys(s.effects)[0]]>0)).map(s=>s.name);
+ const notes=unlockedFieldSkills(name).filter(s=>sinnerSkillEnabled(name,s,{ab,area})&&Object.entries(s.effects||{}).some(([k,v])=>v&&(['damageBonus','flatDamage','combat','observe'].includes(k)||k==='highLevelDamage'&&ab.level>=5||k==='temporalObserve'&&temporalAbnormality(ab)))).map(s=>s.name);
  if(support)notes.push('管理支援 +'+support);
  const raw=st.combat*2.1+st.observe*.55+lv*1.7+flat+Math.random()*6;
  return {damage:Math.max(1,Math.round(raw*(1+(ef.damageBonus||0)))),notes};

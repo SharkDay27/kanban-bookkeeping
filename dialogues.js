@@ -1,5 +1,5 @@
 /* Original fan dialogue, informed by Chinese story transcripts; never concatenate analyst filler. */
-const COMMENTARY_VERSION=3;
+const COMMENTARY_VERSION=4;
 const COMMENT_CATEGORIES=['餐飲','飲料','交通','服飾','學習','日用品','訂閱','娛樂','醫療','其他','薪資','獎金','退款','零用錢','投資','禮金','其他收入'];
 const COMMENT_VOICES={
  '李箱':[
@@ -47,15 +47,12 @@ const COMMENT_SCENES={
  '禮金':[['羅佳','辛克萊','辛克，人家給你的就收下嘛。','我只是……在想怎麼好好道謝。'],['鴻璐','格里高爾','格里高爾先生，有人記得要給你這個呢。','是啊，這事比金額更讓我高興。']],
  '其他收入':[['辛克萊','浮士德','浮士德小姐，這筆來源要另外寫嗎？','辛克萊先生，寫下來。之後才知道它與其他收入是否相同。'],['羅佳','格里高爾','格雷格，今天還多了這一筆。','嗯，先弄清楚是哪裡來的。']]
 };
-const ARAYA_TOPICS={
- '餐飲':'媽媽，還熱著呢。吃一口再走，好不好？','飲料':'這杯是甜的嗎？我想知道是什麼味道。','交通':'又要走了呀。媽媽，別把我留在車上喔。','服飾':'媽媽穿這件的話，我也想看看。','學習':'這一頁我沒看懂。媽媽，你看完了嗎？','日用品':'這個用完了還能再買。我就不行了，所以要記得帶上我喔。','訂閱':'下個月還會來呀？那它比媽媽還準時呢。','娛樂':'再待一下嘛。媽媽，這次我也想一起看。','醫療':'媽媽，疼的時候不用笑。先讓人看看吧。','其他':'媽媽把它收起來了。是什麼呀？我沒看清。','薪資':'媽媽，錢到了。現在能歇一下了嗎？','獎金':'多了一點呢。媽媽今天是不是很高興？','退款':'回來了呀。原來有些東西走了，還會再回來。','零用錢':'先放在這裡吧。媽媽，等想好了再拿出來。','投資':'要等以後才知道呀？那我陪媽媽等。','禮金':'有人送來的呢。媽媽也有想送東西的人嗎？','其他收入':'媽媽，這筆是哪裡來的？也說給我聽嘛。'
-};
 function commentCategory(entry){return COMMENT_CATEGORIES.includes(entry.category)?entry.category:(entry.type==='income'?'其他收入':'其他')}
 function sinnerCommentLine(name,entry){if(name==='希斯克利夫'&&Number(entry.amount)>=(entry.type==='income'?100000:5000))return {speaker:name,text:'喂，這數字你最好再看一遍。',kind:'speech'};const cat=commentCategory(entry),i=COMMENT_CATEGORIES.indexOf(cat);return {speaker:name,text:(COMMENT_VOICES[name]||COMMENT_VOICES['格里高爾'])[i],kind:'speech'}}
 function authoredComment(entry,kind,previous){
  const cat=commentCategory(entry),scenes=COMMENT_SCENES[cat],scene=scenes[Math.floor(Math.random()*scenes.length)];
- let lines;
- if(kind==='araya')lines=[sinnerCommentLine('良秀',entry),{speaker:'阿賴耶（刀鞘）',text:ARAYA_TOPICS[cat],kind:'speech'}];
+ let lines,arayaAge;
+ if(kind==='araya'){const scene=arayaCommentScene(entry);lines=scene.lines;arayaAge=scene.age;}
  else if(kind==='single'){const name=previous&&SINNERS.some(s=>s.name===previous)?previous:SINNERS[Math.floor(Math.random()*SINNERS.length)].name;lines=[sinnerCommentLine(name,entry)];}
  else{
    lines=[{speaker:scene[0],text:scene[2],kind:'speech'},{speaker:scene[1],text:scene[3],kind:'speech'}];
@@ -65,8 +62,8 @@ function authoredComment(entry,kind,previous){
     chosen.forEach(s=>lines.push(sinnerCommentLine(s.name,entry)));
    }
  }
- return {version:COMMENTARY_VERSION,kind,category:entry.category,amount:Number(entry.amount||0),createdAt:new Date().toISOString(),lines};
+ return {version:COMMENTARY_VERSION,kind,arayaAge,category:entry.category,amount:Number(entry.amount||0),createdAt:new Date().toISOString(),lines};
 }
 function generateSinnerComment(entry){const roll=Math.random();if(roll<.03)return authoredComment(entry,Math.random()<.15?'all':'group');if(roll<.16)return authoredComment(entry,'duo');const s=SINNERS[Math.floor(Math.random()*SINNERS.length)];return authoredComment(entry,s.name==='良秀'&&Math.random()<.82?'araya':'single',s.name)}
-function refreshSinnerComment(entry){const old=entry.comment;if(!old||old.version===COMMENTARY_VERSION)return old;const c=authoredComment(entry,['single','duo','group','all','araya'].includes(old.kind)?old.kind:'single',old.lines&&old.lines[0]&&old.lines[0].speaker);c.createdAt=old.createdAt||entry.date;return c}
+function refreshSinnerComment(entry){const old=entry.comment;if(!old||old.version===COMMENTARY_VERSION)return old;if(old.kind!=='araya')return {...old,version:COMMENTARY_VERSION};const c=authoredComment(entry,['single','duo','group','all','araya'].includes(old.kind)?old.kind:'single',old.lines&&old.lines[0]&&old.lines[0].speaker);c.createdAt=old.createdAt||entry.date;return c}
 function commentKindLabel(kind){return ({all:'RARE / 全員評議',group:'RARE / 多人評議',duo:'RARE / 雙人評議',araya:'SPECIAL / 良秀・阿賴耶'})[kind]||'SINGLE / 單人評議'}

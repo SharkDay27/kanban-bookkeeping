@@ -14,8 +14,8 @@ const SINNER_SKILL_EFFECTS={
   {desc:'HP 低於 50%：戰鬥傷害額外 +18%',when:'lowHp',effects:{damageBonus:.18}}],
  '良秀':[
   {desc:'戰鬥傷害 +22%',effects:{damageBonus:.22}},
-  {desc:'Lv.5 以上怪異：傷害 +12%；時間性怪異：觀察 +2',effects:{highLevelDamage:.12,temporalObserve:2}},
-  {desc:'有效制壓成功時，自身 EXP +15%',when:'kill',effects:{xpBonus:.15}}],
+  {desc:'Lv.5 以上敵方：傷害 +12%；時間性怪異：觀察 +2',effects:{highLevelDamage:.12,temporalObserve:2}},
+  {desc:'戰鬥勝利時，自身 EXP +15%',when:'kill',effects:{xpBonus:.15}}],
  '默爾索':[
   {desc:'穩定 +2',effects:{stability:2}},
   {desc:'事件判定 +4',effects:{eventPower:4}},
@@ -31,7 +31,7 @@ const SINNER_SKILL_EFFECTS={
  '以實瑪利':[
   {desc:'戰鬥與觀察各 +1',effects:{combat:1,observe:1}},
   {desc:'隊伍補給發現權重 +4（基準 18）',effects:{supplyWeight:4}},
-  {desc:'再次遭遇已交戰的怪異時，傷害 +15%',when:'repeat',effects:{damageBonus:.15}}],
+  {desc:'再次遭遇已交戰的敵方時，傷害 +15%',when:'repeat',effects:{damageBonus:.15}}],
  '羅佳':[
   {desc:'隊伍補給發現權重 +4（基準 18）',effects:{supplyWeight:4}},
   {desc:'補給發現時，隊伍有 25% 機率額外取得一份補給',effects:{extraLootChance:.25}},
@@ -51,13 +51,16 @@ const SINNER_SKILL_EFFECTS={
 };
 Object.entries(SINNER_SKILL_EFFECTS).forEach(([name,defs])=>defs.forEach((d,i)=>Object.assign(SINNER_FIELD_PROFILES[name].skills[i],d)));
 function temporalAbnormality(ab){return /時間|時序|時鐘|時間性|temporal/i.test([ab?.type,ab?.name].join(' '))}
-function sinnerSkillEffects(name,ctx={}){
+function sinnerSkillEnabled(name,skill,ctx={}){
  const data=state.exploration.sinners[name],lv=sinnerLevel(data),area=ctx.area||EXPLORATION_AREAS.find(a=>a.id===state.exploration.areaId)||{},highRisk=['HIGH','EXTREME'].includes(area.risk);
- const conditions={highRisk,lowHp:data.hp/data.maxHp<.5,failure:ctx.success===false,kill:ctx.kind==='abnormality'&&ctx.success===true,repeat:!!(ctx.ab&&state.exploration.encounters?.[ctx.ab.id]>0),underLevel:lv<area.level,highRiskSuccess:highRisk&&ctx.success===true};
- const out={};SINNER_FIELD_PROFILES[name].skills.forEach(s=>{if(lv<s.lv||s.when&&!conditions[s.when])return;Object.entries(s.effects).forEach(([k,v])=>out[k]=(out[k]||0)+v)});
+ const conditions={highRisk,lowHp:data.hp/data.maxHp<.5,failure:ctx.success===false,kill:['abnormality','enemy'].includes(ctx.kind)&&ctx.success===true,repeat:!!(ctx.ab&&state.exploration.encounters?.[ctx.ab.id]>0),underLevel:lv<area.level,highRiskSuccess:highRisk&&ctx.success===true};
+ return lv>=skill.lv&&(!skill.when||!!conditions[skill.when]);
+}
+function sinnerSkillEffects(name,ctx={}){
+ const out={};SINNER_FIELD_PROFILES[name].skills.forEach(s=>{if(!sinnerSkillEnabled(name,s,ctx))return;Object.entries(s.effects).forEach(([k,v])=>out[k]=(out[k]||0)+v)});
  if(ctx.ab){if(ctx.ab.level>=5)out.damageBonus=(out.damageBonus||0)+(out.highLevelDamage||0);if(temporalAbnormality(ctx.ab))out.observe=(out.observe||0)+(out.temporalObserve||0)}
  return out;
 }
-function explorationSkillWeights(names,area){const weights={abnormality:30,event:24,supply:18,gear:14,shop:14};names.forEach(n=>{const e=sinnerSkillEffects(n,{area});weights.event+=e.eventWeight||0;weights.supply+=e.supplyWeight||0;weights.gear+=e.gearWeight||0});return weights}
+function explorationSkillWeights(names,area){const weights={enemy:20,abnormality:30,event:24,supply:18,gear:14,shop:14};names.forEach(n=>{const e=sinnerSkillEffects(n,{area});weights.event+=e.eventWeight||0;weights.supply+=e.supplyWeight||0;weights.gear+=e.gearWeight||0});return weights}
 function sinnerExplorationXp(name,base,ctx){const e=sinnerSkillEffects(name,ctx);return Math.max(1,Math.round(base*(1+(e.xpBonus||0))+(e.flatXp||0)))}
 window.SINNER_SKILL_EFFECTS=SINNER_SKILL_EFFECTS;

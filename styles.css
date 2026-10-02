@@ -2537,3 +2537,21 @@ button:focus-visible,select:focus-visible{outline:3px solid #6096b0!important;ou
 #bestiaryGrid .bestiary-region .bestiary-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:10px}
 @media(max-width:900px){#bestiaryGrid{grid-template-columns:1fr!important}}
 @media(max-width:500px){#bestiaryGrid .bestiary-region .bestiary-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+
+/* Three text-only field catalogs. */
+.catalog-switch{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 12px}
+.catalog-switch button{min-height:44px;padding:9px 18px;border:1px solid #aac9d8;background:#f6fafc;color:#496b7b;font-size:14px;font-weight:700}
+.catalog-switch button.active{background:#dcecf5;color:#2e5870;border:2px solid #709eb6;box-shadow:inset 0 -3px 0 #709eb6}
+#bestiaryGrid .bestiary-region .catalog-text-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+.catalog-text-card{min-height:0!important;padding:15px!important}
+.catalog-card-head{display:flex;justify-content:space-between;align-items:center;gap:10px;min-height:28px}
+.catalog-card-head .bestiary-status{position:static!important;flex-shrink:0;font-size:11px!important;padding:4px 7px;letter-spacing:.3px}
+.catalog-card-head .bestiary-code{margin:0;font-size:11px!important;line-height:1.4;letter-spacing:.5px}
+.catalog-text-card .bestiary-name{margin:10px 0 8px;font-size:17px;line-height:1.45}
+.catalog-type{color:#547184;font-size:12px;line-height:1.6}
+.catalog-description{color:#456576;font-size:13px;line-height:1.8;margin:12px 0}
+.catalog-footer{color:#536f7e;font-size:12px;line-height:1.75;border-top:1px solid #d2e3ea;padding-top:9px}
+.material-sell{margin-top:12px;min-height:40px;padding:8px 12px;border:1px solid #b9cdaa;background:#eaf2e1;color:#4e713a;font-weight:700}
+.record-kind-badge.status-victory,.archive-stamp.status-victory{background:#e3f1e8!important;color:#35684c!important;border-color:#92baa3!important}
+.record-kind-badge.status-defeat,.archive-stamp.status-defeat{background:#f6e4e7!important;color:#8b4b57!important;border-color:#caa2ac!important}
+@media(max-width:600px){#bestiaryGrid .bestiary-region .catalog-text-grid{grid-template-columns:1fr!important}.catalog-switch{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.catalog-switch button{padding:9px 5px;font-size:13px}}

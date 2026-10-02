@@ -4,7 +4,7 @@
   const MATERIAL_BASE={'史萊姆凝膠':12,'鐵殼碎片':16,'紅線紙片':15,'齒輪牙片':18,'失真鱗粉':24,'黑箱扣件':28,'廢線束':20,'白面鏡片':30};
   const CONSUMABLE_BASE={water:5,potion:14};
   function rk(v){return typeof itemRarity==='function'?itemRarity(v).key:(v||'common')}
-  function price(kind,key,name,rarity){if(kind==='consumable')return CONSUMABLE_BASE[key]||5;if(kind==='field')return FIELD_BASE[key]||50;if(kind==='support')return SUPPORT_BASE[rk(rarity)]||55;if(kind==='material')return MATERIAL_BASE[name]||18;return 10}
+  function price(kind,key,name,rarity){if(kind==='consumable')return CONSUMABLE_BASE[key]||5;if(kind==='field')return FIELD_BASE[key]||50;if(kind==='support')return SUPPORT_BASE[rk(rarity)]||55;if(kind==='material')return ENEMY_MATERIALS[name]?.price||MATERIAL_BASE[name]||18;return 10}
   function items(){
     ensureExplorationState();ensurePlayerState();
     const out=[],catalog=window.RPG_EQUIPMENT_CATALOG||{},ex=state.exploration||{fieldGear:[],sinners:{}},cons=state.rpg.consumables||{};

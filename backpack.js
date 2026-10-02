@@ -40,8 +40,9 @@
         const counts={};
         (state.rpg.inventory||[]).filter(function(x){return !catalog[x]}).forEach(function(x){counts[x]=(counts[x]||0)+1});
         materials.innerHTML=Object.keys(counts).length?Object.entries(counts).map(function(pair){
-          const sell=typeof itemSellPrice==='function'?itemSellPrice('material',pair[0],pair[0],'common'):0; return '<article class="pack-item wood rarity-common"><div class="pack-item-head"><strong>'+e(pair[0])+'</strong><span class="pack-count">×'+pair[1]+'</span></div><div class="pack-desc">怪異掉落／收容材料</div><div class="equipment-source">售價 '+sell+' G / 個</div></article>';
+          const sell=typeof itemSellPrice==='function'?itemSellPrice('material',pair[0],pair[0],'common'):0; return '<article class="pack-item wood rarity-common"><div class="pack-item-head"><strong>'+e(pair[0])+'</strong><span class="pack-count">×'+pair[1]+'</span></div><div class="pack-desc">'+e(ENEMY_MATERIALS[pair[0]]?.desc||'怪異掉落／收容材料')+'</div><div class="equipment-source">售價 '+sell+' G / 個</div>'+(ENEMY_MATERIALS[pair[0]]?'<button type="button" class="material-sell" data-material-sell="'+e(encodeURIComponent(pair[0]))+'">出售一件 · +'+sell+' G</button>':'')+'</article>';
         }).join(''):'<div class="empty">目前沒有材料。</div>';
+        materials.querySelectorAll('[data-material-sell]').forEach(btn=>btn.onclick=()=>{const result=sellInventoryToken('material|'+btn.dataset.materialSell);if(!result.ok){toast(result.message);return;}render();renderRpg();toast('出售 '+result.item.name+'，獲得 '+result.gold+' G');});
       }
     }catch(err){
       ['backpackConsumables','backpackFieldGear','backpackEquipment','backpackMaterials'].forEach(function(id){

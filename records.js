@@ -46,7 +46,7 @@
     if(typeof ensureExplorationState==='function')ensureExplorationState();
     const area=el('exploreRecordArea')?el('exploreRecordArea').value:'',kind=el('exploreRecordKind')?el('exploreRecordKind').value:'',
       q=(el('exploreRecordSearch')?el('exploreRecordSearch').value:'').trim().toLowerCase();
-    const ex=state.exploration||{},source=mode==='events'?(ex.logs||[]).filter(l=>l.kind==='event'||l.kind==='shop').concat(ex.eventLogs||[]):ex.logs||[];
+    const ex=state.exploration||{},source=ex.logs||[];
     return source.filter(function(log){
       const matchArea=!area||log.areaId===area;
       const matchKind=!kind||log.kind===kind;
@@ -73,7 +73,10 @@
     if(explore)explore.hidden=mode==='bookkeeping';
     if(mode==='bookkeeping')renderBookkeeping();else{refreshExploreAreas();renderExploration()}
   }
-  function setMode(next){mode=['exploration','events'].includes(next)?next:'bookkeeping';const kind=el('exploreRecordKind');if(kind){const options=mode==='events'?{event:'隨機事件',shop:'商店發現',purchase:'商店購入',sale:'商店出售',box:'道具箱'}:{abnormality:'怪異戰鬥',event:'隨機事件',supply:'補給',gear:'裝備',shop:'商店',revive:'復活'};kind.innerHTML='<option value="">所有性質</option>'+Object.entries(options).map(([k,v])=>'<option value="'+k+'">'+v+'</option>').join('');}render()}
+  function setMode(next){
+    mode=next==='exploration'?'exploration':'bookkeeping';
+    const kind=el('exploreRecordKind');if(kind){const options={enemy:'普通敵方戰鬥',abnormality:'怪異戰鬥',event:'隨機事件',supply:'補給',gear:'裝備',shop:'商店',revive:'復活'};kind.innerHTML='<option value="">所有性質</option>'+Object.entries(options).map(([k,v])=>'<option value="'+k+'">'+v+'</option>').join('');}render();
+  }
   document.addEventListener('click',function(ev){const btn=ev.target&&ev.target.closest?ev.target.closest('[data-record-mode]'):null;if(btn)setMode(btn.dataset.recordMode)});
   ['month','typeFilter','cat','search','exploreRecordArea','exploreRecordKind','exploreRecordSearch'].forEach(function(id){
     const node=el(id);if(node){node.addEventListener('input',render);node.addEventListener('change',render)}

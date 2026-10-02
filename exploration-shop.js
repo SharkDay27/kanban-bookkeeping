@@ -2,6 +2,7 @@
   const SUPPLIES={water:{name:'瓶裝水',rarity:'common',basePrice:12,desc:'探索中罪人 HP ≤45% 時自動使用，回復 25 HP。'},potion:{name:'小型治療藥水',rarity:'uncommon',basePrice:30,desc:'瓶裝水不足且 HP ≤20% 時自動使用，回復 45 HP。'}};
   const GEAR_PRICES={'runner-boots':115,'field-vest':125,'survey-lens':130,'shock-baton':140,'field-kit':210};
   const AREA_SHOPS={'zone-1':{name:'封鎖線雜貨攤',flavor:'撤離區留下的臨時商販，價格最接近基準。',mult:1},'zone-2':{name:'維修層零件販子',flavor:'貨物多由維修通道回收，運送成本略高。',mult:1.08},'zone-3':{name:'研究棟回收櫃',flavor:'高危區物資有額外風險成本。',mult:1.18},'zone-4':{name:'黑區行腳商',flavor:'深入黑區的物流風險最高，但裝備種類也較多。',mult:1.30}};
+  window.EXPLORATION_SHOP_CATALOG=AREA_SHOPS;
   let mode='buy';
   const round=n=>Math.max(1,Math.round(n/5)*5),sid=()=>('S-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,7));
   function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
