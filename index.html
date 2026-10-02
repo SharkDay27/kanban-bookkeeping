@@ -308,6 +308,79 @@ dialog#dlg .foot{
   .commentary-line,.sinner-comment-pop .commentary-line{grid-template-columns:1fr;gap:3px}
   .commentary-speaker{font-size:10px}
 }
+
+/* ===== v9.1 reliable commentary dialog + mobile UX ===== */
+#commentDlg{border:0;background:transparent;padding:0}
+#commentDlg::backdrop{background:rgba(2,3,5,.84);backdrop-filter:blur(6px)}
+.comment-dialog{
+  width:min(640px,calc(100vw - 24px));max-height:82vh;overflow:auto;
+  background:linear-gradient(180deg,#27282e,#121317);
+  border:1px solid #8a8c94;box-shadow:0 28px 80px rgba(0,0,0,.78);padding:16px;
+}
+.comment-dialog .commentary-lines{margin-top:10px}
+.comment-dialog-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}
+.comment-dialog-actions button{min-height:42px}
+.mobile-nav-label{display:block;font-size:9px;letter-spacing:.3px;margin-top:2px}
+@media(max-width:700px){
+  body{padding-bottom:76px}
+  .wrap{padding:8px 8px 88px}
+  .top{padding:2px 2px 4px}
+  .brand{gap:8px}.logo{width:44px;height:44px}.title{font-size:20px;line-height:1.15}
+  .notice{font-size:10px;padding:9px 10px;margin:8px 0}
+  .actions{display:flex;overflow-x:auto;flex-wrap:nowrap;gap:7px;margin:9px -8px;padding:0 8px 5px;scrollbar-width:none}
+  .actions::-webkit-scrollbar{display:none}
+  .actions>*{width:auto!important;min-width:max-content;min-height:40px;padding:8px 10px;font-size:11px}
+  .summary{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+  .stat{padding:9px}.stat .v{font-size:19px}.stat .k{font-size:9px}.stat .s{font-size:9px}
+  .tabs{margin:9px -8px;padding:0 8px 4px;gap:6px;scroll-snap-type:x proximity}
+  .tabs button{min-width:max-content;padding:8px 11px;font-size:11px;scroll-snap-align:start}
+  .npc-strip{display:none}
+  .main-grid{gap:8px}.panel{padding:11px}.archive-title{font-size:15px}.archive-id{font-size:8px}.archive-stamp{font-size:8px}
+  .hero{grid-template-columns:64px 1fr;gap:8px}.avatar,.monster-icon{width:64px;height:64px}
+  .mini-grid{gap:5px}.mini{padding:7px}.mini .num{font-size:16px}
+  .boss-panel{margin-top:8px}.boss-wrap{grid-template-columns:76px 1fr;gap:9px}.boss-icon{height:86px}.boss-name{font-size:16px}
+  .filters{margin:8px -8px 8px;padding:7px 8px;top:0}.filters input,.filters select{padding:9px 8px;font-size:12px}
+  .day{padding:8px}.card{padding:9px;margin-bottom:7px}.store{font-size:13px}.amt{font-size:14px}
+  .badges{gap:4px}.badge{font-size:9px;padding:3px 5px}.items{font-size:10px}
+  .entry-comment-preview{font-size:11px;padding:8px}
+  .fab{display:none!important}
+  .bottom{
+    grid-template-columns:repeat(5,1fr);min-height:66px;padding-bottom:env(safe-area-inset-bottom);
+    box-shadow:0 -10px 30px rgba(0,0,0,.38)
+  }
+  .bottom button{min-height:62px;padding:6px 2px;font-size:17px;color:#aaa79f}
+  .bottom button.nav-add{background:#351e20;color:#eee0dc;border-left:1px solid #61373a;border-right:1px solid #61373a}
+  .bottom button.active-mobile{color:white;background:#201719}
+  dialog#dlg[open]{padding:0;align-items:end}
+  dialog#dlg form.modal{
+    width:100%;max-height:93dvh;border-left:0;border-right:0;border-bottom:0;
+    padding:14px 12px calc(12px + env(safe-area-inset-bottom))
+  }
+  dialog#dlg .archive-header{margin:0 0 10px;padding:9px 44px 9px 9px}
+  dialog#dlg .quick-type{padding:5px;gap:5px;margin-bottom:8px}
+  dialog#dlg .quick-type button{min-height:44px}
+  dialog#dlg .entry-primary{padding:9px;margin-top:7px}
+  dialog#dlg .amount-field input{font-size:32px;min-height:60px}
+  .quick-cats{gap:5px}.quick-cat{padding:7px 9px;font-size:11px}
+  dialog#dlg .foot{
+    display:grid;grid-template-columns:1fr 1fr;gap:6px;
+    bottom:calc(-14px - env(safe-area-inset-bottom));padding-bottom:calc(14px + env(safe-area-inset-bottom))
+  }
+  dialog#dlg .foot button{min-height:46px;font-size:12px}
+  dialog#dlg #save{grid-column:1/-1;order:-1;min-height:50px;font-size:14px}
+  dialog#dlg #saveAgain{grid-column:1/-1;order:0}
+  dialog#dlg #del{order:2}
+  #commentDlg{width:100%;height:100%;max-width:none;max-height:none;margin:0;padding:0}
+  #commentDlg[open]{display:flex;align-items:flex-end}
+  .comment-dialog{
+    width:100%;max-height:78dvh;border-left:0;border-right:0;border-bottom:0;
+    padding:14px 12px calc(14px + env(safe-area-inset-bottom))
+  }
+  .comment-dialog .commentary-line{grid-template-columns:1fr;gap:3px}
+  .commentary-text{font-size:13px;line-height:1.7}
+  .commentary-speaker{font-size:11px}
+  .commentary-entry{padding:9px}.commentary-head{display:block}.commentary-head .commentary-tag{margin-top:6px}
+}
 </style>
 </head>
 <body>
@@ -543,16 +616,27 @@ dialog#dlg .foot{
 
 
 <div id="toast" class="toast wood"></div>
-<div id="sinnerCommentPop" class="sinner-comment-pop">
-  <div class="pop-head"><div><div class="pop-code">LCB // COMMENT RECEIVED</div><b>罪人評議</b></div><button type="button" id="closeCommentPop" class="pop-close">×</button></div>
-  <div id="commentPopBody" class="commentary-lines"></div>
-</div>
+
+<dialog id="commentDlg">
+  <div class="comment-dialog">
+    <div class="archive-header">
+      <div><div class="archive-id">LCB // COMMENT RECEIVED</div><div class="archive-title">罪人評議</div></div>
+      <div class="archive-stamp" id="commentDlgTag">SINGLE</div>
+    </div>
+    <div id="commentDlgBody" class="commentary-lines"></div>
+    <div class="comment-dialog-actions">
+      <button type="button" id="goCommentArchive" class="wood">查看評議記錄</button>
+      <button type="button" id="closeCommentDlg" class="wood primary">確認</button>
+    </div>
+  </div>
+</dialog>
 <button id="fab" class="fab">＋</button>
 <div class="bottom">
-  <button data-goto="adventure">終端</button>
-  <button data-goto="book">記錄</button>
-  <button data-goto="quests">任務</button>
-  <button id="bottomAdd">新增</button>
+  <button data-goto="adventure">⌂<span class="mobile-nav-label">終端</span></button>
+  <button data-goto="book">▤<span class="mobile-nav-label">記錄</span></button>
+  <button id="bottomAdd" class="nav-add">＋<span class="mobile-nav-label">新增</span></button>
+  <button data-goto="commentary">◈<span class="mobile-nav-label">評議</span></button>
+  <button data-goto="progress">◆<span class="mobile-nav-label">成就</span></button>
 </div>
 
 <dialog id="dlg">
@@ -1198,7 +1282,7 @@ function renderSummary(){const expense=state.entries.filter(x=>x.type==='expense
 function renderQuests(){ensureDaily(today());const ds=dayStats(today());$('questList').innerHTML=QUESTS.map(q=>{const p=q.id==='q3'?ds.cats:ds.count,done=p>=q.goal,claim=state.daily[today()].questClaims[q.id];return `<div class="quest wood panel ${done?'done':''}"><div class="row"><div class="quest-name">${done?'✓ ':'◇ '}${q.name}</div><div class="quest-reward">+${q.rewardXp} EXP</div></div><div class="quest-desc">${q.desc}</div><div class="quest-progress"><div style="width:${Math.min(100,Math.round(p/q.goal*100))}%"></div></div><div class="quest-desc">${Math.min(p,q.goal)} / ${q.goal}${claim?'・已領取':''}</div></div>`}).join('')}
 function filtered(){const m=$('month').value,t=$('typeFilter').value,c=$('cat').value,q=$('search').value.trim().toLowerCase();return state.entries.filter(x=>(!m||x.date.startsWith(m))&&(!t||x.type===t)&&(!c||x.category===c)&&(!q||[x.store,x.note,x.invoice,x.category,...(x.items||[]).map(i=>i.name)].join(' ').toLowerCase().includes(q))).sort((a,b)=>b.date.localeCompare(a.date)||b.amount-a.amount)}
 function renderBoard(){const rows=filtered(),groups={};rows.forEach(x=>(groups[x.date]??=[]).push(x));const dates=Object.keys(groups).sort().reverse();if(!dates.length){$('board').innerHTML='<div class="empty wood panel">目前沒有資料。先新增一筆收入或支出吧！</div>';return}$('board').innerHTML='<div class="board">'+dates.map(date=>{const items=groups[date],expense=items.filter(x=>x.type==='expense').reduce((s,x)=>s+x.amount,0),income=items.filter(x=>x.type==='income').reduce((s,x)=>s+x.amount,0),net=income-expense;return `<section class="day wood panel"><div class="dayhead"><div><div style="font-weight:900">${date}</div><div class="s">${items.length} 筆紀錄</div></div><div style="text-align:right"><div class="daytotal">支出 ${money(expense)}</div><div class="daynet ${net<0?'minus':'plus'}">淨額 ${money(net)}</div></div></div>${items.map(entry=>`<article class="card wood"><div class="row"><div class="store">${esc(entry.store)}</div><div class="amt ${entry.type}">${entry.type==='income'?'+ ':''}${money(entry.amount)}</div></div><div class="badges"><span class="badge ${entry.type}">${entry.type==='income'?'收入':'支出'}</span><span class="badge">${esc(entry.category||'其他')}</span><span class="badge">${esc(entry.payment||'未設定')}</span></div><div class="items">${(entry.items||[]).slice(0,3).map(i=>esc(i.name)).join('、')||esc(entry.note||'—')}</div>${entry.comment&&entry.comment.lines&&entry.comment.lines.length?`<div class="entry-comment-preview"><b>${esc(entry.comment.lines[0].speaker)}</b>：${esc(entry.comment.lines[0].text)}</div>`:''}<div class="card-actions"><button class="mini-btn" data-edit="${entry.id}">編輯</button></div></article>`).join('')}</section>`}).join('')+'</div>';document.querySelectorAll('[data-edit]').forEach(btn=>btn.onclick=()=>openEdit(btn.dataset.edit))}
-function render(){refreshFilters();renderSummary();renderRpg();renderQuests();renderBoard();renderCharts();renderBestiary();renderBoss();checkAchievements();renderProgress();renderCommentaryArchive();renderSalaryReminder();$('initialInput').value=state.profile.initialAmount||'';$('playerName').value=state.profile.name||'帳本終端者';$('salaryDay').value=state.profile.salaryDay||'';$('salaryAdvance').value=String(state.profile.salaryAdvance??1)}
+function render(){backfillMissingComments();refreshFilters();renderSummary();renderRpg();renderQuests();renderBoard();renderCharts();renderBestiary();renderBoss();checkAchievements();renderProgress();renderCommentaryArchive();renderSalaryReminder();$('initialInput').value=state.profile.initialAmount||'';$('playerName').value=state.profile.name||'帳本終端者';$('salaryDay').value=state.profile.salaryDay||'';$('salaryAdvance').value=String(state.profile.salaryAdvance??1)}
 
 function renderCommentLines(comment){
   if(!comment||!Array.isArray(comment.lines))return '';
@@ -1208,12 +1292,23 @@ function renderCommentLines(comment){
 }
 function showSinnerComment(comment){
   if(!comment)return;
-  const pop=$('sinnerCommentPop'),body=$('commentPopBody');
-  if(!pop||!body)return;
-  body.innerHTML='<div style="margin-bottom:7px"><span class="commentary-tag '+((comment.kind==='duo'||comment.kind==='all')?'rare':'')+'">'+commentKindLabel(comment.kind)+'</span></div>'+renderCommentLines(comment);
-  pop.classList.add('show');
-  clearTimeout(showSinnerComment._t);
-  showSinnerComment._t=setTimeout(function(){pop.classList.remove('show')},9000);
+  const dlg=$('commentDlg'),body=$('commentDlgBody'),tag=$('commentDlgTag');
+  if(!dlg||!body)return;
+  body.innerHTML=renderCommentLines(comment);
+  if(tag)tag.textContent=commentKindLabel(comment.kind).replace(/^.*\/\s*/,'');
+  if(dlg.open)dlg.close();
+  requestAnimationFrame(function(){
+    try{dlg.showModal()}catch(e){dlg.setAttribute('open','')}
+  });
+}
+function backfillMissingComments(){
+  let changed=false;
+  state.entries.forEach(function(entry){
+    if(!entry.comment && entry.source && String(entry.source).startsWith('手動')){
+      entry.comment=generateSinnerComment(entry);changed=true;
+    }
+  });
+  if(changed)saveLocal();
 }
 function renderCommentaryArchive(){
   const box=$('commentaryList');if(!box)return;
@@ -1242,6 +1337,7 @@ function renderQuickCats(){
 }
 function openEdit(id,presetType){const entry=id?state.entries.find(x=>x.id===id):null;$('dlgTitle').textContent=entry?'編輯記錄':(presetType==='income'?'新增收入':'新增支出');$('eid').value=entry?.id||'';$('etype').value=entry?.type||presetType||'expense';updateCategoryOptions($('etype').value);$('edate').value=entry?.date||today();$('eamt').value=entry?.amount??'';$('estore').value=entry?.store||'';$('ecat').value=entry?.category||($('etype').value==='income'?'薪資':'其他');$('epay').value=entry?.payment||state.profile.lastPayment||'未設定';$('enote').value=entry?.note||'';$('del').style.display=entry?'':'none';$('saveAgain').style.display=entry?'none':'';syncEntryTypeUI();$('dlg').showModal();setTimeout(()=>$('eamt').focus(),80)}
 function saveEntry(keepOpen=false){
+  if(!$('edate').value){toast('請選擇日期');return}if(!(Number($('eamt').value)>0)){toast('請輸入大於 0 的金額');$('eamt').focus();return}
   const id=$('eid').value,old=state.entries.find(function(x){return x.id===id}),type=$('etype').value;
   const obj={...(old||{}),id:id||('manual-'+Date.now()),type:type,date:$('edate').value,amount:Number($('eamt').value||0),store:$('estore').value.trim()||'未命名紀錄',category:$('ecat').value,payment:$('epay').value,note:$('enote').value.trim(),source:old&&old.source?old.source:(type==='income'?'手動收入':'手動支出'),items:old&&old.items?old.items:[]};
   let freshComment=null;
@@ -1334,7 +1430,7 @@ function mapIcon(kind){
 }
 function mountIcons(){$('logo').innerHTML=drawSprite('star');$('heroIcon').innerHTML=drawSprite('hero');$('monsterIcon').innerHTML=drawSprite('slime');$('salaryNpc').innerHTML=npcSprite('fairy');$('npcClerk').innerHTML=npcSprite('clerk');$('npcMerchant').innerHTML=npcSprite('merchant');$('npcFairy').innerHTML=npcSprite('fairy');}
 $('etype').addEventListener('change',syncEntryTypeUI);document.querySelectorAll('[data-entry-type]').forEach(b=>b.onclick=()=>{$('etype').value=b.dataset.entryType;syncEntryTypeUI()});$('dlg').addEventListener('click',e=>{if(e.target===$('dlg'))$('dlg').close()});$('ecat').addEventListener('change',renderQuickCats);
-$('save').onclick=()=>saveEntry(false);$('saveAgain').onclick=()=>saveEntry(true);$('closeDlg').onclick=()=>$('dlg').close();$('closeCommentPop').onclick=()=>$('sinnerCommentPop').classList.remove('show');$('del').onclick=deleteEntry;$('csv').addEventListener('change',importCsvFiles);$('export').onclick=exportCsv;$('backup').onclick=backupJson;$('restore').addEventListener('change',restoreJson);$('clear').onclick=clearLocalData;$('saveSettings').onclick=saveSettings;$('addExpense').onclick=()=>openEdit('', 'expense');$('addIncome').onclick=()=>openEdit('', 'income');$('fab').onclick=()=>openEdit('', 'expense');$('bottomAdd').onclick=()=>openEdit('', 'expense');['month','typeFilter','cat','search'].forEach(id=>$(id).addEventListener('input',render));document.querySelectorAll('[data-chest]').forEach(btn=>btn.onclick=()=>openChest(btn.dataset.chest));document.querySelectorAll('.tabs button').forEach(btn=>btn.onclick=()=>setTab(btn.dataset.tab));document.querySelectorAll('[data-goto]').forEach(btn=>btn.onclick=()=>setTab(btn.dataset.goto));if(!$('month').value){$('month').value=new Date().toISOString().slice(0,7)}mountIcons();render();
+$('save').onclick=()=>saveEntry(false);$('saveAgain').onclick=()=>saveEntry(true);$('closeDlg').onclick=()=>$('dlg').close();$('closeCommentDlg').onclick=()=>$('commentDlg').close();$('goCommentArchive').onclick=()=>{$('commentDlg').close();setTab('commentary')};$('del').onclick=deleteEntry;$('csv').addEventListener('change',importCsvFiles);$('export').onclick=exportCsv;$('backup').onclick=backupJson;$('restore').addEventListener('change',restoreJson);$('clear').onclick=clearLocalData;$('saveSettings').onclick=saveSettings;$('addExpense').onclick=()=>openEdit('', 'expense');$('addIncome').onclick=()=>openEdit('', 'income');$('fab').onclick=()=>openEdit('', 'expense');$('bottomAdd').onclick=()=>openEdit('', 'expense');['month','typeFilter','cat','search'].forEach(id=>$(id).addEventListener('input',render));document.querySelectorAll('[data-chest]').forEach(btn=>btn.onclick=()=>openChest(btn.dataset.chest));document.querySelectorAll('.tabs button').forEach(btn=>btn.onclick=()=>setTab(btn.dataset.tab));document.querySelectorAll('[data-goto]').forEach(btn=>btn.onclick=()=>setTab(btn.dataset.goto));if(!$('month').value){$('month').value=new Date().toISOString().slice(0,7)}mountIcons();render();
 </script>
 </body>
 </html>
