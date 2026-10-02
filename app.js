@@ -101,21 +101,36 @@ const FIELD_GEAR={
 };
 
 const EXPLORATION_AREAS=[
- {id:'zone-1',name:'廢棄商業區',level:1,risk:'LOW',desc:'封鎖後的商業街與地下通道。適合初期偵察。',abnos:['A-101','A-114']},
- {id:'zone-2',name:'地下維修層',level:3,risk:'MEDIUM',desc:'廢棄管線與維修廊道構成的複雜區域。',abnos:['A-203','A-227']},
- {id:'zone-3',name:'封鎖研究棟',level:5,risk:'HIGH',desc:'舊研究設施仍有自律設備與怪異活動。',abnos:['A-311','A-338']},
- {id:'zone-4',name:'外緣黑區',level:8,risk:'EXTREME',desc:'觀測資料稀少。建議高等級罪人組成隊伍。',abnos:['A-402','A-417']}
+ {id:'zone-1',name:'廢棄商業區',level:1,risk:'LOW',desc:'封鎖後的商業街、百貨後場與地下通道。常見與消費、廣告、人群殘響相關的怪異。',abnos:['A-101','A-114','A-126','A-139','A-148']},
+ {id:'zone-2',name:'地下維修層',level:3,risk:'MEDIUM',desc:'泵房、維修井、管線與輸送設備構成的複雜區域。機械型與聲響型怪異較常出現。',abnos:['A-203','A-227','A-241','A-256','A-269']},
+ {id:'zone-3',name:'封鎖研究棟',level:5,risk:'HIGH',desc:'舊研究設施與觀測室仍殘留未終止的實驗。認知、鏡像與檔案型怪異密度較高。',abnos:['A-311','A-338','A-352','A-367','A-379']},
+ {id:'zone-4',name:'外緣黑區',level:8,risk:'EXTREME',desc:'城市邊緣的失照區與廢棄軌道帶。空間、獵食與無法穩定觀測的高危怪異活動頻繁。',abnos:['A-402','A-417','A-431','A-446','A-459']}
 ];
 
 const ABNORMALITY_CATALOG={
- 'A-101':{name:'逆向時鐘',level:1,kills:2,note:'所有指針皆向反方向運作；接近者會短暫失去時間感。'},
- 'A-114':{name:'紙面訪客',level:2,kills:3,note:'會從廢棄文件中形成輪廓，並模仿最近閱讀者的姿態。'},
- 'A-203':{name:'空洞售貨機',level:3,kills:3,note:'投入任何物品後，都可能吐出與原物毫無關聯的東西。'},
- 'A-227':{name:'低語井',level:4,kills:4,note:'井口會重複探索者未曾說出口的念頭。'},
- 'A-311':{name:'鏡中獸',level:5,kills:4,note:'只在反射面中移動，實體位置無法直接觀測。'},
- 'A-338':{name:'無名司書',level:6,kills:5,note:'會替不存在的人整理不存在的檔案；被點名者會短暫失去自我認知。'},
- 'A-402':{name:'食光列車',level:8,kills:5,note:'通過區域時會使所有照明逐段熄滅，之後才聽見軌道聲。'},
- 'A-417':{name:'灰白天使',level:10,kills:6,note:'靜止時近似石像；只在無人直視時改變位置。'}
+ 'A-101':{name:'逆向時鐘',level:1,kills:2,area:'zone-1',type:'時間型',note:'櫥窗內的老式時鐘。所有指針皆向反方向運作；靠近者會短暫忘記自己剛做過的事。'},
+ 'A-114':{name:'紙面訪客',level:2,kills:3,area:'zone-1',type:'模仿型',note:'會從傳單、收據與海報中形成薄片人影，模仿最近接觸紙張的人。'},
+ 'A-126':{name:'永不打烊的店員',level:2,kills:3,area:'zone-1',type:'執念型',note:'徘徊在已封鎖商店櫃檯後方，持續向不存在的顧客重複結帳流程。'},
+ 'A-139':{name:'折扣紅標',level:3,kills:3,area:'zone-1',type:'誘引型',note:'會附著在物品表面並逐步降低持有者對危險的判斷，只留下「現在不拿就虧了」的念頭。'},
+ 'A-148':{name:'空席食客',level:3,kills:4,area:'zone-1',type:'群體型',note:'餐飲區的空椅會自行拉開；若有人入座，周圍會出現看不見的用餐聲與多餘餐具。'},
+
+ 'A-203':{name:'空洞售貨機',level:3,kills:3,area:'zone-2',type:'交換型',note:'投入任何物品後，都可能吐出與原物毫無關聯的東西；機內空間遠大於外觀尺寸。'},
+ 'A-227':{name:'低語井',level:4,kills:4,area:'zone-2',type:'聲響型',note:'維修井深處會重複探索者未曾說出口的念頭，並逐次改成更具敵意的語氣。'},
+ 'A-241':{name:'管線寄生體',level:4,kills:4,area:'zone-2',type:'寄生型',note:'藏在蒸氣管與電纜槽內，以熱量和震動為食；受驚時會讓整段管線像活物般抽動。'},
+ 'A-256':{name:'十四號維修工',level:5,kills:4,area:'zone-2',type:'擬人型',note:'穿著老式作業服，永遠背對觀測者維修同一面牆；繞到正面時只會看見一盞工作燈。'},
+ 'A-269':{name:'失速輸送帶',level:5,kills:5,area:'zone-2',type:'機械型',note:'無電源時仍會自行運轉，並把附近鬆散物件送往一個圖紙上不存在的方向。'},
+
+ 'A-311':{name:'鏡中獸',level:5,kills:4,area:'zone-3',type:'鏡像型',note:'只在反射面中移動，實體位置無法直接觀測；鏡面越多，活動範圍越大。'},
+ 'A-338':{name:'無名司書',level:6,kills:5,area:'zone-3',type:'認知型',note:'會替不存在的人整理不存在的檔案；被它點名者會短暫失去自我認知。'},
+ 'A-352':{name:'零號受試者',level:6,kills:5,area:'zone-3',type:'實驗型',note:'透明隔離室內總能看見一道人影，但所有監視紀錄都顯示房間自始至終空無一物。'},
+ 'A-367':{name:'錯誤答案集',level:7,kills:5,area:'zone-3',type:'資訊型',note:'一本會自動翻頁的實驗紀錄。閱讀者越確信其中內容錯誤，周圍現實越會向書中記錄靠攏。'},
+ 'A-379':{name:'分裂觀測者',level:7,kills:6,area:'zone-3',type:'觀測型',note:'只有透過兩種不同觀測設備同時觀看才會顯形；兩份影像中的姿態永遠不一致。'},
+
+ 'A-402':{name:'食光列車',level:8,kills:5,area:'zone-4',type:'空間型',note:'通過區域時會使所有照明逐段熄滅，之後才聽見軌道聲；沒有任何人看過完整車體。'},
+ 'A-417':{name:'灰白天使',level:10,kills:6,area:'zone-4',type:'獵殺型',note:'靜止時近似石像；只在無人直視時改變位置，且每次移動都會更接近最近的活物。'},
+ 'A-431':{name:'邊界拾荒者',level:8,kills:5,area:'zone-4',type:'捕食型',note:'拖著由廢鐵、骨片與路牌拼成的袋子，會收走任何被判定為「無人認領」的東西。'},
+ 'A-446':{name:'無月犬群',level:9,kills:6,area:'zone-4',type:'群獵型',note:'只會在完全沒有自然光的區域留下足跡。單一個體不可見，但犬群會共同追逐同一目標。'},
+ 'A-459':{name:'折疊街口',level:11,kills:7,area:'zone-4',type:'空間型',note:'一段會把四個方向折回原點的街口。長時間滯留後，探索者會開始看見「沒有跟隊的自己」。'}
 };
 
 const EXPLORATION_EVENTS=[
@@ -1076,6 +1091,9 @@ function setTab(id){
   setMainMenuOpen(false);
   if(id==='sinners'&&typeof window.forceRenderSinnerManagement==='function'){
     window.forceRenderSinnerManagement();
+  }
+  if(id==='bestiary'&&typeof window.forceRenderBestiary==='function'){
+    window.forceRenderBestiary();
   }
 }
 function drawSprite(kind){
