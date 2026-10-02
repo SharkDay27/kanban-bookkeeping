@@ -338,9 +338,10 @@ function ensureExplorationState(){
       lastResult:null
     };
   }
-  state.exploration.actions=Math.max(0,Number(state.exploration.actions||0));
-  state.exploration.earned=Math.max(state.exploration.actions,Number(state.exploration.earned||0));
   state.exploration.spent=Math.max(0,Number(state.exploration.spent||0));
+  state.exploration.earned=state.entries.length;
+  state.exploration.actions=Math.max(0,state.exploration.earned-state.exploration.spent);
+  state.exploration.logs=Array.isArray(state.exploration.logs)?state.exploration.logs:[];
   state.exploration.runs=Math.max(0,Number(state.exploration.runs||0));
   state.exploration.selected=Array.isArray(state.exploration.selected)?state.exploration.selected.slice(0,2):['李箱','浮士德'];
   state.exploration.fieldGear=Array.isArray(state.exploration.fieldGear)?state.exploration.fieldGear:[];
@@ -353,9 +354,9 @@ function ensureExplorationState(){
   });
 }
 function grantExplorationActions(n){
+  // 行動點數由「目前記帳筆數 - 已消耗探索次數」直接推導，避免不同畫面不同步。
   ensureExplorationState();
-  n=Math.max(0,Number(n||0));
-  state.exploration.actions+=n;state.exploration.earned+=n;
+  return state.exploration.actions;
 }
 function sinnerEffectiveStats(name){
   ensureExplorationState();
@@ -492,7 +493,18 @@ function runExploration(){
   if(levelUps.length)reward+=(reward?'；':'')+'升級：'+levelUps.join('、');
   const dialogue=typeof generateExplorationDialogue==='function'?generateExplorationDialogue(names,kind,ctx):[];
   ex.lastResult={at:new Date().toISOString(),areaId:area.id,area:area.name,names:names,kind:kind,title:title,detail:detail,reward:reward,stamp:stamp,xp:xp,dialogue:dialogue};
-  saveLocal();render();toast('探索完成：'+title);
+  ex.logs=Array.isArray(ex.logs)?ex.logs:[];
+  ex.logs.unshift({
+    at:ex.lastResult.at,areaId:area.id,area:area.name,names:[...names],kind:kind,title:title,detail:detail,
+    reward:reward,stamp:stamp,xp:xp,dialogue:Array.isArray(dialogue)?dialogue:[]
+  });
+  ex.logs=ex.logs.slice(0,100);
+  // spent 已增加，重新依記帳筆數校正剩餘行動點數。
+  ex.earned=state.entries.length;
+  ex.actions=Math.max(0,ex.earned-ex.spent);
+  saveLocal();
+  try{renderExploration();renderSinnerManagement();renderBestiary();renderBackpack()}catch(e){console.error('exploration render',e)}
+  toast('探索完成：'+title);
 }
 function containedAbnormalityCount(){
   ensureExplorationState();
@@ -545,6 +557,23 @@ function renderExploration(){
   if($('exploreHomeCode'))$('exploreHomeCode').textContent=r?r.stamp:'STANDBY';
   if($('exploreHomeMain'))$('exploreHomeMain').textContent=r?r.title:'尚未執行探索。';
   if($('exploreHomeDetail'))$('exploreHomeDetail').textContent=r?(r.area+' / '+r.names.join('＋')+(r.reward?' / '+r.reward:'')):'前往「探索」頁籤選擇區域與兩名罪人。';
+
+  const logBox=$('explorationLog');
+  if(logBox){
+    const logs=Array.isArray(ex.logs)?ex.logs:[];
+    logBox.innerHTML=logs.length?logs.map(function(log){
+      const when=new Date(log.at);
+      const time=isNaN(when.getTime())?'':when.toLocaleString('zh-TW',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+      return '<article class="exploration-log-entry wood">'+
+        '<div class="exploration-log-head"><span>'+esc(log.stamp||'FIELD')+'</span><time>'+esc(time)+'</time></div>'+
+        '<div class="exploration-log-title">'+esc(log.title||'探索紀錄')+'</div>'+
+        '<div class="exploration-log-meta">'+esc(log.area||'未知區域')+' / '+esc((log.names||[]).join('＋'))+' / EXP +'+Number(log.xp||0)+'</div>'+
+        '<div class="exploration-log-detail">'+esc(log.detail||'')+'</div>'+
+        (log.reward?'<div class="exploration-log-reward">REWARD / '+esc(log.reward)+'</div>':'')+
+        (Array.isArray(log.dialogue)&&log.dialogue.length?'<div class="exploration-log-dialogue">'+log.dialogue.map(function(line){return '<div><b>'+esc(line.speaker)+'</b> '+esc(line.text)+'</div>'}).join('')+'</div>':'')+
+      '</article>';
+    }).join(''):'<div class="empty">尚無探索紀錄。</div>';
+  }
 
   const home=$('homeContainmentProgress');
   if(home){
@@ -1037,12 +1066,17 @@ function saveEntry(keepOpen=false){
   }
   state.profile.lastPayment=obj.payment;
   checkQuests();checkAchievements();saveLocal();
+
   if(keepOpen&&!id){
-    const keepType=obj.type;$('eamt').value='';$('estore').value='';$('enote').value='';$('etype').value=keepType;syncEntryTypeUI();render();setTimeout(function(){$('eamt').focus()},60);
+    const keepType=obj.type;
+    $('eamt').value='';$('estore').value='';$('enote').value='';$('etype').value=keepType;syncEntryTypeUI();
+    setTimeout(function(){try{render()}catch(e){console.error('render after saveAgain',e)}$('eamt').focus()},40);
   }else{
-    $('dlg').close();render();
+    $('dlg').close();
+    // 先顯示罪人評議，再做其餘畫面刷新；即使某個頁籤渲染失敗，評議也不會被吃掉。
+    if(freshComment)setTimeout(function(){showSinnerComment(freshComment)},30);
+    setTimeout(function(){try{render()}catch(e){console.error('render after save',e)}},80);
   }
-  if(freshComment)setTimeout(function(){showSinnerComment(freshComment)},120);
 }
 function deleteEntry(){const id=$('eid').value;if(!id)return;if(confirm('確定刪除這筆記錄？')){state.entries=state.entries.filter(x=>x.id!==id);state.rpg.rewardLog='你刪除了一筆記錄。';saveLocal();$('dlg').close();render();toast('已刪除記錄')}}
 function parseCSVLoose(text){const rows=[];let row=[],field='',q=false;for(let i=0;i<text.length;i++){const c=text[i],n=text[i+1];if(q){if(c==='"'&&n==='"'){field+='"';i++}else if(c==='"'){q=false}else field+=c}else{if(c==='"')q=true;else if(c===','){row.push(field);field=''}else if(c==='\n'){row.push(field);rows.push(row);row=[];field=''}else if(c!=='\r')field+=c}}if(field.length||row.length){row.push(field);rows.push(row)}if(!rows.length)return [];const head=rows[0],out=[];rows.slice(1).forEach(r=>{if(!r.some(Boolean))return;while(r.length<head.length)r.push('');if(r.length>head.length)r=[...r.slice(0,head.length-1),r.slice(head.length-1).join(',')];out.push(Object.fromEntries(head.map((k,i)=>[k,r[i]||'']))) });return out}
@@ -1094,6 +1128,10 @@ function setTab(id){
   }
   if(id==='bestiary'&&typeof window.forceRenderBestiary==='function'){
     window.forceRenderBestiary();
+  }
+  if(id==='explore'){
+    try{renderExploration()}catch(e){console.error('render exploration tab',e)}
+    if($('exploreBtn'))$('exploreBtn').onclick=runExploration;
   }
 }
 function drawSprite(kind){
