@@ -1441,3 +1441,22 @@ dialog#dlg .entry-wide{
 @media(max-width:820px){
   .manager-reward-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
 }
+
+
+/* ===== Exploration combat report: enemy / ally / result color coding ===== */
+.combat-report{display:flex;flex-direction:column;gap:7px;margin-top:10px}
+.combat-report-row{display:grid;grid-template-columns:112px minmax(0,1fr);gap:10px;padding:9px 10px;border:1px solid #41434a;background:#131418}
+.combat-report-label{font-size:8px;letter-spacing:1.1px;font-weight:900}
+.combat-report-main strong{display:block;font-size:12px;margin-bottom:3px}
+.combat-report-main span{font-size:10px;line-height:1.5;color:#c2beb4}
+.combat-report-row.enemy{border-left:4px solid #a34f55;background:linear-gradient(90deg,rgba(135,50,57,.18),#131418 34%)}
+.combat-report-row.enemy .combat-report-label,.combat-report-row.enemy strong{color:#df777c}
+.combat-report-row.ally{border-left:4px solid #527d92;background:linear-gradient(90deg,rgba(55,103,128,.16),#131418 34%)}
+.combat-report-row.ally .combat-report-label,.combat-report-row.ally strong{color:#79b8cf}
+.combat-report-row.outcome{border-left:4px solid #9a7c45;background:linear-gradient(90deg,rgba(141,111,52,.16),#131418 34%)}
+.combat-report-row.outcome .combat-report-label,.combat-report-row.outcome strong{color:#ddc16d}
+.combat-report-row.outcome.success{border-left-color:#66876d;background:linear-gradient(90deg,rgba(72,121,81,.17),#131418 34%)}
+.combat-report-row.outcome.success .combat-report-label,.combat-report-row.outcome.success strong{color:#8ec29a}
+@media(max-width:700px){
+  .combat-report-row{grid-template-columns:1fr;gap:4px}
+}
