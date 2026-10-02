@@ -770,6 +770,7 @@ function grantXp(xp,reason){
   const afterLv=Math.floor(state.rpg.xp/100)+1,levelUps=Math.max(0,afterLv-beforeLv);
   if(levelUps>0)state.rpg.itemBoxes=(state.rpg.itemBoxes||0)+levelUps;
   state.rpg.rewardLog=reason+'\nEXP +'+gain+(levelUps?'\n經理升級 ×'+levelUps+'，獲得道具箱 ×'+levelUps:'');
+  return {gain:gain,levelUps:levelUps,beforeLv:beforeLv,afterLv:afterLv};
 }
 function ensurePlayerState(){
   state.rpg.player=state.rpg.player||{hp:100,maxHp:100,lastCombat:'尚無受擊紀錄。'};
@@ -940,6 +941,8 @@ function renderRpg(){
   $('xpFill').style.width=cur+'%';$('xpPct').textContent=cur+'%';
   $('gold').textContent=state.rpg.gold;
   if($('itemBoxCount'))$('itemBoxCount').textContent=state.rpg.itemBoxes||0;
+  if($('managerActions'))$('managerActions').textContent=state.exploration.actions||0;
+  if($('managerSupply'))$('managerSupply').textContent=(state.rpg.consumables.water||0)+' / '+(state.rpg.consumables.potion||0);
   $('rewardLog').textContent=state.rpg.rewardLog;
   const ds=dayStats(today());
   if($('streakBig'))$('streakBig').textContent=computeStreak().current;
@@ -1169,11 +1172,22 @@ function saveEntry(keepOpen=false){
   }else{
     obj.comment=generateSinnerComment(obj);freshComment=obj.comment;
     state.entries.unshift(obj);
-    grantXp(XP_PER_ENTRY,(type==='income'?'新增收入':'新增支出')+'：'+obj.store);
+    const xpResult=grantXp(XP_PER_ENTRY,(type==='income'?'新增收入':'新增支出')+'：'+obj.store);
     grantExplorationActions(1);
+    ensureExplorationState();
+    window.lastBookkeepingReward={
+      xp:Number(xpResult&&xpResult.gain||XP_PER_ENTRY),
+      levelUps:Number(xpResult&&xpResult.levelUps||0),
+      actions:Number(state.exploration.actions||0),
+      itemBoxes:Number(state.rpg.itemBoxes||0),
+      gold:Number(state.rpg.gold||0),
+      at:Date.now()
+    };
   }
   state.profile.lastPayment=obj.payment;
   checkQuests();checkAchievements();saveLocal();
+  if(!id&&typeof window.forceRenderManagerProgress==='function')window.forceRenderManagerProgress();
+  if(!id&&typeof window.showBookkeepingReward==='function')window.showBookkeepingReward(window.lastBookkeepingReward);
 
   if(keepOpen&&!id){
     const keepType=obj.type;
