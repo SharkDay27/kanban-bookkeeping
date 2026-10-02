@@ -429,6 +429,209 @@ const AMOUNT_REACTIONS={
   '格里高爾':['呃……經理，這數字大到我覺得先確認比較好。真的。','這已經不是喝杯咖啡能緩過來的程度了。先核對。']
  }
 };
+
+const CONTEXT_COMMENTARY={
+ breakfast:{
+  '李箱':['晨光尚淺，第一筆餐食便已落於帳上。日之始，亦是流向之始。'],
+  '浮士德':['早餐通常具有高度規律性。若長期紀錄，能直接看出日常成本是否改變。'],
+  '堂吉訶德':['早晨之補給已確認！經理老爺，唯有飽足方能精神百倍地迎戰今日！'],
+  '良秀':['早。食。醒。'],
+  '默爾索':['早餐支出已記錄。若每日固定，可作為基準項目。'],
+  '鴻璐':['但丁閣下，早上第一筆就是吃的呀。一天從這裡開始，好像很有秩序呢。'],
+  '希斯克利夫':['鐘錶頭，早餐該吃就吃。別餓著，然後中午又一次補兩頓的份。'],
+  '以實瑪利':['經理，早餐很適合當固定支出基準。若價格一直上升，很快就看得出來。'],
+  '羅佳':['早上先吃飽嘛，但丁~ 空著肚子省下的錢，說不定下午又全花回去了。'],
+  '辛克萊':['但丁經理，早餐有固定記下來的話……應該很容易看出平常到底花多少。'],
+  '奧提斯':['執行經理！晨間補給已完成登錄，今日作業可在充足狀態下展開！'],
+  '格里高爾':['早飯還是得吃啊，經理。這種規律的小錢反而最好抓。']
+ },
+ lunch:{
+  '李箱':['日行至半，補給亦至半。此筆可與往日同時刻相照。'],
+  '浮士德':['午餐是高頻且可比較的支出。相同時段的長期資料尤其有價值。'],
+  '堂吉訶德':['午間補給時間！經理老爺，此日尚未過半，務必補足體力！'],
+  '良秀':['午。補。續。'],
+  '默爾索':['午餐已記錄。可與平日午餐均值比較。'],
+  '鴻璐':['但丁閣下，中午吃什麼每天都不太一樣，價格也會跟著變呢。'],
+  '希斯克利夫':['中午吃好點沒問題，鐘錶頭。只要別每次都說「今天特別累」。'],
+  '以實瑪利':['經理，午餐通常是最穩定的餐飲樣本之一。偏離平常時值得注意。'],
+  '羅佳':['午餐時間就是最容易合理化加菜的時候啦，但丁~'],
+  '辛克萊':['但丁經理，午餐如果比平常高很多……也許只是今天比較特別吧？'],
+  '奧提斯':['執行經理，午間補給已歸檔。屬下建議維持穩定補給成本！'],
+  '格里高爾':['午飯嘛，別太苛待自己。只是天天升級套餐，月底會看得出來。']
+ },
+ dinner:{
+  '李箱':['一日將盡，晚餐之數亦替今日添上最後幾筆輪廓。'],
+  '浮士德':['晚餐的價格波動通常高於早餐與午餐，適合觀察是否出現額外消費。'],
+  '堂吉訶德':['晚間盛宴——若只是普通晚餐亦無妨！經理老爺，今日辛苦了！'],
+  '良秀':['晚。收。別撐。'],
+  '默爾索':['晚餐已記錄。此時段支出通常較具彈性。'],
+  '鴻璐':['但丁閣下，晚餐好像最容易從「吃飯」變成「順便犒賞自己」呢。'],
+  '希斯克利夫':['晚飯吃就吃，鐘錶頭。別一到晚上就把白天省的全補回來。'],
+  '以實瑪利':['經理，晚餐比較容易混入聚餐或臨時消費，最好和一般日常分開看。'],
+  '羅佳':['晚餐嘛，辛苦一天吃好點很正常啦~ 但丁，別每天都當慶功宴就行。'],
+  '辛克萊':['但丁經理，晚餐如果常常比午餐高很多……月底可能會很明顯。'],
+  '奧提斯':['執行經理，晚間補給已記錄！請避免疲勞導致不必要的資源擴張！'],
+  '格里高爾':['晚上人一累，就容易覺得「今天值得吃好一點」。我懂，經理。']
+ },
+ lateNight:{
+  '李箱':['夜已深，而欲求未眠。此時之支出，往往較白日更難被衡量。'],
+  '浮士德':['深夜消費的決策品質較容易受疲勞影響。建議明日再回看一次。'],
+  '堂吉訶德':['深夜補給？！經理老爺，此刻更需警惕疲勞乘虛而入的衝動消費！'],
+  '良秀':['夜。躁。停。'],
+  '默爾索':['目前屬深夜時段。建議確認此筆是否必要。'],
+  '鴻璐':['但丁閣下，原來深夜真的會比較容易想買東西嗎？這很有趣呢。'],
+  '希斯克利夫':['鐘錶頭，都這時間了還在花？先想清楚是不是困到亂按。'],
+  '以實瑪利':['經理，深夜消費最好多一道確認。疲勞時的判斷通常沒那麼可靠。'],
+  '羅佳':['但丁~ 半夜的「我值得」最危險了。睡醒再看常常就沒那麼值得。'],
+  '辛克萊':['但丁經理，已經很晚了……如果不是急需，也許明天再決定會比較好。'],
+  '奧提斯':['執行經理！深夜判斷力下降乃明確風險，屬下建議再次確認該筆必要性！'],
+  '格里高爾':['經理，半夜的購物車啊……通常早上看會有另一種感受。']
+ },
+ shoppingStreak:{
+  '李箱':['同日再添一件物，單次之欲已開始連成線。'],
+  '浮士德':['同一天連續出現購物紀錄。建議區分計畫採購與連帶購買。'],
+  '堂吉訶德':['又一次採購！經理老爺，戰利品袋已開始迅速膨脹了！'],
+  '良秀':['又買。止。'],
+  '默爾索':['同日已出現前一筆購物。建議確認兩筆是否皆為計畫內。'],
+  '鴻璐':['但丁閣下，今天已經買過東西了呢。逛起來之後果然很容易接著買。'],
+  '希斯克利夫':['鐘錶頭，今天不是已經買過了？別一買起來就沒完。'],
+  '以實瑪利':['經理，同日連續購物是值得注意的訊號。最好把清單和臨時加購分開。'],
+  '羅佳':['但丁，購物就是這樣啦~ 第一筆下去，第二筆突然就沒那麼有罪惡感了。'],
+  '辛克萊':['但丁經理，今天已經有一筆購物了……這筆也是原本就打算買的嗎？'],
+  '奧提斯':['執行經理！同日採購次數增加，屬下建議立即核對採購清單！'],
+  '格里高爾':['買東西這事最怕開了頭就一路買下去。經理，差不多就收手吧。']
+ },
+ monthStart:{
+  '李箱':['月之初始，餘額看似寬裕。正因寬裕，更需慎於第一步。'],
+  '浮士德':['月初可支配餘額通常較高，容易高估後續空間。建議保留固定支出。'],
+  '堂吉訶德':['新月度作戰正式開始！經理老爺，切莫在開局便耗盡補給！'],
+  '良秀':['月初。別鬆。'],
+  '默爾索':['目前為月初。應先預留本月固定支出。'],
+  '鴻璐':['但丁閣下，月初看起來總是很有錢呢。不過那些數字後面還有很多用途吧？'],
+  '希斯克利夫':['鐘錶頭，才月初。別看餘額漂亮就開始亂來。'],
+  '以實瑪利':['經理，月初最重要的是先扣掉已知義務，再看真正可支配金額。'],
+  '羅佳':['月初嘛，看著餘額就會覺得自己突然富有了。很危險喔，但丁~'],
+  '辛克萊':['但丁經理，現在才月初……我覺得先留一些給後面的固定支出比較安心。'],
+  '奧提斯':['執行經理！月度作戰初期應優先保全後勤，不可因表面充裕而放鬆！'],
+  '格里高爾':['月初最會騙人了，經理。看著很多，帳單一來就老實了。']
+ },
+ monthEnd:{
+  '李箱':['月將盡，此筆不再只是今日之數，也將成為整月結論的一部分。'],
+  '浮士德':['接近月底，新增支出對最終淨額的影響會更加直觀。'],
+  '堂吉訶德':['決算之日將近！經理老爺，吾等已來到月度作戰的最後防線！'],
+  '良秀':['月底。收刀。'],
+  '默爾索':['目前接近月底。建議以剩餘資金判斷此筆影響。'],
+  '鴻璐':['但丁閣下，快月底了呢。現在每一筆好像都更容易看出影響。'],
+  '希斯克利夫':['鐘錶頭，都月底了。現在再花一筆，可就直接寫在結算臉上了。'],
+  '以實瑪利':['經理，月底最好避免用「反正快結束了」合理化額外支出。'],
+  '羅佳':['但丁，月底的錢特別薄喔~ 看起來還有，其實每一張都有任務。'],
+  '辛克萊':['但丁經理，已經接近月底了……這筆會很直接地影響最後結果。'],
+  '奧提斯':['執行經理！月末決算迫近，任何額外消耗皆應提高審核標準！'],
+  '格里高爾':['月底啦，經理。這時候錢包通常比人還誠實。']
+ },
+ salarySpend:{
+  '李箱':['收入方才抵達，支出便緊隨其後。流轉之快，幾乎未曾停留。'],
+  '浮士德':['薪資入帳後短期內的消費容易受可支配感提升影響。建議重新確認預算。'],
+  '堂吉訶德':['薪資援軍方才抵達便立刻出征？！經理老爺，至少也應先整編補給！'],
+  '良秀':['薪進。錢出。快。'],
+  '默爾索':['近期有薪資入帳。此筆支出發生於其後不久。'],
+  '鴻璐':['但丁閣下，薪水剛進來就花出去，好像真的會讓人比較沒感覺呢。'],
+  '希斯克利夫':['鐘錶頭，薪水才剛進來吧？別讓它只是路過你的帳戶。'],
+  '以實瑪利':['經理，薪資剛入帳時最容易放鬆。先完成固定分配再增加消費比較安全。'],
+  '羅佳':['但丁，薪水剛到帳那幾天最危險啦~ 每一筆都會覺得「還很多」。'],
+  '辛克萊':['但丁經理，薪資才剛入帳……要不要先確認預留的部分還在？'],
+  '奧提斯':['執行經理！新補給抵達後立即增加消耗，可能導致後期資源不足！'],
+  '格里高爾':['薪水剛來就想犒賞自己，我懂。只是別犒賞到它當天就走了。']
+ },
+ repeatCategory:{
+  '李箱':['同一類別再次出現。重複之形，往往比單一數字更能說明習慣。'],
+  '浮士德':['同類別連續出現，代表目前消費行為具有明顯集中性。'],
+  '堂吉訶德':['又是同一類支出！經理老爺，此敵似乎正在連續出現！'],
+  '良秀':['又同類。看。'],
+  '默爾索':['與上一筆屬相同類別。建議觀察是否為固定模式。'],
+  '鴻璐':['但丁閣下，跟上一筆是同一類呢。今天似乎特別偏向這方面。'],
+  '希斯克利夫':['又是同一類？鐘錶頭，你今天是不是有點集中過頭了。'],
+  '以實瑪利':['經理，連續同類支出比單筆更值得注意，尤其是可選消費。'],
+  '羅佳':['又是這一類呀，但丁~ 看來今天的錢很有自己的偏好。'],
+  '辛克萊':['但丁經理，和上一筆是同一類……也許可以稍微看一下今天累積多少了。'],
+  '奧提斯':['執行經理！同類消耗連續出現，建議立刻檢視該類別今日總額！'],
+  '格里高爾':['又是同一類啊，經理。一次沒什麼，連著來就有點意思了。']
+ },
+ higherThanLast:{
+  '李箱':['同類之數較上次更高。差距本身，亦是一種訊息。'],
+  '浮士德':['此筆同類支出高於上一次。若非規格或情境改變，值得確認原因。'],
+  '堂吉訶德':['竟比上一次更高！經理老爺，此敵似乎進化了！'],
+  '良秀':['比上次高。查。'],
+  '默爾索':['此筆高於上一筆同類紀錄。'],
+  '鴻璐':['但丁閣下，這次比上次同類的還高呢。是買了不同的東西嗎？'],
+  '希斯克利夫':['鐘錶頭，這次比上次還貴。至少告訴我你知道為什麼。'],
+  '以實瑪利':['經理，同類支出上升。若不是一次性因素，應留意是否形成新基準。'],
+  '羅佳':['但丁，這次比上次更貴喔~ 漲價還是我們自己升級了？'],
+  '辛克萊':['但丁經理，這筆比上一次同類紀錄高……可能要看一下差在哪裡。'],
+  '奧提斯':['執行經理！同類成本較前次上升，建議立即確認成本增加原因！'],
+  '格里高爾':['經理，這次比上次貴。要是每次都這樣往上爬，可不太妙。']
+ },
+ lowerThanLast:{
+  '李箱':['同類之數較前次為輕。微小的下降，亦可成為長期之勢。'],
+  '浮士德':['此筆同類支出低於上一次。若條件相近，可視為成本改善。'],
+  '堂吉訶德':['比上次更低！經理老爺，此乃節制之戰果！'],
+  '良秀':['比上次低。可。'],
+  '默爾索':['此筆低於上一筆同類紀錄。'],
+  '鴻璐':['但丁閣下，這次比上次便宜呢。原來同一類也能差這麼多。'],
+  '希斯克利夫':['喔，這次倒比上次省。鐘錶頭，這種方向可以。'],
+  '以實瑪利':['經理，同類支出下降。如果沒有犧牲必要性，這是正向變化。'],
+  '羅佳':['嘿，這次比上次少耶，但丁~ 省下來的可別立刻拿去別處花掉。'],
+  '辛克萊':['但丁經理，這次比較低……如果需求一樣，那應該算是好事吧。'],
+  '奧提斯':['執行經理！同類成本下降，資源效率有所改善！'],
+  '格里高爾':['這次比上次省一點，經理。小地方慢慢省也挺有用。']
+ }
+};
+function localDateKey(d){
+  const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');
+  return y+'-'+m+'-'+day;
+}
+function detectSituations(entry){
+  const out=[],now=new Date(),entryDate=entry.date||localDateKey(now);
+  const day=Number(entryDate.slice(8,10)),isToday=entryDate===localDateKey(now),hour=isToday?now.getHours():12;
+  if(entry.category==='餐飲'){
+    if(hour>=5&&hour<=10)out.push({id:'breakfast'});
+    else if(hour>=11&&hour<=14)out.push({id:'lunch'});
+    else if(hour>=17&&hour<=21)out.push({id:'dinner'});
+  }
+  if(isToday&&(hour>=22||hour<5))out.push({id:'lateNight'});
+  const previous=state.entries.find(function(x){return x.id!==entry.id});
+  if(entry.category==='購物'&&previous&&previous.date===entryDate&&previous.category==='購物')out.push({id:'shoppingStreak'});
+  if(day<=5)out.push({id:'monthStart'});
+  if(day>=25)out.push({id:'monthEnd'});
+  if(entry.type==='expense'){
+    const target=new Date(entryDate+'T12:00:00');
+    const recentSalary=state.entries.find(function(x){
+      if(x.type!=='income'||x.category!=='薪資'||!x.date)return false;
+      const diff=(target-new Date(x.date+'T12:00:00'))/86400000;
+      return diff>=0&&diff<=3;
+    });
+    if(recentSalary)out.push({id:'salarySpend'});
+  }
+  if(previous&&previous.category===entry.category&&previous.type===entry.type)out.push({id:'repeatCategory'});
+  const prevSame=state.entries.find(function(x){return x.id!==entry.id&&x.type===entry.type&&x.category===entry.category&&Number(x.amount)>0});
+  if(prevSame){
+    const ratio=Number(entry.amount||0)/Number(prevSame.amount||1);
+    if(ratio>=1.25)out.push({id:'higherThanLast'});
+    else if(ratio<=0.8)out.push({id:'lowerThanLast'});
+  }
+  return out;
+}
+function situationReaction(sinner,entry){
+  const contexts=detectSituations(entry);
+  if(!contexts.length)return [];
+  const priority=['lateNight','salarySpend','shoppingStreak','higherThanLast','lowerThanLast','repeatCategory','breakfast','lunch','dinner','monthEnd','monthStart'];
+  contexts.sort(function(a,b){return priority.indexOf(a.id)-priority.indexOf(b.id)});
+  return contexts.slice(0,Math.random()<0.35?2:1).map(function(ctx){
+    const arr=(CONTEXT_COMMENTARY[ctx.id]||{})[sinner.name]||[];
+    return arr.length?pick(arr):'';
+  }).filter(Boolean);
+}
+
 function amountTier(entry){
   const amount=Number(entry.amount||0);
   const sameCat=state.entries.filter(function(x){return x.id!==entry.id&&x.type===entry.type&&x.category===entry.category&&Number(x.amount)>0});
@@ -507,21 +710,19 @@ function ryoshuArayaInteraction(entry){
 }
 function generateSinnerComment(entry){
   const roll=Math.random();
-  if(roll<0.01){
-    return {kind:'all',createdAt:new Date().toISOString(),category:entry.category,amountTier:amountTier(entry),amount:entry.amount,lines:SINNERS.map(function(s){return {speaker:s.name,text:sinnerLine(s,entry)}})};
-  }
+  const contexts=detectSituations(entry).map(function(x){return x.id});
+  const meta={createdAt:new Date().toISOString(),category:entry.category,amountTier:amountTier(entry),amount:entry.amount,contexts:contexts};
+  if(roll<0.01)return {...meta,kind:'all',lines:SINNERS.map(function(s){return {speaker:s.name,text:sinnerLine(s,entry)}})};
   const first=SINNERS[Math.floor(Math.random()*SINNERS.length)];
-  if(first.name==='良秀'&&Math.random()<0.58){
-    return {kind:'araya',createdAt:new Date().toISOString(),category:entry.category,amountTier:amountTier(entry),amount:entry.amount,lines:ryoshuArayaInteraction(entry)};
-  }
+  if(first.name==='良秀'&&Math.random()<0.58)return {...meta,kind:'araya',lines:ryoshuArayaInteraction(entry)};
   const lines=[{speaker:first.name,text:sinnerLine(first,entry)}];
   if(roll<0.08){
     let second=SINNERS[Math.floor(Math.random()*SINNERS.length)];
     while(second.name===first.name)second=SINNERS[Math.floor(Math.random()*SINNERS.length)];
     lines.push({speaker:second.name,text:sinnerLine(second,entry)});
-    return {kind:'duo',createdAt:new Date().toISOString(),category:entry.category,amountTier:amountTier(entry),amount:entry.amount,lines:lines};
+    return {...meta,kind:'duo',lines:lines};
   }
-  return {kind:'single',createdAt:new Date().toISOString(),category:entry.category,amountTier:amountTier(entry),amount:entry.amount,lines:lines};
+  return {...meta,kind:'single',lines:lines};
 }
 function commentKindLabel(kind){
   if(kind==='all')return 'RARE / 全員評議';
