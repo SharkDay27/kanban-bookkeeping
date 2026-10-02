@@ -17,6 +17,7 @@
     {id:'RPG-A15',cat:'商店',name:'有備而來',desc:'在探索商店完成 5 次購買',target:5,progress:function(){ensureExplorationState();return (state.exploration.logs||[]).reduce(function(s,l){return s+(l.kind==='shop'&&l.reward&&String(l.reward).indexOf('購入')>=0?1:0)},0)},reward:{gold:150,box:1}}
   ];
   window.RPG_ACHIEVEMENTS=defs;
+  let activeFilter='pending';
 
   function rewardText(r){const x=[];if(r.gold)x.push(r.gold+' 金幣');if(r.box)x.push('道具箱 ×'+r.box);if(r.water)x.push('瓶裝水 ×'+r.water);if(r.potion)x.push('治療藥水 ×'+r.potion);return x.join('、')}
   function grant(r){ensurePlayerState();if(r.gold)state.rpg.gold+=r.gold;if(r.box)state.rpg.itemBoxes=(state.rpg.itemBoxes||0)+r.box;if(r.water)state.rpg.consumables.water+=r.water;if(r.potion)state.rpg.consumables.potion+=r.potion}
@@ -35,16 +36,31 @@
       if(summary)summary.innerHTML='<div class="mini wood panel"><div class="k">已解鎖</div><div class="num">'+unlocked.filter(function(id){return id.indexOf('RPG-')===0}).length+' / '+defs.length+'</div></div>'+
         '<div class="mini wood panel"><div class="k">探索次數</div><div class="num">'+(state.exploration&&state.exploration.runs||0)+'</div></div>'+
         '<div class="mini wood panel"><div class="k">已收容</div><div class="num">'+containedAbnormalityCount()+'</div></div>';
-      box.innerHTML=defs.map(function(x){
+      const filtered=defs.filter(function(x){
+        const on=unlocked.includes(x.id);
+        return activeFilter==='done'?on:!on;
+      });
+      box.innerHTML=filtered.length?filtered.map(function(x){
         const p=Math.min(x.target,Number(x.progress()||0)),on=unlocked.includes(x.id),pct=Math.round(p/x.target*100);
         return '<article class="achievement-card wood '+(on?'unlocked':'locked')+'"><div class="achievement-badge">'+(on?'UNLOCKED':'LOCKED')+'</div>'+
           '<div class="achievement-id">'+x.id+'</div><div class="achievement-category">'+x.cat+'</div><div class="achievement-name">'+x.name+'</div><div class="achievement-desc">'+x.desc+'</div>'+
           '<div class="quest-progress"><div style="width:'+pct+'%"></div></div><div class="achievement-progress-text">'+p+' / '+x.target+'</div>'+
           '<div class="achievement-reward-line">REWARD / '+rewardText(x.reward)+'</div></article>';
-      }).join('');
+      }).join(''):'<div class="achievement-empty wood">'+(activeFilter==='done'?'目前還沒有已完成的成就。':'所有成就都已完成。')+'</div>';
+      const pendingBtn=document.getElementById('achievementPendingBtn'),doneBtn=document.getElementById('achievementDoneBtn');
+      if(pendingBtn)pendingBtn.classList.toggle('active',activeFilter==='pending');
+      if(doneBtn)doneBtn.classList.toggle('active',activeFilter==='done');
     }catch(err){const b=document.getElementById('achievementGrid');if(b)b.innerHTML='<div class="rpg-module-error">成就模組載入失敗：'+String(err.message||err)+'</div>'}
   }
   window.checkRpgAchievements=check;window.forceRenderAchievements=render;
+  function setFilter(filter){
+    activeFilter=filter==='done'?'done':'pending';
+    render();
+  }
+  document.addEventListener('click',function(ev){
+    const btn=ev.target&&ev.target.closest?ev.target.closest('[data-ach-filter]'):null;
+    if(btn)setFilter(btn.dataset.achFilter);
+  });
   render();
   document.querySelectorAll('[data-tab="progress"],[data-goto="progress"]').forEach(function(b){b.addEventListener('click',function(){setTimeout(render,0)})});
 })();
