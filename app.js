@@ -433,6 +433,8 @@ function sinnerCombatDamage(name,ab,area){
   if(name==='李箱'&&Math.random()<.22){mult+=.25;notes.push('軌跡讀取')}
   if(name==='浮士德'){flat+=Math.floor(st.observe/3);notes.push('情報演算')}
   if(name==='辛克萊'&&lv>=6){mult+=.10;notes.push('決意突破')}
+  const manager=equipmentEffects();
+  if(manager.allDamage){flat+=manager.allDamage;notes.push('管理支援 +'+manager.allDamage)}
   const raw=(st.combat*2.1)+(st.observe*.55)+(lv*1.7)+flat+(Math.random()*6);
   return {damage:Math.max(1,Math.round(raw*mult)),notes:notes};
 }
@@ -470,11 +472,12 @@ function pickFieldGear(){
   state.rpg.itemBoxes=(state.rpg.itemBoxes||0)+1;return '道具箱 ×1（重複裝備轉換）';
 }
 function explorationEventKind(){
+  const bonus=Math.min(.10,Number(equipmentEffects().lootBonus||0));
   const r=Math.random();
-  if(r<.30)return 'abnormality';
-  if(r<.54)return 'event';
-  if(r<.72)return 'supply';
-  if(r<.86)return 'gear';
+  if(r<.30-bonus*.35)return 'abnormality';
+  if(r<.54-bonus*.20)return 'event';
+  if(r<.72+bonus*.35)return 'supply';
+  if(r<.86+bonus*.65)return 'gear';
   return 'shop';
 }
 function runExploration(){
@@ -529,7 +532,8 @@ function runExploration(){
     ctx.abnormality=ab.name;ctx.abnormalityId=id;ctx.abnormalityType=ab.type;ctx.success=resultSuccess;ctx.attacks=attacks;ctx.injuries=injuries;ctx.remaining=remaining;ctx.maxHp=maxHp;
   }else if(kind==='event'){
     const ev=EXPLORATION_EVENTS[Math.floor(Math.random()*EXPLORATION_EVENTS.length)];
-    const power=teamFieldPower(names,area)+Math.random()*18;
+    const manager=equipmentEffects();
+    const power=teamFieldPower(names,area)+(manager.eventBonus||0)*40+Math.random()*18;
     resultSuccess=power>20+area.level*4;
     title='隨機事件：'+ev.name;detail=ev.desc;
     if(resultSuccess){reward='安全通過；獲得額外探索資料';xp=24+area.level*2;stamp='RESOLVED'}
@@ -685,7 +689,8 @@ function equipmentEffects(){
   return out;
 }
 function toggleEquip(name){
-  if(!EQUIPMENT_EFFECTS[name])return;
+  const catalog=(typeof window!=='undefined'&&window.RPG_EQUIPMENT_CATALOG)||EQUIPMENT_EFFECTS;
+  if(!catalog[name]&&!EQUIPMENT_EFFECTS[name])return;
   state.rpg.equipped=state.rpg.equipped||[];
   const i=state.rpg.equipped.indexOf(name);
   if(i>=0){state.rpg.equipped.splice(i,1);toast('已卸下 '+name)}
@@ -871,7 +876,7 @@ function openItemBox(){
     if(unowned.length){const id=unowned[Math.floor(Math.random()*unowned.length)];state.exploration.fieldGear.push(id);reward='探索裝備：'+FIELD_GEAR[id].name}
     else{const gold=80+Math.floor(Math.random()*41);state.rpg.gold+=gold;reward='探索裝備已齊全，轉換為金幣 ×'+gold}
   }else if(roll<0.93){
-    const pool=Object.keys(EQUIPMENT_EFFECTS),unowned=pool.filter(function(name){return !state.rpg.inventory.includes(name)});
+    const pool=(typeof window!=='undefined'&&typeof window.rpgSupportEquipmentNames==='function')?window.rpgSupportEquipmentNames():Object.keys(EQUIPMENT_EFFECTS),unowned=pool.filter(function(name){return !state.rpg.inventory.includes(name)});
     if(unowned.length){const loot=unowned[Math.floor(Math.random()*unowned.length)];state.rpg.inventory.unshift(loot);reward='管理支援裝備：'+loot}
     else{state.rpg.consumables.potion+=2;reward='小型治療藥水 ×2'}
   }else if(roll<0.98){
