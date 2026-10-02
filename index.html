@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="終端記錄">
 <title>RPG 化記帳工具</title>
-<link rel="stylesheet" href="styles.css?v=20261002n">
+<link rel="stylesheet" href="styles.css?v=20261002o">
 </head>
 <body>
 <div class="wrap">
@@ -71,6 +71,8 @@
     <button class="wood active" data-tab="adventure">終端</button>
     <button class="wood" data-tab="book">記錄</button>
     <button class="wood" data-tab="quests">任務</button>
+    <button class="wood" data-tab="explore">探索</button>
+    <button class="wood" data-tab="sinners">罪人管理</button>
     <button class="wood" data-tab="backpack">背包</button>
     <button class="wood" data-tab="bestiary">圖鑑</button>
     <button class="wood" data-tab="progress">成就</button>
@@ -86,11 +88,11 @@
     </div>
     <div class="main-grid">
       <div class="wood panel">
-        <div class="archive-header"><div><div class="archive-id">FILE // IDENTITY-ACCOUNT-01</div><div class="archive-title">人格檔案 / ACCOUNT IDENTITY</div></div><div class="archive-stamp">ACTIVE</div></div><div class="sub">每新增一筆收入或支出，該人格檔案獲得經驗值。每筆紀錄 +10 EXP。</div>
+        <div class="archive-header"><div><div class="archive-id">FILE // IDENTITY-ACCOUNT-01</div><div class="archive-title">執行經理檔案 / MANAGER IDENTITY</div></div><div class="archive-stamp">ACTIVE</div></div><div class="sub">你被固定識別為 LCB 執行經理「但丁」。每新增一筆收入或支出，除原有 EXP 外，另獲得 1 次探索行動。</div>
         <div class="hero">
           <div class="avatar" id="heroIcon"></div>
           <div>
-            <div class="row"><div id="rank" style="font-size:18px;font-weight:900">帳本終端者｜新手村記錄員</div><div id="lv" style="font-size:18px;font-weight:900">Lv.1</div></div>
+            <div class="row"><div id="rank" style="font-size:18px;font-weight:900">但丁｜LCB 執行經理</div><div id="lv" style="font-size:18px;font-weight:900">Lv.1</div></div>
             <div style="margin:8px 0 6px;color:var(--muted);font-size:12px" id="xpText">0 / 100 EXP</div>
             <div class="bar"><div class="barfill" id="xpFill"></div><div class="bartext" id="xpPct">0%</div></div>
             <div class="mini-grid">
@@ -109,56 +111,30 @@
         </div>
       </div>
 
-      <div class="wood panel containment-frame">
-        <div class="archive-header"><div><div class="archive-id">CONTAINMENT // DAILY-ENTITY</div><div class="archive-title">今日收容單位</div></div><div class="archive-stamp">OBSERVE</div></div>
-        <div class="sub">新增紀錄將視為一次作業；完成指令時追加處置效果。</div><div class="classification-row"><span class="class-chip red" id="monsterRisk">RISK / LOW</span><span class="class-chip">STATUS / MONITORED</span><span class="class-chip">SHIFT / DAILY</span></div>
-        <div class="monster">
-          <div class="monster-icon" id="monsterIcon"></div>
-          <div>
-            <div class="row"><div style="font-size:18px;font-weight:900" id="monsterName">綠色史萊姆</div><div style="font-size:12px;color:var(--muted)" id="monsterDate">—</div></div>
-            <div class="hp" style="margin-top:8px"><div class="hpfill" id="hpFill"></div><div class="hptext" id="hpText">60 / 60</div></div>
-            <div class="monster-meta" id="monsterMeta">新增記錄造成 8 傷害；完成任務造成 10 傷害</div>
-            <div class="monster-meta" id="monsterState">戰鬥中</div>
-            <div class="operator-hp-block">
-              <div class="row"><span class="k">OPERATOR HP / 使用者生命</span><span id="operatorHpState" class="monster-meta">STABLE</span></div>
-              <div class="operator-hp"><div id="operatorHpFill"></div><span id="operatorHpText">100 / 100</span></div>
-              <div class="monster-meta" id="combatLog">收容單位目前沒有造成傷害。</div>
-            </div>
-            <div class="containment-feedback" id="containmentFeedback">
-              <div class="containment-feedback-head">
-                <span>WORK RESULT / 處置回饋</span>
-                <span id="containmentFeedbackCode">STANDBY</span>
-              </div>
-              <div class="containment-feedback-main" id="containmentFeedbackMain">等待下一次作業。</div>
-              <div class="containment-feedback-detail" id="containmentFeedbackDetail">新增記錄後，這裡會顯示造成傷害、反擊、補血與掉落結果。</div>
-            </div>
-          </div>
+      <div class="wood panel containment-frame exploration-command-panel">
+        <div class="archive-header"><div><div class="archive-id">LCB // EXPLORATION-COMMAND</div><div class="archive-title">探索行動管理</div></div><div class="archive-stamp">DANTE</div></div>
+        <div class="sub">每新增 1 筆記帳紀錄 = 1 次可用行動。行動不會自動消耗；由但丁選擇兩名罪人與區域後執行探索。</div>
+        <div class="explore-command-kpis">
+          <div class="mini wood panel"><div class="k">可用行動</div><div class="num" id="exploreActionsHome">0</div></div>
+          <div class="mini wood panel"><div class="k">累計探索</div><div class="num" id="exploreRunsHome">0</div></div>
+          <div class="mini wood panel"><div class="k">已收容怪異</div><div class="num" id="containedCountHome">0</div></div>
+          <div class="mini wood panel"><div class="k">探索隊伍</div><div class="num compact" id="exploreTeamHome">未指定</div></div>
         </div>
-        <div style="margin-top:14px;font-size:18px;font-weight:900">作業摘要</div>
-        <div class="mini-grid" style="margin-top:8px">
-          <div class="mini wood panel"><div class="k">目前連續</div><div class="num" id="streakBig">0</div></div>
-          <div class="mini wood panel"><div class="k">最長紀錄</div><div class="num" id="bestBig">0</div></div>
-          <div class="mini wood panel"><div class="k">今日筆數</div><div class="num" id="todayCount">0</div></div>
-          <div class="mini wood panel"><div class="k">今日淨額</div><div class="num" id="todayNet">$0</div></div>
+        <div class="containment-feedback" id="exploreHomeFeedback">
+          <div class="containment-feedback-head"><span>LAST OPERATION / 最近探索</span><span id="exploreHomeCode">STANDBY</span></div>
+          <div class="containment-feedback-main" id="exploreHomeMain">尚未執行探索。</div>
+          <div class="containment-feedback-detail" id="exploreHomeDetail">前往「探索」頁籤選擇區域與兩名罪人。</div>
         </div>
+        <button type="button" class="wood primary goto-explore" data-goto="explore" style="margin-top:12px">前往探索管制區</button>
       </div>
     </div>
-    <div class="wood panel boss-panel">
+    <div class="wood panel exploration-overview-panel">
       <div class="archive-header">
-        <div><div class="archive-id">MONTHLY // BOSS-ENTITY</div><div class="archive-title">月度 BOSS 收容單位</div></div>
-        <div class="archive-stamp">HOSTILE</div>
+        <div><div class="archive-id">CONTAINMENT // FIELD-OVERVIEW</div><div class="archive-title">收容進度總覽</div></div>
+        <div class="archive-stamp">FIELD</div>
       </div>
-      <div class="sub">每新增一筆紀錄都會對本月 BOSS 造成傷害；完成每日指令會追加傷害。月底前擊敗可取得限定獎勵。</div>
-      <div class="boss-wrap">
-        <div class="boss-icon" id="bossIcon"></div>
-        <div>
-          <div class="row"><div class="boss-name" id="bossName">—</div><div class="archive-id" id="bossMonth">—</div></div>
-          <div class="classification-row"><span class="class-chip red">RISK / BOSS</span><span class="class-chip" id="bossState">ACTIVE</span></div>
-          <div class="boss-hp"><div id="bossHpFill"></div><span id="bossHpText">0 / 0</span></div>
-          <div class="boss-meta" id="bossMeta">等待載入。</div>
-          <div class="boss-reward" id="bossReward">REWARD / 金寶箱 ×1 ＋ 限定裝備</div>
-        </div>
-      </div>
+      <div class="sub">怪異必須在探索中累積指定擊殺次數後，才會正式標記為「已收容」。不同區域存在不同建議等級。</div>
+      <div id="homeContainmentProgress" class="home-containment-progress"></div>
     </div>
   </section>
 
@@ -189,6 +165,53 @@
           <div class="quest wood panel"><div class="quest-name">連續 30 天</div><div class="quest-desc">獲得 1 個金箱</div></div>
         </div>
       </div>
+    </div>
+  </section>
+
+
+  <section id="explore" class="section">
+    <div class="exploration-layout">
+      <div class="wood panel">
+        <div class="archive-header">
+          <div><div class="archive-id">FIELD // AREA-SELECTION</div><div class="archive-title">區域探索</div></div>
+          <div class="archive-stamp">2 SINNERS</div>
+        </div>
+        <div class="explore-action-banner">
+          <div><span class="k">AVAILABLE ACTIONS / 可用行動</span><strong id="exploreActions">0</strong></div>
+          <div class="sub">每次探索消耗 1 次行動。記帳新增成功時補充行動。</div>
+        </div>
+        <div id="explorationAreas" class="exploration-area-grid"></div>
+      </div>
+
+      <div class="wood panel">
+        <div class="archive-header">
+          <div><div class="archive-id">LCB // DEPLOYMENT</div><div class="archive-title">罪人編成</div></div>
+          <div class="archive-stamp">SELECT 2</div>
+        </div>
+        <div class="sub">每次必須選擇兩名罪人。能力值、等級、專業技能與裝備都會影響探索結果。</div>
+        <div id="explorationTeamPicker" class="team-picker"></div>
+        <button type="button" id="exploreBtn" class="wood primary explore-btn">執行探索</button>
+      </div>
+
+      <div class="wood panel exploration-result-panel">
+        <div class="archive-header">
+          <div><div class="archive-id">RESULT // FIELD-REPORT</div><div class="archive-title">探索報告</div></div>
+          <div class="archive-stamp" id="exploreResultStamp">STANDBY</div>
+        </div>
+        <div id="exploreResult" class="explore-result">等待探索命令。</div>
+        <div id="exploreDialogue" class="explore-dialogue"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="sinners" class="section">
+    <div class="wood panel">
+      <div class="archive-header">
+        <div><div class="archive-id">LCB // SINNER-MANAGEMENT</div><div class="archive-title">罪人管理</div></div>
+        <div class="archive-stamp">12 FILES</div>
+      </div>
+      <div class="sub">查看罪人等級、探索 EXP、基礎能力、專業技能、E.G.O 參考技能與目前裝備。技能效果為本工具原創探索機制，不等同遊戲內實際技能數值。</div>
+      <div id="sinnerManagementGrid" class="sinner-management-grid"></div>
     </div>
   </section>
 
@@ -255,10 +278,9 @@
   <section id="settings" class="section">
     <div class="wood panel">
       <div style="font-size:18px;font-weight:900">資金設定</div>
-      <div class="sub">初始金額與顯示名稱可在這裡調整。</div>
+      <div class="sub">初始金額可在這裡調整；執行經理固定為「但丁」。</div>
       <div class="settings-grid" style="margin-top:10px">
         <div class="field"><label>初始金額</label><input id="initialInput" class="wood" type="number" min="0" step="1" placeholder="例如 30000"></div>
-        <div class="field"><label>顯示名稱</label><input id="playerName" class="wood" placeholder="帳本終端者"></div>
       </div>
       <div style="margin-top:10px"><button id="saveSettings" class="wood primary">儲存設定</button></div>
       <div class="settings-note">目前剩餘金額的計算方式為：<b>初始金額 ＋ 累計收入 − 累計支出</b>。匯入的發票 CSV 會自動視為支出；收入請由你手動新增。</div>
@@ -288,7 +310,7 @@
   <button data-goto="book">▤<span class="mobile-nav-label">記錄</span></button>
   <button id="bottomAdd" class="nav-add">＋<span class="mobile-nav-label">新增</span></button>
   <button data-goto="commentary">◈<span class="mobile-nav-label">評議</span></button>
-  <button data-goto="progress">◆<span class="mobile-nav-label">成就</span></button>
+  <button data-goto="explore">◆<span class="mobile-nav-label">探索</span></button>
 </div>
 
 <dialog id="dlg">
@@ -341,7 +363,7 @@
   </form>
 </dialog>
 
-<script src="dialogues.js?v=20261002y"></script>
-<script src="app.js?v=20261002n"></script>
+<script src="dialogues.js?v=20261002z"></script>
+<script src="app.js?v=20261002o"></script>
 </body>
 </html>
