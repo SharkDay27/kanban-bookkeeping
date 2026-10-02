@@ -795,7 +795,11 @@ function renderCharts(){
 }
 
 function saveSettings(){state.profile.initialAmount=Number($('initialInput').value||0);state.profile.name=$('playerName').value.trim()||'帳本終端者';saveLocal();render();toast('已儲存設定')}
-function setTab(id){document.querySelectorAll('.section').forEach(el=>el.classList.toggle('active',el.id===id));document.querySelectorAll('.tabs button').forEach(btn=>btn.classList.toggle('active',btn.dataset.tab===id))}
+function setTab(id){
+  document.querySelectorAll('.section').forEach(function(el){el.classList.toggle('active',el.id===id)});
+  document.querySelectorAll('.tabs button').forEach(function(btn){btn.classList.toggle('active',btn.dataset.tab===id)});
+  document.querySelectorAll('.bottom [data-goto]').forEach(function(btn){btn.classList.toggle('active',btn.dataset.goto===id)});
+}
 function drawSprite(kind){
   if(kind==='star')return `<svg viewBox="0 0 64 64" width="44" height="44" aria-hidden="true"><circle cx="32" cy="32" r="23" fill="#1c1d22" stroke="#b52d2d" stroke-width="4"/><path d="M32 16l4 12 12 4-12 4-4 12-4-12-12-4 12-4z" fill="#d6d2c7"/></svg>`;
   if(kind==='hero')return `<svg viewBox="0 0 64 64" width="72" height="72"><rect x="14" y="8" width="36" height="20" rx="2" fill="#d8d3c7" stroke="#5c5d64" stroke-width="3"/><rect x="18" y="28" width="28" height="22" rx="2" fill="#2a2b31" stroke="#7a7b84" stroke-width="3"/><circle cx="26" cy="20" r="2.6" fill="#141519"/><circle cx="38" cy="20" r="2.6" fill="#141519"/><path d="M25 37h14" stroke="#b52d2d" stroke-width="3"/><path d="M18 12h28" stroke="#8c8d96" stroke-width="3"/></svg>`;
