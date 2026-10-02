@@ -32,7 +32,7 @@
 
       box.innerHTML=Object.keys(SINNER_FIELD_PROFILES).map(function(name){
         var p=SINNER_FIELD_PROFILES[name];
-        var data=ex.sinners[name]||{exp:0,condition:100,gear:''};
+        var data=ex.sinners[name]||{exp:0,hp:100,maxHp:100,gear:''};
         var lv=typeof sinnerLevel==='function'?sinnerLevel(data):Math.max(1,Math.floor(Number(data.exp||0)/100)+1);
         var exp=Math.max(0,Number(data.exp||0)%100);
         var st=typeof sinnerEffectiveStats==='function'
@@ -55,11 +55,13 @@
         return '<article class="sinner-file wood">'+
           '<div class="sinner-file-head"><div>'+
             '<div class="archive-id">LCB // '+safeEsc(name)+'</div>'+
-            '<div class="sinner-file-name">'+safeEsc(name)+'</div>'+
+            '<div class="sinner-file-name" style="color:'+(typeof sinnerColorForSpeaker==='function'?sinnerColorForSpeaker(name):'#eee9df')+'">'+safeEsc(name)+'</div>'+
           '</div><div class="sinner-level">Lv.'+lv+'</div></div>'+
           '<div class="sinner-specialty">'+safeEsc(p.specialty||'—')+' / 基礎 E.G.O：'+safeEsc(p.ego||'—')+'</div>'+
           '<div class="sinner-exp"><div style="width:'+exp+'%"></div><span>'+exp+' / 100 EXP</span></div>'+
-          '<div class="sinner-condition">CONDITION / '+Math.max(0,Math.min(100,Number(data.condition==null?100:data.condition)))+'%</div>'+
+          '<div class="sinner-hp-row"><span>HP</span><b>'+Number(data.hp||0)+' / '+Number(data.maxHp||100)+'</b></div>'+
+          '<div class="sinner-hp-bar"><div style="width:'+Math.max(0,Math.min(100,Math.round((Number(data.hp||0)/Math.max(1,Number(data.maxHp||100)))*100)))+'%"></div></div>'+
+          (Number(data.hp||0)<=0?'<button type="button" class="wood sinner-revive-btn" data-revive-sinner="'+safeEsc(name)+'">消耗 1 行動復活</button>':'')+
           '<div class="sinner-stat-grid">'+
             '<span>戰鬥 <b>'+Number(st.combat||0)+'</b></span>'+
             '<span>觀察 <b>'+Number(st.observe||0)+'</b></span>'+
@@ -78,6 +80,9 @@
         '</article>';
       }).join('');
 
+      box.querySelectorAll('[data-revive-sinner]').forEach(function(btn){
+        btn.addEventListener('click',function(){if(typeof reviveSinner==='function'){reviveSinner(btn.dataset.reviveSinner);setTimeout(render,0)}});
+      });
       box.querySelectorAll('[data-sinner-gear]').forEach(function(sel){
         sel.addEventListener('change',function(){
           if(typeof assignFieldGear==='function'){
