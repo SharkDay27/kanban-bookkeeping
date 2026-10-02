@@ -1199,3 +1199,24 @@ button.tabs-directory-head:hover{border-color:#747780;border-left-color:#a5535a}
     max-height:1100px!important;
   }
 }
+
+
+/* ===== Region-grouped abnormality catalogue ===== */
+.bestiary-region{margin-top:14px}
+.bestiary-region:first-child{margin-top:0}
+.bestiary-region-head{
+  display:flex;align-items:flex-end;justify-content:space-between;gap:12px;
+  padding:10px 11px;border:1px solid #4b4d55;border-left:4px solid #6e7180;
+  background:linear-gradient(90deg,rgba(104,108,124,.12),rgba(18,19,23,.92));
+}
+.bestiary-region-name{font-size:16px;font-weight:900;margin-top:2px}
+.bestiary-region-meta{font-size:9px;color:var(--muted);text-align:right;line-height:1.45}
+.bestiary-region .bestiary-grid{margin-top:8px}
+.bestiary-card .abno-area{font-size:8px;letter-spacing:.9px;color:#9c988f;margin-top:5px}
+.bestiary-card .abno-type{display:inline-block;margin-top:6px;padding:3px 5px;border:1px solid #555860;font-size:8px;color:#b8b3aa}
+.bestiary-card.locked .abno-type{opacity:.45}
+.bestiary-card{min-height:230px}
+@media(max-width:700px){
+  .bestiary-region-head{align-items:flex-start;flex-direction:column}
+  .bestiary-region-meta{text-align:left}
+}
