@@ -583,7 +583,7 @@ function sinnerForLineSpeaker(speaker){
 }
 function commentEntryCard(entry,opts){
   opts=opts||{};
-  const rare=entry.comment.kind==='duo'||entry.comment.kind==='all';
+  const rare=entry.comment.kind==='duo'||entry.comment.kind==='group'||entry.comment.kind==='all';
   let lines=entry.comment.lines||[];
   if(opts.sinner){
     lines=lines.filter(function(line){return sinnerForLineSpeaker(line.speaker)===opts.sinner || (opts.sinner==='良秀'&&String(line.speaker).includes('阿賴耶'))});
