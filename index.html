@@ -4,12 +4,24 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow,noarchive">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="終端記錄">
 <title>RPG 化記帳工具</title>
-<link rel="stylesheet" href="styles.css?v=20261002u">
+<link rel="stylesheet" href="styles.css?v=20261002v">
 </head>
 <body>
+<script>
+/* STALE-NPC-CLEANUP: compatibility cleanup for older cached markup */
+document.addEventListener('DOMContentLoaded',function(){
+  document.querySelectorAll('.npc-strip').forEach(function(el){el.remove()});
+});
+window.addEventListener('pageshow',function(){
+  document.querySelectorAll('.npc-strip').forEach(function(el){el.remove()});
+});
+</script>
 <div class="wrap">
   <div class="top">
     <div class="brand">
@@ -416,7 +428,7 @@
 </dialog>
 
 <script src="dialogues.js?v=20261002ab"></script>
-<script src="app.js?v=20261002z"></script>
+<script src="app.js?v=20261002za"></script>
 <script src="sinner-management.js?v=20261002b"></script>
 <script src="bestiary.js?v=20261002a"></script>
 <script src="exploration.js?v=20261002c"></script>
