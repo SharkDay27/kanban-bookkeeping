@@ -47,8 +47,8 @@ const EQUIPMENT_EFFECTS={
  '管理者徽章':{desc:'所有戰鬥傷害 +3',allDamage:3}
 };
 const CONSUMABLE_EFFECTS={
- 'water':{name:'瓶裝水',heal:25,desc:'回復 25 HP；HP 低於 45% 時會自動飲用'},
- 'potion':{name:'小型治療藥水',heal:45,desc:'回復 45 HP；可在背包手動使用'}
+ 'water':{name:'瓶裝水',heal:25,desc:'探索時罪人狀態 ≤45% 會優先自動使用'},
+ 'potion':{name:'小型治療藥水',heal:45,desc:'無瓶裝水且罪人狀態 ≤20% 時自動使用'}
 };
 const MONSTER_DROPS={
  'M-001':'史萊姆凝膠','M-002':'鐵殼碎片','M-003':'紅線紙片','M-004':'齒輪牙片',
@@ -65,9 +65,9 @@ const ACHIEVEMENTS=[
  {id:'A-002',name:'穩定記錄者',desc:'累積 10 筆記錄',gold:20},
  {id:'A-003',name:'檔案室常客',desc:'累積 50 筆記錄',gold:50},
  {id:'A-004',name:'七日連續作業',desc:'連續記錄達 7 天',gold:40},
- {id:'A-005',name:'異常處置員',desc:'累積擊敗 5 次每日怪物',gold:50},
- {id:'A-006',name:'完全武裝',desc:'同時裝備 3 件裝備',gold:30},
- {id:'A-007',name:'月度鎮壓',desc:'擊敗至少 1 隻月度 BOSS',gold:100},
+ {id:'A-005',name:'異常處置員',desc:'探索中累積完成 5 次有效怪異制壓',gold:50},
+ {id:'A-006',name:'完全武裝',desc:'至少 2 名罪人配置探索裝備',gold:30},
+ {id:'A-007',name:'正式收容',desc:'完成至少 1 種怪異的收容條件',gold:100},
  {id:'A-008',name:'正向結算',desc:'任一月份收入大於支出',gold:60}
 ];
 
@@ -377,12 +377,18 @@ function teamFieldPower(names,area){
 }
 function maybeAutoHealSinner(name){
   const data=state.exploration.sinners[name];
-  if(data.condition>45)return 0;
   ensurePlayerState();
-  if((state.rpg.consumables.water||0)<=0)return 0;
-  state.rpg.consumables.water--;
-  const before=data.condition;data.condition=Math.min(100,data.condition+25);
-  return data.condition-before;
+  if(data.condition<=45&&(state.rpg.consumables.water||0)>0){
+    state.rpg.consumables.water--;
+    const before=data.condition;data.condition=Math.min(100,data.condition+25);
+    return {amount:data.condition-before,item:'瓶裝水'};
+  }
+  if(data.condition<=20&&(state.rpg.consumables.potion||0)>0){
+    state.rpg.consumables.potion--;
+    const before=data.condition;data.condition=Math.min(100,data.condition+45);
+    return {amount:data.condition-before,item:'小型治療藥水'};
+  }
+  return {amount:0,item:''};
 }
 function fieldGearAssignedElsewhere(gearId,name){
   return Object.entries(state.exploration.sinners).some(function(pair){return pair[0]!==name&&pair[1].gear===gearId});
@@ -446,7 +452,7 @@ function runExploration(){
     }else{
       title='怪異遭遇失利：'+ab.name;
       const injury=8+ab.level*2;
-      names.forEach(function(n){ex.sinners[n].condition=Math.max(0,ex.sinners[n].condition-injury);const healed=maybeAutoHealSinner(n);if(healed)reward+=(reward?'；':'')+n+' 自動喝水 +'+healed});
+      names.forEach(function(n){ex.sinners[n].condition=Math.max(0,ex.sinners[n].condition-injury);const healed=maybeAutoHealSinner(n);if(healed.amount)reward+=(reward?'；':'')+n+' 自動使用'+healed.item+' +'+healed.amount});
       detail='未能形成有效制壓。兩名罪人狀態各 -'+injury+'。';
       xp=14+ab.level;stamp='WITHDRAW';
     }
@@ -622,9 +628,9 @@ function achievementMet(id){
   if(id==='A-002')return state.entries.length>=10;
   if(id==='A-003')return state.entries.length>=50;
   if(id==='A-004')return st.best>=7;
-  if(id==='A-005')return defeatedMonsterCount()>=5;
-  if(id==='A-006')return (state.rpg.equipped||[]).length>=3;
-  if(id==='A-007')return defeatedBossCount()>=1;
+  if(id==='A-005'){ensureExplorationState();return Object.values(state.exploration.abnormalityProgress||{}).reduce(function(s,x){return s+Number(x&&x.kills||0)},0)>=5}
+  if(id==='A-006'){ensureExplorationState();return Object.values(state.exploration.sinners||{}).filter(function(x){return !!x.gear}).length>=2}
+  if(id==='A-007')return containedAbnormalityCount()>=1;
   if(id==='A-008')return anyPositiveMonth();
   return false;
 }
@@ -799,6 +805,58 @@ function renderSummary(){const expense=state.entries.filter(x=>x.type==='expense
 function renderQuests(){ensureDaily(today());const ds=dayStats(today());$('questList').innerHTML=QUESTS.map(q=>{const p=q.id==='q3'?ds.cats:ds.count,done=p>=q.goal,claim=state.daily[today()].questClaims[q.id];return `<div class="quest wood panel ${done?'done':''}"><div class="row"><div class="quest-name">${done?'✓ ':'◇ '}${q.name}</div><div class="quest-reward">+${q.rewardXp} EXP</div></div><div class="quest-desc">${q.desc}</div><div class="quest-progress"><div style="width:${Math.min(100,Math.round(p/q.goal*100))}%"></div></div><div class="quest-desc">${Math.min(p,q.goal)} / ${q.goal}${claim?'・已領取':''}</div></div>`}).join('')}
 function filtered(){const m=$('month').value,t=$('typeFilter').value,c=$('cat').value,q=$('search').value.trim().toLowerCase();return state.entries.filter(x=>(!m||x.date.startsWith(m))&&(!t||x.type===t)&&(!c||x.category===c)&&(!q||[x.store,x.note,x.invoice,x.category,...(x.items||[]).map(i=>i.name)].join(' ').toLowerCase().includes(q))).sort((a,b)=>b.date.localeCompare(a.date)||b.amount-a.amount)}
 function renderBoard(){const rows=filtered(),groups={};rows.forEach(x=>(groups[x.date]??=[]).push(x));const dates=Object.keys(groups).sort().reverse();if(!dates.length){$('board').innerHTML='<div class="empty wood panel">目前沒有資料。先新增一筆收入或支出吧！</div>';return}$('board').innerHTML='<div class="board">'+dates.map(date=>{const items=groups[date],expense=items.filter(x=>x.type==='expense').reduce((s,x)=>s+x.amount,0),income=items.filter(x=>x.type==='income').reduce((s,x)=>s+x.amount,0),net=income-expense;return `<section class="day wood panel"><div class="dayhead"><div><div style="font-weight:900">${date}</div><div class="s">${items.length} 筆紀錄</div></div><div style="text-align:right"><div class="daytotal">支出 ${money(expense)}</div><div class="daynet ${net<0?'minus':'plus'}">淨額 ${money(net)}</div></div></div>${items.map(entry=>`<article class="card wood transaction-card type-${entry.type}" style="${categoryStyle(entry.category||'其他')}"><div class="row"><div class="store">${esc(entry.store)}</div><div class="amt ${entry.type}">${entry.type==='income'?'+ ':''}${money(entry.amount)}</div></div><div class="badges"><span class="badge ${entry.type}">${entry.type==='income'?'收入':'支出'}</span><span class="badge category-badge" style="${categoryStyle(entry.category||'其他')}">${esc(entry.category||'其他')}</span><span class="badge">${esc(entry.payment||'未設定')}</span></div><div class="items">${(entry.items||[]).slice(0,3).map(i=>esc(i.name)).join('、')||esc(entry.note||'—')}</div>${entry.comment&&entry.comment.lines&&entry.comment.lines.length?`<div class="entry-comment-preview"><b>${esc(entry.comment.lines[0].speaker)}</b>：${esc(entry.comment.lines[0].text)}</div>`:''}<div class="card-actions"><button class="mini-btn" data-edit="${entry.id}">編輯</button></div></article>`).join('')}</section>`}).join('')+'</div>';document.querySelectorAll('[data-edit]').forEach(btn=>btn.onclick=()=>openEdit(btn.dataset.edit))}
+function renderBackpack(){
+  ensurePlayerState();ensureExplorationState();
+  const consumables=$('backpackConsumables');
+  if(consumables){
+    consumables.innerHTML=Object.entries(CONSUMABLE_EFFECTS).map(function(pair){
+      const key=pair[0],item=pair[1],count=Number(state.rpg.consumables[key]||0);
+      return '<div class="pack-item wood consumable-card"><div class="pack-item-head"><strong>'+esc(item.name)+'</strong><span class="pack-count">×'+count+'</span></div>'+
+        '<div class="pack-desc">'+esc(item.desc)+'</div></div>';
+    }).join('');
+  }
+
+  const field=$('backpackFieldGear');
+  if(field){
+    field.innerHTML=state.exploration.fieldGear.length?state.exploration.fieldGear.map(function(id){
+      const gear=FIELD_GEAR[id],assigned=Object.entries(state.exploration.sinners).find(function(pair){return pair[1].gear===id});
+      return '<div class="pack-item wood equipment-card"><div class="pack-item-head"><strong>'+esc(gear.name)+'</strong><span class="pack-state">'+(assigned?'→ '+esc(assigned[0]):'STORED')+'</span></div><div class="pack-desc">'+esc(gear.desc)+'</div></div>';
+    }).join(''):'<div class="empty pack-empty">尚未取得探索裝備。</div>';
+  }
+
+  const equipped=state.rpg.equipped||[];
+  const equipmentNames=[...new Set(state.rpg.inventory.filter(function(x){return !!EQUIPMENT_EFFECTS[x]}))];
+  const eqBox=$('backpackEquipment');
+  if(eqBox){
+    eqBox.innerHTML=equipmentNames.length?equipmentNames.map(function(x){
+      const eq=EQUIPMENT_EFFECTS[x],on=equipped.includes(x);
+      return '<button type="button" class="pack-item wood equipment-card '+(on?'equipped':'')+'" data-equip="'+esc(x)+'">'+
+        '<div class="pack-item-head"><strong>'+esc(x)+'</strong><span class="pack-state">'+(on?'EQUIPPED':'STORED')+'</span></div>'+
+        '<div class="pack-desc">'+esc(eq.desc)+'</div><div class="loot-action">'+(on?'點擊卸下':'點擊裝備')+'</div></button>';
+    }).join(''):'<div class="empty pack-empty">尚無管理支援裝備。</div>';
+    eqBox.querySelectorAll('[data-equip]').forEach(function(el){el.onclick=function(){toggleEquip(el.dataset.equip)}});
+  }
+
+  const materialCounts={};
+  state.rpg.inventory.filter(function(x){return !EQUIPMENT_EFFECTS[x]}).forEach(function(x){materialCounts[x]=(materialCounts[x]||0)+1});
+  const matBox=$('backpackMaterials');
+  if(matBox)matBox.innerHTML=Object.keys(materialCounts).length?Object.entries(materialCounts).map(function(pair){
+    return '<div class="pack-item wood material-card"><div class="pack-item-head"><strong>'+esc(pair[0])+'</strong><span class="pack-count">×'+pair[1]+'</span></div><div class="pack-desc">收容材料／其他物品</div></div>';
+  }).join(''):'<div class="empty pack-empty">目前沒有材料或其他物品。</div>';
+}
+function renderProgress(){
+  const ag=$('achievementGrid'),unlocked=state.rpg.achievements||[];
+  if(!ag)return;
+  ag.innerHTML=ACHIEVEMENTS.map(function(item){
+    const on=unlocked.includes(item.id);
+    return '<div class="achievement-card wood '+(on?'unlocked':'locked')+'">'+
+      '<div class="achievement-badge">'+(on?'UNLOCKED':'LOCKED')+'</div>'+
+      '<div class="achievement-id">'+esc(item.id)+'</div>'+
+      '<div class="achievement-name">'+esc(item.name)+'</div>'+
+      '<div class="achievement-desc">'+esc(item.desc)+'</div>'+
+      '<div class="achievement-reward">REWARD / '+item.gold+' 金幣</div></div>';
+  }).join('');
+}
 function render(){backfillMissingComments();refreshFilters();renderLanguageSwitch();renderCurrencySelector();renderSummary();renderRpg();renderQuests();renderBoard();renderCharts();renderBestiary();checkAchievements();renderProgress();renderBackpack();renderExploration();renderSinnerManagement();renderCommentaryArchive();$('initialInput').value=state.profile.initialAmount||''}
 
 function renderCommentLines(comment){
@@ -1020,7 +1078,12 @@ function mapIcon(kind){
   };
   return `<div style="display:grid;place-items:center">${icons[kind]||icons.book}</div>`
 }
-function mountIcons(){$('logo').innerHTML=drawSprite('star');$('heroIcon').innerHTML=drawSprite('hero');$('monsterIcon').innerHTML=drawSprite('slime');$('npcClerk').innerHTML=npcSprite('clerk');$('npcMerchant').innerHTML=npcSprite('merchant');}
+function mountIcons(){
+  if($('logo'))$('logo').innerHTML=drawSprite('star');
+  if($('heroIcon'))$('heroIcon').innerHTML=drawSprite('hero');
+  if($('npcClerk'))$('npcClerk').innerHTML=npcSprite('clerk');
+  if($('npcMerchant'))$('npcMerchant').innerHTML=npcSprite('merchant');
+}
 document.querySelectorAll('[data-language]').forEach(function(btn){btn.onclick=function(){setLanguage(btn.dataset.language)}});if($('currencySelect'))$('currencySelect').addEventListener('change',function(){setCurrency(this.value)});
 $('etype').addEventListener('change',syncEntryTypeUI);document.querySelectorAll('[data-entry-type]').forEach(b=>b.onclick=()=>{$('etype').value=b.dataset.entryType;syncEntryTypeUI()});$('dlg').addEventListener('click',e=>{if(e.target===$('dlg'))$('dlg').close()});$('ecat').addEventListener('change',renderQuickCats);
 $('save').onclick=()=>saveEntry(false);$('saveAgain').onclick=()=>saveEntry(true);$('closeDlg').onclick=()=>$('dlg').close();$('closeCommentDlg').onclick=()=>$('commentDlg').close();$('commentViewTime').onclick=()=>setCommentaryView('time');$('commentViewSinner').onclick=()=>setCommentaryView('sinner');$('goCommentArchive').onclick=()=>{$('commentDlg').close();setTab('commentary')};$('del').onclick=deleteEntry;$('csv').addEventListener('change',importCsvFiles);$('export').onclick=exportCsv;$('backup').onclick=backupJson;$('restore').addEventListener('change',restoreJson);$('clear').onclick=clearLocalData;$('saveSettings').onclick=saveSettings;if($('exploreBtn'))$('exploreBtn').onclick=runExploration;$('addExpense').onclick=()=>openEdit('', 'expense');$('addIncome').onclick=()=>openEdit('', 'income');$('fab').onclick=()=>openEdit('', 'expense');$('bottomAdd').onclick=()=>openEdit('', 'expense');['month','typeFilter','cat','search'].forEach(id=>$(id).addEventListener('input',render));document.querySelectorAll('[data-chest]').forEach(btn=>btn.onclick=()=>openChest(btn.dataset.chest));document.querySelectorAll('.tabs button').forEach(btn=>btn.onclick=()=>setTab(btn.dataset.tab));document.querySelectorAll('[data-goto]').forEach(btn=>btn.onclick=()=>setTab(btn.dataset.goto));if(!$('month').value){$('month').value=new Date().toISOString().slice(0,7)}mountIcons();render();setupIphoneSafariInput();setupLanguageObserver();
