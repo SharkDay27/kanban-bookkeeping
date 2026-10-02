@@ -1323,3 +1323,26 @@ dialog#dlg .entry-wide{
     width:min(760px,calc(100vw - 48px))!important;
   }
 }
+
+
+/* ===== Dedicated RPG modules: backpack / equipment / achievements / quests ===== */
+.rpg-module-error{grid-column:1/-1;padding:14px;border-left:4px solid #9b4f55;background:#17181c}
+.equipment-card-v2{padding:11px;background:linear-gradient(180deg,#1c1e23,#121316);text-align:left}
+.equipment-card-v2.equipped{border-color:#887044;box-shadow:inset 4px 0 0 #aa8c4d}
+.equipment-attr{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.equipment-attr span{padding:4px 6px;border:1px solid #4b4e56;background:#111216;font-size:9px;color:#c9c4b8}
+.equipment-source{font-size:8px;color:#888b94;letter-spacing:.7px;margin-top:6px}
+.equipment-action{font-size:9px;color:#cab77d;margin-top:8px}
+.achievement-summary,.quest-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:10px 0}
+.achievement-summary .mini,.quest-summary .mini{text-align:left}
+.achievement-card{min-height:150px}
+.achievement-card .achievement-category{font-size:8px;color:#a39d91;letter-spacing:1px;margin-top:4px}
+.achievement-progress-text{font-size:9px;color:#aaa59b;margin-top:7px}
+.achievement-reward-line{font-size:10px;color:#d1bc79;margin-top:7px;line-height:1.45}
+.quest-category{font-size:8px;letter-spacing:1px;color:#a9a396;margin-bottom:4px}
+.quest-reward-list{font-size:10px;color:#d1bc79;margin-top:7px}
+.quest.claimed{border-left:4px solid #68836e}
+.quest.ready{border-left:4px solid #8b754b}
+@media(max-width:700px){
+  .achievement-summary,.quest-summary{grid-template-columns:1fr 1fr}
+}
