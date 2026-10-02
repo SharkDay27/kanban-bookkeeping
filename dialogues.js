@@ -677,12 +677,25 @@ function sinnerLine(sinner,entry){
 }
 
 function arayaScabbardLines(ryoshuText,meaning){
-  const sounds=['刀鞘輕響兩下。','刀鞘輕輕震了一聲，隨後又敲了兩下。','刀鞘傳來三下短促的輕響。','刀鞘先輕響一下，隔了半拍又連敲兩聲。'];
+  const sounds=[
+    '刀鞘輕響兩下。',
+    '刀鞘輕輕震了一聲，隨後又敲了兩下。',
+    '刀鞘傳來三下短促的輕響。',
+    '刀鞘先輕響一下，隔了半拍又連敲兩聲。'
+  ];
+  const intros=[
+    '媽媽是說',
+    '媽媽的意思是',
+    '她是在說',
+    '嗯，媽媽是想說',
+    '媽媽大概是在說'
+  ];
   const sound=pick(sounds);
+  const intro=pick(intros);
   return [
     {speaker:'良秀',text:ryoshuText},
     {speaker:'阿賴耶識（刀鞘）',text:sound},
-    {speaker:'阿賴耶（刀鞘內）',text:'那是阿賴耶在回應：'+meaning}
+    {speaker:'阿賴耶（刀鞘內）',text:intro+'：'+meaning}
   ];
 }
 function ryoshuArayaInteraction(entry){
