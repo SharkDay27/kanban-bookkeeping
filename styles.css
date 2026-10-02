@@ -725,3 +725,19 @@ dialog#dlg .foot button[value="cancel"]{
   .section.active{padding:10px}
   .npc-strip{grid-template-columns:1fr!important}
 }
+
+
+/* Commentary type badge: clearer framed label in popup */
+#commentDlgTag{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:34px;
+  padding:6px 11px;
+  border:2px solid #8e4b52;
+  background:rgba(94,36,42,.18);
+  color:#d58b92;
+  font-weight:900;
+  letter-spacing:1px;
+  box-shadow:inset 0 0 0 1px rgba(213,139,146,.12);
+}
