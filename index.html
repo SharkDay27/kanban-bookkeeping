@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="終端記錄">
 <title>RPG 化記帳工具</title>
-<link rel="stylesheet" href="styles.css?v=20261002r">
+<link rel="stylesheet" href="styles.css?v=20261002s">
 </head>
 <body>
 <div class="wrap">
@@ -98,17 +98,14 @@
             <div class="row"><div id="rank" style="font-size:18px;font-weight:900">但丁｜LCB 執行經理</div><div id="lv" style="font-size:18px;font-weight:900">Lv.1</div></div>
             <div style="margin:8px 0 6px;color:var(--muted);font-size:12px" id="xpText">0 / 100 EXP</div>
             <div class="bar"><div class="barfill" id="xpFill"></div><div class="bartext" id="xpPct">0%</div></div>
-            <div class="mini-grid">
+            <div class="mini-grid manager-reward-grid">
               <div class="mini wood panel"><div class="k">金幣</div><div class="num" id="gold">0</div></div>
-              <div class="mini wood panel"><div class="k">木箱</div><div class="num" id="woodChest">0</div></div>
-              <div class="mini wood panel"><div class="k">銀箱</div><div class="num" id="silverChest">0</div></div>
-              <div class="mini wood panel"><div class="k">金箱</div><div class="num" id="goldChest">0</div></div>
+              <div class="mini wood panel"><div class="k">道具箱</div><div class="num" id="itemBoxCount">0</div></div>
             </div>
             <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
-              <button class="wood gold-btn" data-chest="wood">開木箱</button>
-              <button class="wood gold-btn" data-chest="silver">開銀箱</button>
-              <button class="wood gold-btn" data-chest="gold">開金箱</button>
+              <button class="wood gold-btn" id="openItemBox">開啟道具箱</button>
             </div>
+            <div class="sub manager-box-note">經理每次升級獲得 1 個道具箱。箱內獎勵依一般 RPG 機率隨機抽取，不分箱子稀有度。</div>
             <div class="rewardlog wood" id="rewardLog">開始記錄來啟動管理流程。</div>
           </div>
         </div>
@@ -131,14 +128,16 @@
         <button type="button" class="wood primary goto-explore" data-goto="explore" style="margin-top:12px">前往探索管制區</button>
       </div>
     </div>
-    <div class="wood panel exploration-overview-panel">
-      <div class="archive-header">
+    <details class="wood panel exploration-overview-panel containment-overview-collapse">
+      <summary class="containment-overview-summary">
         <div><div class="archive-id">CONTAINMENT // FIELD-OVERVIEW</div><div class="archive-title">收容進度總覽</div></div>
-        <div class="archive-stamp">FIELD</div>
+        <div class="containment-overview-right"><span class="archive-stamp">FIELD</span><span class="collapse-chevron">⌄</span></div>
+      </summary>
+      <div class="containment-overview-body">
+        <div class="sub">怪異必須在探索中累積指定擊殺次數後，才會正式標記為「已收容」。不同區域存在不同建議等級。</div>
+        <div id="homeContainmentProgress" class="home-containment-progress"></div>
       </div>
-      <div class="sub">怪異必須在探索中累積指定擊殺次數後，才會正式標記為「已收容」。不同區域存在不同建議等級。</div>
-      <div id="homeContainmentProgress" class="home-containment-progress"></div>
-    </div>
+    </details>
   </section>
 
   <section id="book" class="section">
@@ -162,10 +161,10 @@
         <div style="font-size:18px;font-weight:900">長期執行紀錄</div>
         <div class="sub">每日完成至少一筆收入或支出紀錄，即視為當日作業成立。</div>
         <div class="quest-list command-sheet">
-          <div class="quest wood panel"><div class="quest-name">連續 3 天</div><div class="quest-desc">獲得 1 個木箱</div></div>
-          <div class="quest wood panel"><div class="quest-name">連續 7 天</div><div class="quest-desc">獲得 1 個銀箱</div></div>
-          <div class="quest wood panel"><div class="quest-name">連續 14 天</div><div class="quest-desc">獲得 2 個銀箱</div></div>
-          <div class="quest wood panel"><div class="quest-name">連續 30 天</div><div class="quest-desc">獲得 1 個金箱</div></div>
+          <div class="quest wood panel"><div class="quest-name">連續 3 天</div><div class="quest-desc">獲得 1 個道具箱</div></div>
+          <div class="quest wood panel"><div class="quest-name">連續 7 天</div><div class="quest-desc">獲得 1 個道具箱</div></div>
+          <div class="quest wood panel"><div class="quest-name">連續 14 天</div><div class="quest-desc">獲得 2 個道具箱</div></div>
+          <div class="quest wood panel"><div class="quest-name">連續 30 天</div><div class="quest-desc">獲得 3 個道具箱</div></div>
         </div>
       </div>
     </div>
@@ -418,10 +417,10 @@
   </form>
 </dialog>
 
-<script src="dialogues.js?v=20261002z"></script>
-<script src="app.js?v=20261002w"></script>
-<script src="sinner-management.js?v=20261002a"></script>
+<script src="dialogues.js?v=20261002aa"></script>
+<script src="app.js?v=20261002x"></script>
+<script src="sinner-management.js?v=20261002b"></script>
 <script src="bestiary.js?v=20261002a"></script>
-<script src="exploration.js?v=20261002a"></script>
+<script src="exploration.js?v=20261002b"></script>
 </body>
 </html>
