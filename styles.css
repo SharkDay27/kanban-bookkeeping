@@ -1116,3 +1116,86 @@ button.pack-item{text-align:left;color:var(--text);width:100%}
   .sinner-management-grid{grid-template-columns:1fr}
   .explore-dialogue-line{grid-template-columns:76px 1fr}
 }
+
+
+/* ===== Collapsible main function directory ===== */
+button.tabs-directory-head{
+  width:100%;
+  border:1px solid #555861;
+  border-left:4px solid #8f454b;
+  background:linear-gradient(180deg,#1c1d22,#131419);
+  color:var(--text);
+  cursor:pointer;
+  text-align:left;
+  align-items:center;
+  margin:18px 0 8px;
+  padding:11px 13px;
+}
+button.tabs-directory-head:hover{border-color:#747780;border-left-color:#a5535a}
+.tabs-directory-toggle{
+  margin-left:auto;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.tabs-directory-current{
+  font-size:11px;
+  font-weight:900;
+  color:#c9c2b5;
+  letter-spacing:.5px;
+}
+.tabs-directory-chevron{
+  width:28px;
+  height:28px;
+  display:grid;
+  place-items:center;
+  border:1px solid #5d6068;
+  background:#15161a;
+  color:#c6c1b7;
+  font-size:18px;
+  line-height:1;
+  transition:transform .18s ease,border-color .18s ease;
+}
+.tabs-directory-head.open .tabs-directory-chevron{
+  transform:rotate(180deg);
+  border-color:#985158;
+}
+.tabs.zone-tabs{
+  transition:max-height .24s ease,opacity .18s ease,margin .2s ease,padding .2s ease,border-width .2s ease;
+  transform-origin:top;
+}
+.tabs.zone-tabs.collapsed{
+  max-height:0!important;
+  opacity:0;
+  overflow:hidden!important;
+  pointer-events:none;
+  margin-top:0!important;
+  margin-bottom:0!important;
+  padding-top:0!important;
+  padding-bottom:0!important;
+  border-top-width:0!important;
+  border-bottom-width:0!important;
+}
+.tabs.zone-tabs.open{
+  max-height:900px;
+  opacity:1;
+  pointer-events:auto;
+  margin-bottom:18px!important;
+}
+@media(max-width:700px){
+  button.tabs-directory-head{
+    display:flex!important;
+    margin:13px 0 6px;
+    padding:10px 11px;
+  }
+  .tabs-directory-current{font-size:10px}
+  .tabs-directory-chevron{width:26px;height:26px}
+  .tabs.zone-tabs.collapsed{
+    display:grid!important;
+    max-height:0!important;
+  }
+  .tabs.zone-tabs.open{
+    display:grid!important;
+    max-height:1100px!important;
+  }
+}
