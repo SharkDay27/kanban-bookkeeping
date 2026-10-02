@@ -798,3 +798,241 @@ button.pack-item{text-align:left;color:var(--text);width:100%}
   .containment-feedback-main{font-size:14px}
   .containment-feedback-detail{font-size:10px}
 }
+
+
+/* ===== B方案：主導覽、摘要卡、區段層級與手機底部導覽整體優化 ===== */
+.tabs-directory-head{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:12px;
+  margin:18px 0 8px;
+  padding:0 2px;
+}
+.tabs-directory-title{
+  margin-top:2px;
+  font-size:18px;
+  font-weight:900;
+  letter-spacing:.5px;
+}
+.tabs-directory-note{
+  font-size:10px;
+  color:var(--muted);
+  letter-spacing:1px;
+  text-transform:uppercase;
+}
+
+/* 主功能頁籤：不再橫向硬塞，改為自適應格狀目錄 */
+.tabs.zone-tabs{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:10px;
+  margin:0 0 18px!important;
+  padding:11px!important;
+  overflow:visible;
+  border:1px solid #575962;
+  border-left:4px solid #8f454b;
+  background:
+    linear-gradient(180deg,rgba(31,32,38,.98),rgba(15,16,20,.98)),
+    repeating-linear-gradient(90deg,transparent 0 63px,rgba(255,255,255,.025) 64px);
+}
+.tabs.zone-tabs button{
+  position:relative;
+  width:100%;
+  min-width:0;
+  min-height:68px;
+  padding:22px 10px 10px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  white-space:nowrap;
+  overflow:hidden;
+  background:linear-gradient(180deg,#25272d,#17181c);
+  border:1px solid #60626b;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.035);
+  font-size:15px;
+  font-weight:900;
+  letter-spacing:.8px;
+}
+.tabs.zone-tabs button::before{
+  position:absolute;
+  top:7px;
+  left:9px;
+  font-size:8px;
+  line-height:1;
+  letter-spacing:1.3px;
+  color:#777a83;
+  font-weight:900;
+}
+.tabs.zone-tabs button[data-tab="adventure"]::before{content:"TERMINAL"}
+.tabs.zone-tabs button[data-tab="book"]::before{content:"ARCHIVE"}
+.tabs.zone-tabs button[data-tab="quests"]::before{content:"DIRECTIVE"}
+.tabs.zone-tabs button[data-tab="backpack"]::before{content:"FIELD PACK"}
+.tabs.zone-tabs button[data-tab="bestiary"]::before{content:"ENTITY INDEX"}
+.tabs.zone-tabs button[data-tab="progress"]::before{content:"MILESTONE"}
+.tabs.zone-tabs button[data-tab="commentary"]::before{content:"COMMENTARY"}
+.tabs.zone-tabs button[data-tab="stats"]::before{content:"REPORT"}
+.tabs.zone-tabs button[data-tab="settings"]::before{content:"SYSTEM"}
+.tabs.zone-tabs button:hover{
+  border-color:#858892;
+  transform:translateY(-1px);
+}
+.tabs.zone-tabs button.active{
+  color:#fff4ef;
+  border-color:#a34f55;
+  background:linear-gradient(180deg,#48282c,#211719);
+  box-shadow:
+    inset 4px 0 0 #b9545d,
+    inset 0 0 0 1px rgba(255,255,255,.045);
+}
+.tabs.zone-tabs button.active::before{color:#d47e86}
+
+/* 財務摘要：改成真正的 dashboard 區塊 */
+.zone-summary{
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:9px!important;
+  padding:10px!important;
+}
+.zone-summary .stat{
+  min-width:0;
+  min-height:96px;
+  padding:12px 13px;
+  text-align:left;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  border:1px solid #4f5158;
+  border-top:3px solid #676a72;
+}
+.zone-summary .stat:nth-child(2){border-top-color:#62806c}
+.zone-summary .stat:nth-child(3){border-top-color:#8f5256}
+.zone-summary .stat:nth-child(4){border-top-color:#81704f}
+.zone-summary .stat:nth-child(5){border-top-color:#6d7f9a}
+.zone-summary .stat:nth-child(6){border-top-color:#746485}
+.zone-summary .stat .k{
+  font-size:10px;
+  letter-spacing:1px;
+  text-transform:uppercase;
+}
+.zone-summary .stat .v{
+  margin-top:8px;
+  font-size:clamp(18px,2vw,25px);
+  line-height:1.1;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.zone-summary .stat .s{margin-top:6px}
+
+/* 每個工作區都更像獨立檔案頁，而不是接在頁籤下方的一團內容 */
+.section.active{
+  margin-top:0;
+  padding:14px!important;
+  border:1px solid #484a52!important;
+  border-top:4px solid #73767f!important;
+  background:
+    linear-gradient(180deg,rgba(27,28,33,.76),rgba(13,14,17,.5));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.02);
+}
+#adventure.section.active{border-top-color:#965058!important}
+#book.section.active{border-top-color:#70869e!important}
+#quests.section.active{border-top-color:#9a7e50!important}
+#backpack.section.active{border-top-color:#8d7047!important}
+#bestiary.section.active{border-top-color:#745f85!important}
+#progress.section.active{border-top-color:#8e875a!important}
+#commentary.section.active{border-top-color:#6d8794!important}
+#stats.section.active{border-top-color:#627b66!important}
+#settings.section.active{border-top-color:#777980!important}
+
+/* 主內容卡片之間加強層級 */
+.section.active>.wood.panel,
+.section.active>.main-grid>.wood.panel,
+.section.active>.progress-grid>.wood.panel,
+.section.active>.stats-grid>.wood.panel,
+.section.active>.backpack-grid>.wood.panel{
+  box-shadow:0 8px 18px rgba(0,0,0,.14);
+}
+
+/* 手機底部導覽：明確選中狀態，避免與桌面頁籤視覺打架 */
+.bottom{
+  border-top:1px solid #53555d!important;
+  background:rgba(15,16,19,.96)!important;
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+}
+.bottom button{
+  position:relative;
+  color:#8f8c84!important;
+  transition:background .16s ease,color .16s ease;
+}
+.bottom button.active{
+  color:#f0e9df!important;
+  background:linear-gradient(180deg,rgba(143,69,75,.18),rgba(143,69,75,.05))!important;
+}
+.bottom button.active::before{
+  content:"";
+  position:absolute;
+  left:20%;
+  right:20%;
+  top:0;
+  height:3px;
+  background:#a65057;
+}
+.bottom .nav-add{
+  color:#efe8dd!important;
+  background:linear-gradient(180deg,#4b2b2e,#28191b)!important;
+  border-left:1px solid #71464a!important;
+  border-right:1px solid #71464a!important;
+}
+
+/* 中型桌面／平板 */
+@media(max-width:1180px){
+  .tabs.zone-tabs{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .zone-summary{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+}
+@media(max-width:820px){
+  .tabs.zone-tabs{
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:7px;
+    padding:8px!important;
+  }
+  .tabs.zone-tabs button{
+    min-height:62px;
+    padding:21px 7px 8px;
+    font-size:14px;
+  }
+  .zone-summary{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:7px!important;
+  }
+  .zone-summary .stat{min-height:88px;padding:10px}
+}
+
+/* 手機：上方仍保留完整功能目錄，但改成緊湊 3 欄；底部只保留最常用功能 */
+@media(max-width:700px){
+  .tabs-directory-head{margin-top:13px}
+  .tabs-directory-title{font-size:16px}
+  .tabs-directory-note{display:none}
+  .tabs.zone-tabs{
+    display:grid!important;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    overflow:visible!important;
+    flex-wrap:unset!important;
+    margin-bottom:12px!important;
+  }
+  .tabs.zone-tabs button{
+    min-height:56px;
+    padding:19px 5px 7px;
+    font-size:13px;
+    letter-spacing:.3px;
+  }
+  .tabs.zone-tabs button::before{
+    top:6px;
+    left:6px;
+    font-size:7px;
+    letter-spacing:.7px;
+  }
+  .zone-summary .stat .v{font-size:18px}
+  .section.active{padding:9px!important}
+}
