@@ -697,3 +697,31 @@ dialog#dlg .foot button[value="cancel"]{
   .language-switch{margin-left:auto}
   .language-switch button{min-width:54px;min-height:36px;padding:6px 8px;font-size:11px}
 }
+
+
+/* Stronger visual separation between major functional zones */
+.zone{position:relative}
+.zone-privacy{border-left:4px solid #666a72!important;background:linear-gradient(90deg,rgba(120,124,133,.10),rgba(23,24,28,.96) 24%)!important}
+.zone-actions{margin:14px 0 10px;padding:10px;border:1px solid #565861;border-left:4px solid #9a6f45;background:linear-gradient(90deg,rgba(154,111,69,.10),rgba(18,19,23,.78) 28%)}
+.zone-currency{border-left:4px solid #647a9e!important;background:linear-gradient(90deg,rgba(100,122,158,.11),rgba(18,19,23,.96) 28%)!important}
+.zone-summary{margin-top:12px;padding:10px;border:1px solid #53555e;border-left:4px solid #667e68;background:linear-gradient(90deg,rgba(102,126,104,.09),rgba(15,16,19,.72) 30%)}
+.zone-summary .stat{background:linear-gradient(180deg,#1d2020,#151719)}
+.zone-tabs{margin-top:16px!important;padding:9px;border:1px solid #5b5d66;border-left:4px solid #8f454b;background:#111216}
+.section.active{position:relative;padding:14px;border:1px solid #45474f;border-top:3px solid #767984;background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,.008))}
+#adventure.section.active{border-top-color:#8f454b}
+#book.section.active{border-top-color:#6f849f}
+#quests.section.active{border-top-color:#9b7b45}
+#bestiary.section.active{border-top-color:#765f86}
+#progress.section.active{border-top-color:#8e875a}
+#commentary.section.active{border-top-color:#6d8794}
+#stats.section.active{border-top-color:#627b66}
+#settings.section.active{border-top-color:#777980}
+#adventure .main-grid>.panel:first-child{border-left:4px solid #8f454b}
+#adventure .containment-frame{border-left:4px solid #765f86}
+.npc-strip{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+.settings-grid>.field{padding:10px;border:1px solid #45474f;background:#141519}
+@media(max-width:700px){
+  .zone-actions,.zone-summary,.zone-tabs{padding:8px}
+  .section.active{padding:10px}
+  .npc-strip{grid-template-columns:1fr!important}
+}
