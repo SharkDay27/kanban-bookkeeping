@@ -550,6 +550,8 @@ function runExploration(){
     title='裝備回收';reward=pickFieldGear();detail='發現可供罪人配置的探索裝備。';xp=22+area.level;stamp='GEAR';
   }
 
+  const managerEffects=equipmentEffects();
+  if(managerEffects.exploreXpBonus)xp=Math.max(1,Math.round(xp*(1+managerEffects.exploreXpBonus)));
   const levelUps=[];
   names.forEach(function(n){const res=awardSinnerExp(n,xp);if(res.after>res.before)levelUps.push(n+' Lv.'+res.after)});
   if(levelUps.length)reward+=(reward?'；':'')+'升級：'+levelUps.join('、');
@@ -565,7 +567,9 @@ function runExploration(){
   ex.earned=state.entries.length;
   ex.actions=Math.max(0,ex.earned-ex.spent);
   saveLocal();
-  try{renderExploration();renderSinnerManagement();renderBestiary();renderBackpack()}catch(e){console.error('exploration render',e)}
+  if(typeof window!=='undefined'&&typeof window.checkRpgQuests==='function')window.checkRpgQuests();
+  checkAchievements();
+  try{renderExploration();renderSinnerManagement();renderBestiary();renderBackpack();renderQuests();renderProgress()}catch(e){console.error('exploration render',e)}
   toast('探索完成：'+title);
 }
 function containedAbnormalityCount(){
@@ -671,11 +675,13 @@ function renderSinnerManagement(){
   box.querySelectorAll('[data-sinner-gear]').forEach(function(sel){sel.onchange=function(){assignFieldGear(sel.dataset.sinnerGear,sel.value)}});
 }
 function equipmentEffects(){
-  const out={expBonus:0,questXpBonus:0,goldBonus:0,monsterDamage:0,bossDamage:0,allDamage:0};
+  const out={expBonus:0,questXpBonus:0,goldBonus:0,allDamage:0,shopDiscount:0,exploreXpBonus:0,eventBonus:0,lootBonus:0};
+  const catalog=(typeof window!=='undefined'&&window.RPG_EQUIPMENT_CATALOG)||EQUIPMENT_EFFECTS;
   (state.rpg.equipped||[]).forEach(function(name){
-    const e=EQUIPMENT_EFFECTS[name];
+    const e=catalog[name]||EQUIPMENT_EFFECTS[name];
     if(e)Object.keys(out).forEach(function(k){out[k]+=Number(e[k]||0)});
   });
+  out.shopDiscount=Math.min(.25,out.shopDiscount);
   return out;
 }
 function toggleEquip(name){
@@ -743,17 +749,8 @@ function achievementMet(id){
   return false;
 }
 function checkAchievements(){
+  if(typeof window!=='undefined'&&typeof window.checkRpgAchievements==='function')return window.checkRpgAchievements();
   state.rpg.achievements=state.rpg.achievements||[];
-  const fresh=[];
-  ACHIEVEMENTS.forEach(function(a){
-    if(achievementMet(a.id)&&!state.rpg.achievements.includes(a.id)){
-      state.rpg.achievements.push(a.id);state.rpg.gold+=a.gold;fresh.push(a);
-    }
-  });
-  if(fresh.length){
-    state.rpg.rewardLog='成就解鎖：'+fresh.map(function(x){return x.name}).join('、')+'\n獲得 '+fresh.reduce(function(s,x){return s+x.gold},0)+' 金幣。';
-    saveLocal();
-  }
 }
 
 function grantXp(xp,reason){
@@ -852,7 +849,11 @@ function checkStreakMilestones(){
     }
   }
 }
-function checkQuests(){const d=today();ensureDaily(d);const ds=dayStats(d);QUESTS.forEach(q=>{const progress=q.id==='q3'?ds.cats:ds.count;const claimed=state.daily[d].questClaims[q.id];if(progress>=q.goal&&!claimed){state.daily[d].questClaims[q.id]=true;grantXp(q.rewardXp,`完成每日執行指令：${q.name}`)}});checkStreakMilestones();checkAchievements()}
+function checkQuests(){
+  if(typeof window!=='undefined'&&typeof window.checkRpgQuests==='function')window.checkRpgQuests();
+  else checkStreakMilestones();
+  checkAchievements();
+}
 function openItemBox(){
   if((state.rpg.itemBoxes||0)<=0){toast('沒有道具箱');return}
   state.rpg.itemBoxes--;
@@ -937,10 +938,14 @@ function renderRpg(){
   if($('todayNet')){$('todayNet').textContent=money(ds.net);$('todayNet').style.color=ds.net<0?'var(--red)':'var(--green)'}
 }
 function renderSummary(){const expense=state.entries.filter(x=>x.type==='expense').reduce((s,x)=>s+x.amount,0),income=state.entries.filter(x=>x.type==='income').reduce((s,x)=>s+x.amount,0),init=Number(state.profile.initialAmount||0),bal=init+income-expense,m=$('month').value||today().slice(0,7),monthEntries=state.entries.filter(x=>x.date.startsWith(m)),mIncome=monthEntries.filter(x=>x.type==='income').reduce((s,x)=>s+x.amount,0),mExpense=monthEntries.filter(x=>x.type==='expense').reduce((s,x)=>s+x.amount,0),monthNet=mIncome-mExpense,st=computeStreak();$('initialAmount').textContent=money(init);$('allIncome').textContent=money(income);$('allIncome').style.color='var(--green)';$('allExpense').textContent=money(expense);$('allExpense').style.color='var(--red)';$('balance').textContent=money(bal);$('balance').style.color=bal<0?'var(--red)':'var(--green)';$('monthNet').textContent=money(monthNet);$('monthNet').style.color=monthNet<0?'var(--red)':'var(--green)';$('monthLabel').textContent=m;$('streak').textContent=st.current+' 天';$('bestStreak').textContent='最長 '+st.best+' 天';$('streakBig').textContent=st.current;$('bestBig').textContent=st.best}
-function renderQuests(){ensureDaily(today());const ds=dayStats(today());$('questList').innerHTML=QUESTS.map(q=>{const p=q.id==='q3'?ds.cats:ds.count,done=p>=q.goal,claim=state.daily[today()].questClaims[q.id];return `<div class="quest wood panel ${done?'done':''}"><div class="row"><div class="quest-name">${done?'✓ ':'◇ '}${q.name}</div><div class="quest-reward">+${q.rewardXp} EXP</div></div><div class="quest-desc">${q.desc}</div><div class="quest-progress"><div style="width:${Math.min(100,Math.round(p/q.goal*100))}%"></div></div><div class="quest-desc">${Math.min(p,q.goal)} / ${q.goal}${claim?'・已領取':''}</div></div>`}).join('')}
+function renderQuests(){
+  if(typeof window!=='undefined'&&typeof window.forceRenderRpgQuests==='function')return window.forceRenderRpgQuests();
+  const box=$('questList');if(box)box.innerHTML='<div class="empty">任務模組載入中。</div>';
+}
 function filtered(){const m=$('month').value,t=$('typeFilter').value,c=$('cat').value,q=$('search').value.trim().toLowerCase();return state.entries.filter(x=>(!m||x.date.startsWith(m))&&(!t||x.type===t)&&(!c||x.category===c)&&(!q||[x.store,x.note,x.invoice,x.category,...(x.items||[]).map(i=>i.name)].join(' ').toLowerCase().includes(q))).sort((a,b)=>b.date.localeCompare(a.date)||b.amount-a.amount)}
 function renderBoard(){const rows=filtered(),groups={};rows.forEach(x=>(groups[x.date]??=[]).push(x));const dates=Object.keys(groups).sort().reverse();if(!dates.length){$('board').innerHTML='<div class="empty wood panel">目前沒有資料。先新增一筆收入或支出吧！</div>';return}$('board').innerHTML='<div class="board">'+dates.map(date=>{const items=groups[date],expense=items.filter(x=>x.type==='expense').reduce((s,x)=>s+x.amount,0),income=items.filter(x=>x.type==='income').reduce((s,x)=>s+x.amount,0),net=income-expense;return `<section class="day wood panel"><div class="dayhead"><div><div style="font-weight:900">${date}</div><div class="s">${items.length} 筆紀錄</div></div><div style="text-align:right"><div class="daytotal">支出 ${money(expense)}</div><div class="daynet ${net<0?'minus':'plus'}">淨額 ${money(net)}</div></div></div>${items.map(entry=>`<article class="card wood transaction-card type-${entry.type}" style="${categoryStyle(entry.category||'其他')}"><div class="row"><div class="store">${esc(entry.store)}</div><div class="amt ${entry.type}">${entry.type==='income'?'+ ':''}${money(entry.amount)}</div></div><div class="badges"><span class="badge ${entry.type}">${entry.type==='income'?'收入':'支出'}</span><span class="badge category-badge" style="${categoryStyle(entry.category||'其他')}">${esc(entry.category||'其他')}</span><span class="badge">${esc(entry.payment||'未設定')}</span></div><div class="items">${(entry.items||[]).slice(0,3).map(i=>esc(i.name)).join('、')||esc(entry.note||'—')}</div>${entry.comment&&entry.comment.lines&&entry.comment.lines.length?`<div class="entry-comment-preview"><b>${esc(entry.comment.lines[0].speaker)}</b>：${esc(entry.comment.lines[0].text)}</div>`:''}<div class="card-actions"><button class="mini-btn" data-edit="${entry.id}">編輯</button></div></article>`).join('')}</section>`}).join('')+'</div>';document.querySelectorAll('[data-edit]').forEach(btn=>btn.onclick=()=>openEdit(btn.dataset.edit))}
 function renderBackpack(){
+  if(typeof window!=='undefined'&&typeof window.forceRenderBackpack==='function')return window.forceRenderBackpack();
   ensurePlayerState();ensureExplorationState();
   const consumables=$('backpackConsumables');
   if(consumables){
@@ -980,6 +985,7 @@ function renderBackpack(){
   }).join(''):'<div class="empty pack-empty">目前沒有材料或其他物品。</div>';
 }
 function renderProgress(){
+  if(typeof window!=='undefined'&&typeof window.forceRenderAchievements==='function')return window.forceRenderAchievements();
   const ag=$('achievementGrid'),unlocked=state.rpg.achievements||[];
   if(!ag)return;
   ag.innerHTML=ACHIEVEMENTS.map(function(item){
@@ -1225,6 +1231,9 @@ function setTab(id){
     try{renderExploration()}catch(e){console.error('render exploration tab',e)}
     if($('exploreBtn'))$('exploreBtn').onclick=runExploration;
   }
+  if(id==='backpack'&&typeof window.forceRenderBackpack==='function')window.forceRenderBackpack();
+  if(id==='progress'&&typeof window.forceRenderAchievements==='function')window.forceRenderAchievements();
+  if(id==='quests'&&typeof window.forceRenderRpgQuests==='function')window.forceRenderRpgQuests();
 }
 function drawSprite(kind){
   if(kind==='star')return `<svg viewBox="0 0 64 64" width="44" height="44" aria-hidden="true"><circle cx="32" cy="32" r="23" fill="#1c1d22" stroke="#b52d2d" stroke-width="4"/><path d="M32 16l4 12 12 4-12 4-4 12-4-12-12-4 12-4z" fill="#d6d2c7"/></svg>`;
