@@ -51,22 +51,23 @@
     if(!shop){toast('目前沒有可交易的商店');return}
     const item=(shop.stock||[]).find(function(x){return x.stockId===id});
     if(!item||item.qty<=0){toast('商品已售罄');return}
-    if(state.rpg.gold<item.price){toast('金幣不足');return}
+    const price=Number(item.finalPrice||item.price);
+    if(state.rpg.gold<price){toast('金幣不足');return}
     if(item.type==='gear'&&state.exploration.fieldGear.includes(item.itemId)){toast('已持有這件探索裝備');item.qty=0;saveLocal();renderExplorationShop();return}
 
-    state.rpg.gold-=item.price;item.qty--;
+    state.rpg.gold-=price;item.qty--;
     if(item.type==='supply'){
       ensurePlayerState();state.rpg.consumables[item.itemId]=(state.rpg.consumables[item.itemId]||0)+1;
     }else if(item.type==='gear'){
       state.exploration.fieldGear.push(item.itemId);
     }
-    shop.purchases.push({at:new Date().toISOString(),name:item.name,price:item.price,type:item.type});
+    shop.purchases.push({at:new Date().toISOString(),name:item.name,price:price,type:item.type});
     const log=(state.exploration.logs||[]).find(function(x){return x.kind==='shop'&&x.title==='隨機事件：'+shop.name});
     if(log){
       const bought=shop.purchases.map(function(x){return x.name+' '+x.price+'G'}).join('、');
       log.reward=bought?'購入：'+bought:'可使用金幣購買物資';
     }
-    state.rpg.rewardLog='商店購入：'+item.name+'\n支付 '+item.price+' 金幣。';
+    state.rpg.rewardLog='商店購入：'+item.name+'\n支付 '+price+' 金幣。';
     saveLocal();
     try{renderExplorationShop();renderBackpack();renderSinnerManagement();renderRpg()}catch(e){console.error(e)}
     toast('購入 '+item.name);
@@ -84,8 +85,11 @@
       '<div class="shop-flavor">'+esc(shop.flavor)+'</div>'+
       '<div class="shop-stock">'+(shop.stock||[]).map(function(item){
         const sold=item.qty<=0,canBuy=!sold&&state.rpg.gold>=item.price;
+        const effects=typeof equipmentEffects==='function'?equipmentEffects():{shopDiscount:0};
+        const finalPrice=Math.max(1,Math.round(item.price*(1-(effects.shopDiscount||0))));
+        item.finalPrice=finalPrice;
         return '<article class="shop-item '+(sold?'soldout':'')+'"><div class="shop-item-head"><div><div class="shop-item-name">'+esc(item.name)+'</div>'+
-          '<div class="shop-item-kind">'+(item.type==='gear'?'EQUIPMENT':'SUPPLY')+'</div></div><div class="shop-price">'+item.price+' G</div></div>'+
+          '<div class="shop-item-kind">'+(item.type==='gear'?'EQUIPMENT':'SUPPLY')+'</div></div><div class="shop-price">'+finalPrice+' G</div></div>'+
           '<div class="shop-item-desc">'+esc(item.desc)+'</div><div class="shop-item-foot"><span class="shop-stock-count">STOCK / '+item.qty+'</span>'+
           '<button type="button" class="wood shop-buy" data-shop-buy="'+esc(item.stockId)+'" '+(canBuy?'':'disabled')+'>'+(sold?'售罄':canBuy?'購買':'金幣不足')+'</button></div></article>';
       }).join('')+'</div>'+
