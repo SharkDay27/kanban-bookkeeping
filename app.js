@@ -1049,10 +1049,26 @@ function renderCharts(){
 }
 
 function saveSettings(){state.profile.initialAmount=Number($('initialInput').value||0);state.profile.name='但丁';saveLocal();render();toast('已儲存設定')}
+const TAB_LABELS={adventure:'終端',book:'記錄',quests:'任務',explore:'探索',sinners:'罪人管理',backpack:'背包',bestiary:'圖鑑',progress:'成就',commentary:'評議',stats:'統計',settings:'設定'};
+function setMainMenuOpen(open){
+  const menu=$('mainMenuTabs'),toggle=$('mainMenuToggle');
+  if(!menu||!toggle)return;
+  menu.classList.toggle('collapsed',!open);
+  menu.classList.toggle('open',open);
+  menu.setAttribute('aria-hidden',open?'false':'true');
+  toggle.setAttribute('aria-expanded',open?'true':'false');
+  toggle.classList.toggle('open',open);
+}
+function toggleMainMenu(){
+  const menu=$('mainMenuTabs');
+  setMainMenuOpen(menu?menu.classList.contains('collapsed'):true);
+}
 function setTab(id){
   document.querySelectorAll('.section').forEach(function(el){el.classList.toggle('active',el.id===id)});
   document.querySelectorAll('.tabs button').forEach(function(btn){btn.classList.toggle('active',btn.dataset.tab===id)});
   document.querySelectorAll('.bottom [data-goto]').forEach(function(btn){btn.classList.toggle('active',btn.dataset.goto===id)});
+  if($('mainMenuCurrent'))$('mainMenuCurrent').textContent=TAB_LABELS[id]||'主功能';
+  setMainMenuOpen(false);
 }
 function drawSprite(kind){
   if(kind==='star')return `<svg viewBox="0 0 64 64" width="44" height="44" aria-hidden="true"><circle cx="32" cy="32" r="23" fill="#1c1d22" stroke="#b52d2d" stroke-width="4"/><path d="M32 16l4 12 12 4-12 4-4 12-4-12-12-4 12-4z" fill="#d6d2c7"/></svg>`;
@@ -1083,6 +1099,7 @@ function mountIcons(){
   if($('npcClerk'))$('npcClerk').innerHTML=npcSprite('clerk');
   if($('npcMerchant'))$('npcMerchant').innerHTML=npcSprite('merchant');
 }
+if($('mainMenuToggle'))$('mainMenuToggle').onclick=toggleMainMenu;
 document.querySelectorAll('[data-language]').forEach(function(btn){btn.onclick=function(){setLanguage(btn.dataset.language)}});if($('currencySelect'))$('currencySelect').addEventListener('change',function(){setCurrency(this.value)});
 $('etype').addEventListener('change',syncEntryTypeUI);document.querySelectorAll('[data-entry-type]').forEach(b=>b.onclick=()=>{$('etype').value=b.dataset.entryType;syncEntryTypeUI()});$('dlg').addEventListener('click',e=>{if(e.target===$('dlg'))$('dlg').close()});$('ecat').addEventListener('change',renderQuickCats);
 $('save').onclick=()=>saveEntry(false);$('saveAgain').onclick=()=>saveEntry(true);$('closeDlg').onclick=()=>$('dlg').close();$('closeCommentDlg').onclick=()=>$('commentDlg').close();$('commentViewTime').onclick=()=>setCommentaryView('time');$('commentViewSinner').onclick=()=>setCommentaryView('sinner');$('goCommentArchive').onclick=()=>{$('commentDlg').close();setTab('commentary')};$('del').onclick=deleteEntry;$('csv').addEventListener('change',importCsvFiles);$('export').onclick=exportCsv;$('backup').onclick=backupJson;$('restore').addEventListener('change',restoreJson);$('clear').onclick=clearLocalData;$('saveSettings').onclick=saveSettings;if($('exploreBtn'))$('exploreBtn').onclick=runExploration;$('addExpense').onclick=()=>openEdit('', 'expense');$('addIncome').onclick=()=>openEdit('', 'income');$('fab').onclick=()=>openEdit('', 'expense');$('bottomAdd').onclick=()=>openEdit('', 'expense');['month','typeFilter','cat','search'].forEach(id=>$(id).addEventListener('input',render));document.querySelectorAll('[data-chest]').forEach(btn=>btn.onclick=()=>openChest(btn.dataset.chest));document.querySelectorAll('.tabs button').forEach(btn=>btn.onclick=()=>setTab(btn.dataset.tab));document.querySelectorAll('[data-goto]').forEach(btn=>btn.onclick=()=>setTab(btn.dataset.goto));if(!$('month').value){$('month').value=new Date().toISOString().slice(0,7)}mountIcons();render();setupIphoneSafariInput();setupLanguageObserver();
