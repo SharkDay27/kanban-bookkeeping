@@ -678,6 +678,26 @@ function sinnerLine(sinner,entry){
 
 function ryoshuArayaInteraction(entry){
   const ctx=commentContext(entry),tier=amountTier(entry),cat=entry.category;
+  const situations=detectSituations(entry).map(function(x){return x.id});
+  const special={
+    breakfast:['良秀','早。食。醒。','阿賴耶','媽媽是說早餐吃了就清醒點。……大概吧，她早上話更少。'],
+    lunch:['良秀','午。補。','阿賴耶','午餐補充體力。這句還算容易懂。'],
+    dinner:['良秀','晚。收。','阿賴耶','媽媽是叫你晚上別一路吃到失控。她講得也太省了。'],
+    lateNight:['良秀','夜。躁。停。','阿賴耶','但丁，媽媽是在叫你半夜先停手。困的時候很容易亂買。'],
+    shoppingStreak:['良秀','又買。止。','阿賴耶','今天已經買過了。媽媽的意思是先收手，別越買越順。'],
+    monthStart:['良秀','月初。別鬆。','阿賴耶','才月初，別因為帳面看起來很多就鬆懈。媽媽說得沒錯。'],
+    monthEnd:['良秀','月底。收刀。','阿賴耶','快月底了。媽媽叫你把手收回來，別再亂砍錢包。'],
+    salarySpend:['良秀','薪進。錢出。快。','阿賴耶','但丁，薪水才剛進來就出去。媽媽是在嫌它待得太短。'],
+    repeatCategory:['良秀','又同類。看。','阿賴耶','跟上一筆同類。媽媽叫你看看是不是已經太集中。'],
+    higherThanLast:['良秀','比上次高。查。','阿賴耶','這次比上次貴。媽媽叫你找原因，不是只盯著數字。'],
+    lowerThanLast:['良秀','比上次低。可。','阿賴耶','這次比上次省。媽媽這句是在稱讚啦，真的。']
+  };
+  for(const key of ['lateNight','salarySpend','shoppingStreak','higherThanLast','lowerThanLast','repeatCategory','breakfast','lunch','dinner','monthEnd','monthStart']){
+    if(situations.includes(key)&&special[key]){
+      const s=special[key];
+      return [{speaker:s[0],text:s[1]},{speaker:s[2]+'（阿賴耶識）',text:s[3]}];
+    }
+  }
   const sets=ctx==='income'?[
     ['良秀','時鐘。入·留。','阿賴耶','媽媽，這次我不用等辛克萊翻譯了。你是說「進來的錢要留下來」，對吧？'],
     ['良秀','入。可。','阿賴耶','……媽媽，兩個字也太省了。至少這次是好消息。'],
