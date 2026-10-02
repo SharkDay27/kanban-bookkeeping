@@ -552,6 +552,59 @@ dialog#dlg.type-income .amount-field input{border-color:#4c8c60!important;box-sh
     body.keyboard-open dialog#dlg form.modal{height:calc(var(--vvh) - 2px)!important;max-height:calc(var(--vvh) - 2px)!important}
   }
 }
+
+/* ===== v9.5 commentary positioning and iPhone button polish ===== */
+#goCommentArchive,
+#closeCommentDlg,
+dialog#dlg .foot button{
+  -webkit-appearance:none;
+  appearance:none;
+  background:linear-gradient(180deg,#2a2b31,#191a1f);
+  color:#e8e6df;
+  border:1px solid #686a73;
+}
+#goCommentArchive{
+  background:linear-gradient(180deg,#292b31,#191a1f)!important;
+  color:#d8d4ca!important;
+}
+#closeCommentDlg{
+  background:linear-gradient(180deg,#493034,#2b1c1f)!important;
+  border-color:#8a4a50!important;
+  color:#f4e7e7!important;
+}
+dialog#dlg .foot button[value="cancel"]{
+  background:linear-gradient(180deg,#2b2d33,#1b1c21)!important;
+  color:#d7d3ca!important;
+}
+@media(max-width:700px){
+  #commentDlg[open]{
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    padding:16px 12px calc(16px + env(safe-area-inset-bottom))!important;
+  }
+  .comment-dialog{
+    width:min(100%,560px)!important;
+    max-height:min(72dvh,680px)!important;
+    border:1px solid #858790!important;
+    padding:16px 14px!important;
+    overflow:auto;
+  }
+  .comment-dialog .archive-title{font-size:18px!important}
+  .comment-dialog .commentary-speaker{font-size:14px!important;line-height:1.45}
+  .comment-dialog .commentary-text{font-size:16px!important;line-height:1.78}
+  .comment-dialog .commentary-meta{font-size:11px!important}
+  .comment-dialog-actions{margin-top:16px}
+  .comment-dialog-actions button{min-height:44px;font-size:13px;padding:9px 12px}
+  dialog#dlg #save{
+    min-height:46px!important;
+    font-size:14px!important;
+    padding:8px 12px!important;
+  }
+  dialog#dlg #saveAgain{min-height:42px!important;font-size:12px!important}
+  dialog#dlg .foot button[value="cancel"],
+  dialog#dlg #del{min-height:40px!important;font-size:12px!important}
+}
 </style>
 </head>
 <body>
@@ -1713,7 +1766,7 @@ function showSinnerComment(comment){
   if(!comment)return;
   const dlg=$('commentDlg'),body=$('commentDlgBody'),tag=$('commentDlgTag');
   if(!dlg||!body)return;
-  body.innerHTML='<div class="commentary-meta" style="margin-bottom:8px">'+esc(comment.category||'未分類')+' / '+(comment.amountTier==='tiny'?'小額':comment.amountTier==='medium'?'一般':comment.amountTier==='large'?'大額':comment.amountTier==='huge'?'極大額':'')+(comment.amount!=null?' / '+money(comment.amount):'')+'</div>'+renderCommentLines(comment);
+  body.innerHTML='<div class="commentary-meta" style="margin-bottom:8px">'+esc(comment.category||'未分類')+(comment.amount!=null?' / '+money(comment.amount):'')+'</div>'+renderCommentLines(comment);
   if(tag)tag.textContent=commentKindLabel(comment.kind).replace(/^.*\/\s*/,'');
   if(dlg.open)dlg.close();
   requestAnimationFrame(function(){
