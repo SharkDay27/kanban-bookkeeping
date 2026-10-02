@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="終端記錄">
 <title>RPG 化記帳工具</title>
-<link rel="stylesheet" href="styles.css?v=20261002zg">
+<link rel="stylesheet" href="styles.css?v=20261002zh">
 </head>
 <body>
 <script>
@@ -41,13 +41,19 @@ window.addEventListener('pageshow',function(){
   <div class="notice wood panel zone zone-privacy">資料只保存在目前瀏覽器 localStorage。GitHub Pages 不會儲存你的發票、收入、初始金額或進度資料。換裝置或清除 Safari 網站資料前，請先備份 JSON。</div>
 
   <div class="actions zone zone-actions">
-    <label class="btn wood">匯入發票 CSV<input id="csv" type="file" accept=".csv" multiple></label>
-    <button id="export" class="wood">匯出 CSV</button>
-    <button id="backup" class="wood">備份 JSON</button>
-    <label class="btn wood">還原 JSON<input id="restore" type="file" accept=".json"></label>
-    <button id="clear" class="wood danger">清除本機資料</button>
-    <button id="addExpense" class="wood primary">＋新增支出</button>
-    <button id="addIncome" class="wood income-btn">＋新增收入</button>
+    <label class="btn wood action-main">匯入發票 CSV<input id="csv" type="file" accept=".csv" multiple></label>
+    <button id="export" class="wood action-main">匯出 CSV</button>
+    <div class="action-with-note">
+      <button id="backup" class="wood action-main">備份 JSON</button>
+      <small>下載完整存檔</small>
+    </div>
+    <div class="action-with-note">
+      <label class="btn wood action-main">還原 JSON<input id="restore" type="file" accept=".json"></label>
+      <small>匯入存檔並覆蓋目前資料</small>
+    </div>
+    <button id="addExpense" class="wood primary action-main">＋新增支出</button>
+    <button id="addIncome" class="wood income-btn action-main">＋新增收入</button>
+    <button id="clear" class="wood danger clear-local-compact">清除本機資料</button>
   </div>
 
   <div class="currency-console wood panel zone zone-currency" id="currencyConsole">
