@@ -1460,3 +1460,82 @@ dialog#dlg .entry-wide{
 @media(max-width:700px){
   .combat-report-row{grid-template-columns:1fr;gap:4px}
 }
+
+
+/* ===== Sinner stat guide / region containment / achievement filters ===== */
+.sinner-stat-guide{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:7px;
+  margin-top:11px;
+}
+.sinner-stat-help{
+  padding:9px 10px;
+  border:1px solid #44474f;
+  background:#141519;
+}
+.sinner-stat-help b{
+  display:block;
+  font-size:11px;
+  color:#e0d9cd;
+  margin-bottom:4px;
+}
+.sinner-stat-help span{
+  display:block;
+  font-size:9px;
+  line-height:1.45;
+  color:#9f9c94;
+}
+.sinner-stat-grid span small{
+  display:block;
+  margin-top:2px;
+  font-size:7px;
+  letter-spacing:.7px;
+  color:#81848c;
+  font-weight:700;
+}
+.exploration-area-card.contained{
+  border-color:#67836d!important;
+  box-shadow:inset 4px 0 0 #67836d;
+  background:linear-gradient(180deg,rgba(45,69,50,.42),#141519);
+}
+.area-contained-badge{
+  display:inline-block;
+  margin-top:6px;
+  padding:4px 7px;
+  border:1px solid #66836c;
+  color:#9bc3a2;
+  background:rgba(67,111,75,.14);
+  font-size:9px;
+  font-weight:900;
+  letter-spacing:.8px;
+}
+.achievement-view-switch{
+  display:flex;
+  gap:7px;
+  margin:10px 0 12px;
+}
+.achievement-view-switch button{
+  min-width:110px;
+  padding:8px 12px;
+  border:1px solid #4b4e56;
+  background:#15161a;
+  color:#9f9b93;
+  font-weight:900;
+}
+.achievement-view-switch button.active{
+  border-color:#8a5157;
+  background:#24191b;
+  color:#f1e9de;
+  box-shadow:inset 3px 0 0 #a45057;
+}
+.achievement-empty{
+  grid-column:1/-1;
+  padding:18px;
+  text-align:center;
+  color:#8f8d86;
+  border:1px dashed #45474e;
+}
+@media(max-width:800px){
+  .sinner-stat-guide{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
