@@ -1282,3 +1282,10 @@ button.tabs-directory-head:hover{border-color:#747780;border-left-color:#a5535a}
 .shop-buy:disabled{opacity:.4}
 .shop-note{padding:0 12px 11px;font-size:9px;color:#8e8b83;line-height:1.45}
 @media(max-width:700px){.shop-stock{grid-template-columns:1fr}}
+
+
+/* obsolete NPC strip hard removal */
+.npc-strip,
+.npc-card:has(.npc-name){
+  display:none!important;
+}
