@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="終端記錄">
 <title>RPG 化記帳工具</title>
-<link rel="stylesheet" href="styles.css?v=20261002z">
+<link rel="stylesheet" href="styles.css?v=20261002za">
 </head>
 <body>
 <script>
@@ -100,7 +100,7 @@ window.addEventListener('pageshow',function(){
 
     <div class="main-grid">
       <div class="wood panel">
-        <div class="archive-header"><div><div class="archive-id">FILE // IDENTITY-ACCOUNT-01</div><div class="archive-title">執行經理檔案 / MANAGER IDENTITY</div></div><div class="archive-stamp">ACTIVE</div></div><div class="sub">你被固定識別為 LCB 執行經理「但丁」。每新增一筆收入或支出，除原有 EXP 外，另獲得 1 次探索行動。</div>
+        <div class="archive-header"><div><div class="archive-id">FILE // IDENTITY-ACCOUNT-01</div><div class="archive-title">執行經理檔案 / MANAGER IDENTITY</div></div><div class="archive-stamp">ACTIVE</div></div><div class="sub">你被固定識別為 LCB 執行經理「但丁」。每完成 1 筆新記帳，獲得經理 EXP 與 1 次探索行動；編輯既有紀錄不重複獲得獎勵。</div>
         <div class="hero">
           <div class="avatar" id="heroIcon"></div>
           <div>
@@ -110,6 +110,8 @@ window.addEventListener('pageshow',function(){
             <div class="mini-grid manager-reward-grid">
               <div class="mini wood panel"><div class="k">金幣</div><div class="num" id="gold">0</div></div>
               <div class="mini wood panel"><div class="k">道具箱</div><div class="num" id="itemBoxCount">0</div></div>
+              <div class="mini wood panel manager-action-card"><div class="k">可用行動</div><div class="num" id="managerActions">0</div></div>
+              <div class="mini wood panel"><div class="k">補給 水 / 藥</div><div class="num compact" id="managerSupply">0 / 0</div></div>
             </div>
             <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
               <button class="wood gold-btn" id="openItemBox">開啟道具箱</button>
@@ -358,6 +360,7 @@ window.addEventListener('pageshow',function(){
       <div><div class="archive-id">LCB // COMMENT RECEIVED</div><div class="archive-title comment-dialog-title" id="commentDlgTitle">罪人評議</div></div>
       <div class="archive-stamp" id="commentDlgTag">SINGLE</div>
     </div>
+    <div id="entryRewardNotice" class="entry-reward-notice" hidden></div>
     <div id="commentDlgBody" class="commentary-lines"></div>
     <div class="comment-dialog-actions">
       <button type="button" id="goCommentArchive" class="wood">查看評議記錄</button>
@@ -426,7 +429,7 @@ window.addEventListener('pageshow',function(){
 
 <script src="dialogues.js?v=20261002ad"></script>
 <script src="exploration-dialogues.js?v=20261002a"></script>
-<script src="app.js?v=20261002ze"></script>
+<script src="app.js?v=20261002zf"></script>
 <script src="sinner-management.js?v=20261002b"></script>
 <script src="bestiary.js?v=20261002a"></script>
 <script src="exploration.js?v=20261002c"></script>
@@ -436,5 +439,6 @@ window.addEventListener('pageshow',function(){
 <script src="achievements.js?v=20261002a"></script>
 <script src="quests.js?v=20261002a"></script>
 <script src="statistics.js?v=20261002a"></script>
+<script src="manager-progress.js?v=20261002a"></script>
 </body>
 </html>
