@@ -1289,3 +1289,37 @@ button.tabs-directory-head:hover{border-color:#747780;border-left-color:#a5535a}
 .npc-card:has(.npc-name){
   display:none!important;
 }
+
+
+/* ===== PC transaction modal containment fix ===== */
+dialog#dlg form.modal{
+  overflow-x:hidden!important;
+}
+dialog#dlg .entry-primary{
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+  width:100%;
+  max-width:100%;
+  min-width:0;
+}
+dialog#dlg .entry-primary>.field,
+dialog#dlg .field{
+  min-width:0;
+  max-width:100%;
+}
+dialog#dlg input,
+dialog#dlg select,
+dialog#dlg textarea{
+  width:100%;
+  max-width:100%;
+  min-width:0;
+}
+dialog#dlg .amount-field,
+dialog#dlg .entry-wide{
+  min-width:0;
+  max-width:100%;
+}
+@media(min-width:701px){
+  dialog#dlg form.modal{
+    width:min(760px,calc(100vw - 48px))!important;
+  }
+}
