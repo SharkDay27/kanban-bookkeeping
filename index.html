@@ -5,83 +5,138 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow,noarchive">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="每日記帳">
-<title>每日 Kanban 記帳</title>
+<meta name="apple-mobile-web-app-title" content="冒險記帳">
+<title>冒險記帳 RPG v2</title>
 <style>
-:root{--bg:#f6f7fb;--card:#fff;--text:#111827;--muted:#6b7280;--line:#e5e7eb;--danger:#b91c1c}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Microsoft JhengHei",sans-serif;padding-bottom:80px}
-.wrap{max-width:1100px;margin:auto;padding:14px}.top{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
-h1{font-size:22px;margin:0}.sub,.note{color:var(--muted);font-size:12px}.actions,.filters{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
-button,.btn,input,select{border:1px solid var(--line);background:#fff;border-radius:10px;padding:10px 12px;font:inherit}.btn{display:inline-block;cursor:pointer}.btn input{display:none}.primary{background:#111827;color:#fff}.danger{color:var(--danger)}
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.stat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px}.stat b{font-size:21px;display:block;margin-top:3px}.stat span{font-size:11px;color:var(--muted)}
-.board{display:flex;gap:10px;overflow-x:auto;align-items:flex-start}.day{min-width:300px;width:300px;background:#eceff4;border-radius:14px;padding:9px}.dayhead{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:8px}.dayhead b{font-size:15px}.card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:11px;margin-bottom:8px}.row{display:flex;justify-content:space-between;gap:8px}.store{font-weight:700}.amt{font-weight:800}.badges{margin-top:6px}.badge{display:inline-block;background:#f3f4f6;border-radius:999px;padding:3px 7px;font-size:10px;margin:0 4px 4px 0}.items{font-size:12px;color:#4b5563;margin-top:5px}.small{font-size:11px;padding:6px 8px;margin-top:8px}.empty{text-align:center;color:var(--muted);padding:36px;background:#fff;border:1px dashed var(--line);border-radius:14px}
-dialog{border:0;border-radius:16px;width:min(560px,calc(100% - 20px));padding:0}form{padding:16px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.field{display:flex;flex-direction:column;gap:5px}.field label{font-size:12px;color:var(--muted)}textarea{min-height:70px;border:1px solid var(--line);border-radius:10px;padding:9px;font:inherit}.foot{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}
-.bottom{display:none}
-@media(max-width:700px){.wrap{padding:10px}.stats{grid-template-columns:1fr 1fr}.actions{display:grid;grid-template-columns:1fr 1fr}.actions>*{width:100%;text-align:center}.board{display:block;overflow:visible}.day{width:100%;min-width:0;margin-bottom:10px}.filters{display:grid;grid-template-columns:1fr 1fr;position:sticky;top:0;background:rgba(246,247,251,.96);padding:8px 0;z-index:5}.filters input{grid-column:1/-1}.grid{grid-template-columns:1fr}.bottom{display:grid;grid-template-columns:repeat(3,1fr);position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);padding:7px calc(7px + env(safe-area-inset-right)) calc(7px + env(safe-area-inset-bottom)) calc(7px + env(safe-area-inset-left));z-index:10}.bottom button{border:0}.fab{position:fixed;right:16px;bottom:76px;width:54px;height:54px;border-radius:50%;border:0;background:#111827;color:#fff;font-size:28px;z-index:11}}
+:root{--bg:#111522;--bg2:#171d2c;--panel:#222b3e;--panel2:#2d3850;--line:#536487;--text:#eef4ff;--muted:#a8b2cb;--green:#72e0aa;--gold:#ffd166;--red:#ff7d7d;--blue:#67b6ff;--purple:#c091ff;--dark:#0a0d15}
+*{box-sizing:border-box}html,body{margin:0;background:linear-gradient(180deg,var(--bg),#1a2131);color:var(--text);font-family:"Courier New","PingFang TC","Microsoft JhengHei",monospace}body{padding-bottom:84px}button,input,select,textarea{font:inherit;color:var(--text)}button{cursor:pointer}.pixel{border:3px solid var(--dark);border-radius:0;box-shadow:inset -3px -3px 0 rgba(0,0,0,.28),inset 3px 3px 0 rgba(255,255,255,.05),0 4px 0 var(--dark)}
+.wrap{max-width:1200px;margin:auto;padding:14px}.top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}.brand{display:flex;gap:10px;align-items:center}.logo{width:50px;height:50px;background:#182238;display:grid;place-items:center}.title{font-size:24px;font-weight:800}.sub{font-size:12px;color:var(--muted);line-height:1.5;margin-top:3px}.notice{margin:12px 0;padding:10px 12px;background:#1b2538;color:#cbd5ec;font-size:12px;line-height:1.5}.actions{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.actions button,.btn{background:var(--panel2);border:0;padding:10px 12px;min-height:44px}.btn{display:inline-flex;align-items:center;justify-content:center;cursor:pointer}.btn input{display:none}.primary{background:#3562ff!important}.gold{background:#93671d!important}.danger{background:#7f2d33!important}
+.summary{display:grid;grid-template-columns:repeat(5,1fr);gap:9px}.stat{background:var(--panel);padding:11px}.k{font-size:11px;color:var(--muted)}.v{font-size:22px;font-weight:800;margin-top:5px}.s{font-size:11px;color:var(--muted);margin-top:3px}
+.main-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:10px;margin-top:12px}.panel{background:var(--panel);padding:12px}.panel-title{font-weight:800;font-size:17px}.panel-sub{font-size:11px;color:var(--muted);margin-top:3px}.hero{display:grid;grid-template-columns:82px 1fr;gap:12px;margin-top:12px;align-items:start}.avatar{width:82px;height:82px;background:#172133;display:grid;place-items:center}.row{display:flex;justify-content:space-between;gap:8px;align-items:center}.bar{height:20px;background:#111827;border:3px solid var(--dark);position:relative}.bar>div:first-child{height:100%;width:0;background:linear-gradient(90deg,#46c891,var(--green))}.bartext{position:absolute;inset:0;display:grid;place-items:center;color:#0d1b16;font-size:11px;font-weight:800}.mini-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:10px}.mini{background:var(--panel2);padding:8px;text-align:center}.mini .num{font-size:19px;font-weight:800;margin-top:3px}.rewardlog{margin-top:10px;background:#172033;padding:10px;min-height:62px;font-size:12px;line-height:1.5;white-space:pre-wrap}.inventory{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.loot{background:#29364e;padding:5px 7px;font-size:11px;color:#ffe7a8}
+.monster{display:grid;grid-template-columns:76px 1fr;gap:12px;align-items:center;margin-top:12px}.monster-icon{width:76px;height:76px;background:#172133;display:grid;place-items:center}.hp{height:18px;background:#161c2b;border:3px solid var(--dark);position:relative}.hpfill{height:100%;background:#ff6b6b}.hptext{position:absolute;inset:0;display:grid;place-items:center;font-size:10px;font-weight:800}.monster-meta{font-size:11px;color:var(--muted);margin-top:6px}
+.quest-list{display:flex;flex-direction:column;gap:8px;margin-top:10px}.quest{background:var(--panel2);padding:9px}.quest.done{opacity:.68}.quest-name{font-size:12px;font-weight:800}.quest-desc{font-size:11px;color:var(--muted);margin-top:3px}.quest-progress{margin-top:7px;height:12px;background:#172033;border:2px solid var(--dark)}.quest-progress>div{height:100%;background:var(--blue)}.quest-reward{font-size:10px;color:var(--gold);margin-top:4px}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.filters input,.filters select{background:var(--panel2);border:0;padding:10px 12px;min-height:44px}.filters #search{min-width:220px}.board{display:flex;gap:10px;overflow-x:auto;align-items:flex-start}.day{width:310px;min-width:310px;background:#171f30;padding:9px}.dayhead{display:flex;justify-content:space-between;gap:8px;margin-bottom:8px}.daytotal{color:var(--gold);font-weight:800}.card{background:#20283a;padding:10px;margin-bottom:8px}.store{font-weight:800}.amt{font-weight:800;color:var(--gold)}.badges{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}.badge{font-size:10px;padding:3px 6px;background:#31405f}.items{font-size:11px;color:#cbd5e8;margin-top:6px;line-height:1.45}.empty{padding:18px;text-align:center;color:var(--muted);background:#171f30}
+.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}.field{display:flex;flex-direction:column;gap:6px}.field label{font-size:11px;color:var(--muted)}input,select,textarea{background:var(--panel2);border:0;padding:10px 12px}textarea{min-height:76px;resize:vertical}.settings-note{font-size:11px;color:var(--muted);margin-top:8px;line-height:1.5}.toast{position:fixed;top:16px;right:16px;z-index:100;display:none;background:#182239;padding:10px 12px;max-width:300px}.fab,.bottom{display:none}dialog{border:0;background:transparent;padding:0}form.modal{width:min(600px,calc(100vw - 20px));background:var(--panel);padding:16px}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.foot{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}.tabs{display:flex;gap:8px;margin:14px 0}.tab{background:#273149;border:0;padding:9px 12px}.tab.active{background:#3a5ca8}.section{display:none}.section.active{display:block}svg{shape-rendering:crispEdges;image-rendering:pixelated}
+@media(max-width:900px){.summary{grid-template-columns:repeat(3,1fr)}.main-grid{grid-template-columns:1fr}}
+@media(max-width:700px){.wrap{padding:10px}.actions{display:grid;grid-template-columns:1fr 1fr}.actions>*{width:100%}.summary{grid-template-columns:1fr 1fr}.main-grid{grid-template-columns:1fr}.hero{grid-template-columns:70px 1fr}.avatar{width:70px;height:70px}.mini-grid{grid-template-columns:1fr 1fr}.filters{display:grid;grid-template-columns:1fr 1fr;position:sticky;top:0;background:rgba(17,21,34,.96);z-index:30;padding:8px 0}.filters #search{grid-column:1/-1;min-width:0}.board{display:block;overflow:visible}.day{width:100%;min-width:0;margin-bottom:10px}.settings-grid,.form-grid{grid-template-columns:1fr}.tabs{overflow-x:auto}.fab{display:block;position:fixed;right:16px;bottom:76px;width:56px;height:56px;background:#3562ff;color:#fff;font-size:28px;z-index:40}.bottom{display:grid;grid-template-columns:repeat(4,1fr);position:fixed;left:0;right:0;bottom:0;z-index:35;background:#0f1522;border-top:3px solid var(--dark)}.bottom button{min-height:58px;background:#1e293b;border:0;color:var(--text)}}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <div class="top"><div><h1>每日 Kanban 記帳</h1><div class="sub">GitHub Pages 安全版｜網站檔案不包含你的發票資料</div></div></div>
-  <div class="note">帳目只保存在目前瀏覽器的 localStorage。換手機、清除 Safari 網站資料或使用私人瀏覽前，請先備份 JSON。</div>
+  <div class="top"><div class="brand"><div class="logo pixel" id="logo"></div><div><div class="title">冒險記帳 RPG v2</div><div class="sub">每日任務・連續記帳・史萊姆戰鬥・寶箱稀有度・初始金額</div></div></div></div>
+  <div class="notice pixel">資料只保存在目前瀏覽器 localStorage。GitHub Pages 不會儲存你的發票、初始金額或 RPG 進度。換手機或清除 Safari 網站資料前，請先備份 JSON。</div>
+
   <div class="actions">
-    <label class="btn">匯入發票 CSV<input id="csv" type="file" accept=".csv" multiple></label>
-    <button id="export">匯出 CSV</button>
-    <button id="backup">備份 JSON</button>
-    <label class="btn">還原 JSON<input id="restore" type="file" accept=".json"></label>
-    <button id="clear" class="danger">清除本機資料</button>
-    <button id="add" class="primary">＋新增支出</button>
+    <label class="btn pixel">匯入發票 CSV<input id="csv" type="file" accept=".csv" multiple></label>
+    <button id="export" class="pixel">匯出 CSV</button><button id="backup" class="pixel">備份 JSON</button>
+    <label class="btn pixel">還原 JSON<input id="restore" type="file" accept=".json"></label>
+    <button id="clear" class="pixel danger">清除本機資料</button><button id="add" class="pixel primary">＋新增支出</button>
   </div>
-  <div class="stats">
-    <div class="stat"><span>總支出</span><b id="total">$0</b></div>
-    <div class="stat"><span>平均每日</span><b id="avg">$0</b></div>
-    <div class="stat"><span>最高單日</span><b id="max">$0</b></div>
-    <div class="stat"><span>筆數</span><b id="count">0</b></div>
+
+  <div class="summary">
+    <div class="stat pixel"><div class="k">初始金額</div><div class="v" id="initialAmount">$0</div><div class="s">由你自行設定</div></div>
+    <div class="stat pixel"><div class="k">累計支出</div><div class="v" id="allSpend">$0</div><div class="s">所有記帳資料</div></div>
+    <div class="stat pixel"><div class="k">目前剩餘</div><div class="v" id="balance">$0</div><div class="s">初始金額 − 累計支出</div></div>
+    <div class="stat pixel"><div class="k">目前月份</div><div class="v" id="monthSpend">$0</div><div class="s" id="monthLabel">—</div></div>
+    <div class="stat pixel"><div class="k">連續記帳</div><div class="v" id="streak">0 天</div><div class="s" id="bestStreak">最長 0 天</div></div>
   </div>
-  <div class="filters">
-    <input id="month" type="month">
-    <select id="cat"><option value="">所有分類</option></select>
-    <input id="q" placeholder="搜尋店家、品項、備註">
-  </div>
-  <div id="board"></div>
+
+  <div class="tabs"><button class="tab active pixel" data-tab="adventure">冒險</button><button class="tab pixel" data-tab="book">記帳</button><button class="tab pixel" data-tab="quests">任務</button><button class="tab pixel" data-tab="settings">設定</button></div>
+
+  <section id="adventure" class="section active">
+    <div class="main-grid">
+      <div class="panel pixel">
+        <div class="row"><div><div class="panel-title">帳本冒險者</div><div class="panel-sub" id="rank">新手村記錄員</div></div><div class="panel-sub">每新增 1 筆：<b style="color:var(--green)">+10 EXP</b></div></div>
+        <div class="hero"><div class="avatar pixel" id="heroIcon"></div><div>
+          <div class="row"><span id="lv">Lv.1</span><span id="xpText" class="panel-sub">0 / 100 EXP</span></div>
+          <div class="bar"><div id="xpFill"></div><div id="xpPct" class="bartext">0%</div></div>
+          <div class="mini-grid"><div class="mini pixel"><div class="k">金幣</div><div class="num" id="gold">0</div></div><div class="mini pixel"><div class="k">木箱</div><div class="num" id="woodChest">0</div></div><div class="mini pixel"><div class="k">銀箱</div><div class="num" id="silverChest">0</div></div><div class="mini pixel"><div class="k">金箱</div><div class="num" id="goldChest">0</div></div></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:9px"><button id="openWood" class="pixel gold">開木箱</button><button id="openSilver" class="pixel gold">開銀箱</button><button id="openGold" class="pixel gold">開金箱</button></div>
+          <div id="rewardLog" class="rewardlog pixel">開始記帳來踏上冒險吧！</div><div id="inventory" class="inventory"></div>
+        </div></div>
+      </div>
+
+      <div class="panel pixel">
+        <div class="panel-title">今日怪物</div><div class="panel-sub" id="monsterDate">—</div>
+        <div class="monster"><div class="monster-icon pixel" id="monsterIcon"></div><div><div class="row"><b id="monsterName">史萊姆</b><span id="monsterState" class="panel-sub">戰鬥中</span></div><div class="hp"><div id="hpFill" class="hpfill"></div><div id="hpText" class="hptext">100 / 100</div></div><div id="monsterMeta" class="monster-meta">新增記帳可造成傷害</div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="book" class="section">
+    <div class="filters"><input id="month" class="pixel" type="month"><select id="cat" class="pixel"><option value="">所有分類</option></select><input id="search" class="pixel" type="text" placeholder="搜尋店家、品項、備註"></div>
+    <div id="board"></div>
+  </section>
+
+  <section id="quests" class="section">
+    <div class="main-grid"><div class="panel pixel"><div class="panel-title">每日任務</div><div class="panel-sub">每天重新計算，不鼓勵花更多錢，只鼓勵把帳記完整。</div><div id="questList" class="quest-list"></div></div><div class="panel pixel"><div class="panel-title">連續記帳</div><div class="panel-sub">每天至少新增一筆記帳即可維持連續天數。</div><div class="mini-grid" style="grid-template-columns:1fr 1fr;margin-top:12px"><div class="mini pixel"><div class="k">目前連續</div><div class="num" id="streakBig">0</div></div><div class="mini pixel"><div class="k">最長紀錄</div><div class="num" id="bestBig">0</div></div></div><div class="rewardlog pixel" id="streakReward">3 天、7 天、14 天、30 天都有里程碑獎勵。</div></div></div>
+  </section>
+
+  <section id="settings" class="section">
+    <div class="panel pixel"><div class="panel-title">資金設定</div><div class="panel-sub">初始金額只存在你的瀏覽器，可隨時修改。</div><div class="settings-grid"><div class="field"><label>初始金額</label><input id="initialInput" class="pixel" type="number" min="0" step="1" placeholder="例如 30000"></div><div class="field"><label>顯示名稱</label><input id="playerName" class="pixel" placeholder="帳本冒險者"></div></div><div style="margin-top:10px"><button id="saveSettings" class="pixel primary">儲存設定</button></div><div class="settings-note">目前剩餘金額會以「初始金額 − 所有支出」計算。v2 暫時不把收入列入計算；之後若需要可以再加入收入／薪資系統。</div></div>
+  </section>
 </div>
-<button class="fab" id="fab">＋</button>
-<div class="bottom"><button id="goBoard">看板</button><button id="goImport">匯入</button><button id="goBackup">備份</button></div>
-<dialog id="dlg">
-<form method="dialog">
-<h3 id="dlgTitle">新增支出</h3>
-<input id="eid" type="hidden">
-<div class="grid">
-<div class="field"><label>日期</label><input id="edate" type="date" required></div>
-<div class="field"><label>金額</label><input id="eamt" type="number" step="1" required></div>
-<div class="field"><label>店家／用途</label><input id="estore" required></div>
-<div class="field"><label>分類</label><select id="ecat"></select></div>
-<div class="field"><label>付款方式</label><select id="epay"><option>未設定</option><option>現金</option><option>信用卡</option><option>悠遊卡</option><option>LINE Pay</option><option>轉帳</option><option>其他</option></select></div>
-<div class="field"><label>備註</label><textarea id="enote"></textarea></div>
-</div>
-<div class="foot"><button value="cancel">取消</button><button type="button" id="del" class="danger">刪除</button><button type="button" id="save" class="primary">儲存</button></div>
-</form></dialog>
+
+<div id="toast" class="toast pixel"></div><button id="fab" class="fab pixel">＋</button>
+<div class="bottom"><button data-goto="adventure">冒險</button><button data-goto="book">記帳</button><button data-goto="quests">任務</button><button id="bottomAdd">新增</button></div>
+
+<dialog id="dlg"><form class="modal pixel" method="dialog"><h3 id="dlgTitle">新增支出</h3><input id="eid" type="hidden"><div class="form-grid"><div class="field"><label>日期</label><input id="edate" class="pixel" type="date" required></div><div class="field"><label>金額</label><input id="eamt" class="pixel" type="number" required></div><div class="field"><label>店家／用途</label><input id="estore" class="pixel" required></div><div class="field"><label>分類</label><select id="ecat" class="pixel"></select></div><div class="field"><label>付款方式</label><select id="epay" class="pixel"><option>未設定</option><option>現金</option><option>信用卡</option><option>悠遊卡</option><option>LINE Pay</option><option>街口支付</option><option>轉帳</option><option>其他</option></select></div><div class="field"><label>備註</label><textarea id="enote" class="pixel"></textarea></div></div><div class="foot"><button value="cancel" class="pixel">取消</button><button type="button" id="del" class="pixel danger">刪除</button><button type="button" id="save" class="pixel primary">儲存</button></div></form></dialog>
+
 <script>
-const KEY="kanban-bookkeeping-safe-v1",CATS=["餐飲","飲料","便利商店","交通","購物","訂閱/數位","娛樂","醫療","生活用品","其他"];
-let data=(()=>{try{let x=JSON.parse(localStorage.getItem(KEY)||"[]");return Array.isArray(x)?x:[]}catch{return[]}})();
-const $=id=>document.getElementById(id),money=n=>"$"+Math.round(Number(n)||0).toLocaleString("zh-TW"),esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]));
-function saveLocal(){localStorage.setItem(KEY,JSON.stringify(data))}
-function cats(){return [...new Set([...CATS,...data.map(x=>x.category).filter(Boolean)])]}
-function refreshCats(){const a=cats(),v=$("cat").value;$("cat").innerHTML='<option value="">所有分類</option>'+a.map(x=>'<option>'+esc(x)+'</option>').join("");$("cat").value=v;$("ecat").innerHTML=a.map(x=>'<option>'+esc(x)+'</option>').join("")}
-function filtered(){const m=$("month").value,c=$("cat").value,q=$("q").value.trim().toLowerCase();return data.filter(x=>(!m||x.date.startsWith(m))&&(!c||x.category===c)&&(!q||[x.store,x.note,x.invoice,...(x.items||[]).map(i=>i.name)].join(" ").toLowerCase().includes(q))).sort((a,b)=>b.date.localeCompare(a.date)||b.amount-a.amount)}
-function render(){refreshCats();const rows=filtered(),by={};rows.forEach(x=>(by[x.date]??=[]).push(x));const days=Object.keys(by).sort().reverse(),sums=Object.fromEntries(days.map(d=>[d,by[d].reduce((s,x)=>s+Number(x.amount||0),0)])),tot=Object.values(sums).reduce((a,b)=>a+b,0);$("total").textContent=money(tot);$("avg").textContent=money(days.length?tot/days.length:0);$("max").textContent=money(days.length?Math.max(...Object.values(sums)):0);$("count").textContent=rows.length;$("board").innerHTML=days.length?'<div class="board">'+days.map(d=>'<section class="day"><div class="dayhead"><b>'+esc(d)+'</b><b>'+money(sums[d])+'</b></div>'+by[d].map(card).join("")+'</section>').join("")+'</div>':'<div class="empty">尚未有記帳資料。請匯入 CSV 或新增支出。</div>';document.querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>openEdit(b.dataset.edit))}
-function card(x){return '<article class="card"><div class="row"><div class="store">'+esc(x.store)+'</div><div class="amt">'+money(x.amount)+'</div></div><div class="badges"><span class="badge">'+esc(x.category)+'</span><span class="badge">'+esc(x.payment||"未設定")+'</span></div><div class="items">'+(x.items||[]).slice(0,3).map(i=>esc(i.name)).join("、")+'</div><button class="small" data-edit="'+esc(x.id)+'">編輯</button></article>'}
-function openEdit(id){let x=id?data.find(v=>v.id===id):null;$("dlgTitle").textContent=x?"編輯支出":"新增支出";$("eid").value=x?.id||"";$("edate").value=x?.date||new Date().toISOString().slice(0,10);$("eamt").value=x?.amount??"";$("estore").value=x?.store||"";$("ecat").value=x?.category||"其他";$("epay").value=x?.payment||"未設定";$("enote").value=x?.note||"";$("del").style.display=x?"":"none";$("dlg").showModal()}
-$("save").onclick=()=>{const id=$("eid").value,old=data.find(x=>x.id===id);const o={...(old||{}),id:id||"manual-"+Date.now(),date:$("edate").value,amount:Number($("eamt").value||0),store:$("estore").value.trim()||"未命名支出",category:$("ecat").value,payment:$("epay").value,note:$("enote").value.trim(),source:old?.source||"手動",items:old?.items||[]};data=id?data.map(x=>x.id===id?o:x):[...data,o];saveLocal();$("dlg").close();render()}
-$("del").onclick=()=>{let id=$("eid").value;if(id&&confirm("確定刪除？")){data=data.filter(x=>x.id!==id);saveLocal();$("dlg").close();render()}}
-function csvRows(t){let r=[],row=[],f="",q=false;for(let i=0;i<t.length;i++){let c=t[i],n=t[i+1];if(q){if(c=='"'&&n=='"'){f+='"';i++}else if(c=='"')q=false;else f+=c}else if(c=='"')q=true;else if(c==","){row.push(f);f=""}else if(c=="\n"){row.push(f);r.push(row);row=[];f=""}else if(c!="\r")f+=c}if(f||row.length){row.push(f);r.push(row)}if(!r.length)return[];let h=r.shift();return r.filter(x=>x.some(Boolean)).map(x=>Object.fromEntries(h.map((k,i)=>[k,x[i]||""])))}
-function autoCat(s,it){let t=(s+" "+it.join(" ")).toLowerCase(),rules=[["便利商店",["統一超商","7-eleven","全家便利","萊爾富"]],["飲料",["茶","咖啡","飲料","鮮奶","拿鐵"]],["交通",["捷運","台鐵","高鐵","uber","停車"]],["訂閱/數位",["apple","google","icloud","netflix","spotify"]],["餐飲",["餐盒","便當","早餐","午餐","晚餐","飯","麵","餐廳"]]];for(let [c,k] of rules)if(k.some(z=>t.includes(z)))return c;return"其他"}
-$("csv").onchange=async e=>{for(const f of e.target.files){let rows=csvRows((await f.text()).replace(/^\ufeff/,"")),g={};rows.forEach(r=>{let inv=(r["發票號碼"]||"").trim(),d=(r["發票日期"]||"").trim();if(inv&&/^\d{8}$/.test(d))(g[inv]??=[]).push(r)});for(const [inv,rs] of Object.entries(g)){let d=rs[0]["發票日期"],date=d.slice(0,4)+"-"+d.slice(4,6)+"-"+d.slice(6),store=(rs[0]["賣方名稱"]||"未命名店家").trim(),items=rs.map(r=>({name:(r["消費明細_品名"]||"未提供品名").trim(),amount:Number(r["消費明細_金額"]||r["發票金額"]||0)})),amount=items.reduce((s,i)=>s+i.amount,0),id="inv-"+inv,old=data.find(x=>x.id===id),o={id,date,invoice:inv,store,amount,items,category:old?.category||autoCat(store,items.map(i=>i.name)),payment:old?.payment||"未設定",note:old?.note||"",source:"電子發票"};data=old?data.map(x=>x.id===id?o:x):[...data,o]}}saveLocal();render();e.target.value=""}
-function dl(n,c,t){let a=document.createElement("a");a.href=URL.createObjectURL(new Blob([c],{type:t}));a.download=n;a.click()}
-$("backup").onclick=()=>dl("kanban記帳備份.json",JSON.stringify(data,null,2),"application/json");
-$("restore").onchange=async e=>{try{let x=JSON.parse(await e.target.files[0].text());if(!Array.isArray(x))throw 0;if(confirm("用此備份取代目前資料？")){data=x;saveLocal();render()}}catch{alert("無效的 JSON 備份")}e.target.value=""}
-$("export").onclick=()=>{let h=["日期","店家/用途","金額","分類","付款方式","發票號碼","備註"],r=[h,...filtered().map(x=>[x.date,x.store,x.amount,x.category,x.payment,x.invoice||"",x.note||""])],q=v=>/[",\n]/.test(String(v))?'"'+String(v).replaceAll('"','""')+'"':v;dl("kanban記帳匯出.csv","\ufeff"+r.map(x=>x.map(q).join(",")).join("\n"),"text/csv;charset=utf-8")}
-$("clear").onclick=()=>{if(confirm("確定清除這台裝置上的所有記帳資料？")){data=[];saveLocal();render()}}
-$("add").onclick=$("fab").onclick=()=>openEdit();$("goImport").onclick=()=>$("csv").click();$("goBackup").onclick=()=>$("backup").click();$("goBoard").onclick=()=>scrollTo({top:0,behavior:"smooth"});["month","cat","q"].forEach(id=>$(id).oninput=render);$("month").value=new Date().toISOString().slice(0,7);render();
+const KEY="kanban-bookkeeping-rpg-v2";
+const OLD_KEYS=["kanban-bookkeeping-rpg-v1","kanban-bookkeeping-safe-v1"];
+const CATS=["餐飲","飲料","便利商店","交通","購物","訂閱/數位","娛樂","醫療","生活用品","其他"];
+const XP_PER_ENTRY=10;
+const QUESTS=[
+ {id:"q1",name:"今日第一筆",desc:"今天新增至少 1 筆記帳",goal:1,rewardXp:10},
+ {id:"q2",name:"完整記錄",desc:"今天新增至少 3 筆記帳",goal:3,rewardXp:20},
+ {id:"q3",name:"分類探索",desc:"今天記錄至少 2 種不同分類",goal:2,rewardXp:15}
+];
+let state=load();
+function $(id){return document.getElementById(id)}
+function today(){return new Date().toISOString().slice(0,10)}
+function money(n){return "$"+Math.round(Number(n)||0).toLocaleString("zh-TW")}
+function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function saveLocal(){localStorage.setItem(KEY,JSON.stringify(state))}
+function defaultState(){return {entries:[],profile:{initialAmount:0,name:"帳本冒險者"},rpg:{xp:0,gold:0,chests:{wood:0,silver:0,gold:0},inventory:[],rewardLog:"開始記帳來踏上冒險吧！",questClaims:{},streakMilestones:[]},daily:{}}}
+function migrate(old){const s=defaultState();if(Array.isArray(old)){s.entries=old;return s}if(old?.entries)s.entries=old.entries;if(old?.profile)s.profile={...s.profile,...old.profile};if(old?.rpg){s.rpg.xp=Number(old.rpg.xp||0);s.rpg.gold=Number(old.rpg.gold||0);s.rpg.inventory=Array.isArray(old.rpg.inventory)?old.rpg.inventory:[];s.rpg.rewardLog=old.rpg.lastReward||old.rpg.rewardLog||s.rpg.rewardLog;const opened=Number(old.rpg.openedChests||0);const earned=Math.max(0,Math.floor(s.rpg.xp/100)-opened);s.rpg.chests.wood=earned}s.daily=old.daily||{};return s}
+function load(){try{const raw=localStorage.getItem(KEY);if(raw)return migrate(JSON.parse(raw));for(const k of OLD_KEYS){const o=localStorage.getItem(k);if(o){const s=migrate(JSON.parse(o));localStorage.setItem(KEY,JSON.stringify(s));return s}}return defaultState()}catch{return defaultState()}}
+function toast(msg){const t=$("toast");t.textContent=msg;t.style.display="block";clearTimeout(toast._t);toast._t=setTimeout(()=>t.style.display="none",2300)}
+function allCats(){return [...new Set([...CATS,...state.entries.map(x=>x.category).filter(Boolean)])]}
+function refreshCats(){const a=allCats(),prev=$("cat").value;$("cat").innerHTML='<option value="">所有分類</option>'+a.map(c=>`<option>${c}</option>`).join("");$("cat").value=prev;$("ecat").innerHTML=a.map(c=>`<option>${c}</option>`).join("")}
+function entriesForDate(d){return state.entries.filter(x=>x.date===d)}
+function dayStats(d){const e=entriesForDate(d);return {count:e.length,cats:new Set(e.map(x=>x.category)).size}}
+function computeStreak(){const dates=[...new Set(state.entries.map(x=>x.date))].sort();if(!dates.length)return {current:0,best:0};let best=1,run=1;for(let i=1;i<dates.length;i++){const a=new Date(dates[i-1]+"T00:00:00"),b=new Date(dates[i]+"T00:00:00"),diff=Math.round((b-a)/86400000);if(diff===1){run++;best=Math.max(best,run)}else if(diff>1)run=1}const last=dates[dates.length-1],td=today(),y=new Date();y.setDate(y.getDate()-1);const yd=y.toISOString().slice(0,10);let current=(last===td||last===yd)?run:0;return {current,best}}
+function grantXp(xp,reason){state.rpg.xp+=xp;state.rpg.rewardLog=`${reason}\nEXP +${xp}`}
+function damageMonster(amount){const d=today();ensureDaily(d);const m=state.daily[d].monster;if(m.defeated)return; m.hp=Math.max(0,m.hp-amount);if(m.hp===0){m.defeated=true;state.rpg.gold+=20;state.rpg.chests.wood+=1;state.rpg.rewardLog="你擊敗了今日史萊姆！\n獲得 20 金幣與 1 個木箱。"}}
+function ensureDaily(d){if(!state.daily[d])state.daily[d]={monster:{name:"綠色史萊姆",maxHp:60,hp:60,defeated:false},questClaims:{}};if(!state.daily[d].monster)state.daily[d].monster={name:"綠色史萊姆",maxHp:60,hp:60,defeated:false};if(!state.daily[d].questClaims)state.daily[d].questClaims={}}
+function checkQuests(){const d=today();ensureDaily(d);const ds=dayStats(d);QUESTS.forEach(q=>{const progress=q.id==="q3"?ds.cats:ds.count;const done=progress>=q.goal,claimed=state.daily[d].questClaims[q.id];if(done&&!claimed){state.daily[d].questClaims[q.id]=true;grantXp(q.rewardXp,`完成每日任務：${q.name}`);damageMonster(10)}});checkStreakMilestones()}
+function checkStreakMilestones(){const s=computeStreak();const ms=[{n:3,type:"wood",count:1},{n:7,type:"silver",count:1},{n:14,type:"silver",count:2},{n:30,type:"gold",count:1}];for(const m of ms){if(s.current>=m.n&&!state.rpg.streakMilestones.includes(m.n)){state.rpg.streakMilestones.push(m.n);state.rpg.chests[m.type]+=m.count;state.rpg.rewardLog=`連續記帳 ${m.n} 天達成！\n獲得 ${m.count} 個${m.type==="wood"?"木":"銀/金"}寶箱。`}}}
+function openChest(type){if((state.rpg.chests[type]||0)<=0){toast("沒有這種寶箱");return}state.rpg.chests[type]--;const tables={wood:{g:[8,20],loot:["小型治療藥水","銅幣袋","史萊姆凝膠"]},silver:{g:[20,45],loot:["銀色羽毛筆","見習短劍","幸運硬幣"]},gold:{g:[50,90],loot:["黃金算盤","商人斗篷","王者徽章"]}};const t=tables[type],loot=t.loot[Math.floor(Math.random()*t.loot.length)],gold=t.g[0]+Math.floor(Math.random()*(t.g[1]-t.g[0]+1));state.rpg.gold+=gold;state.rpg.inventory.unshift(loot);state.rpg.inventory=state.rpg.inventory.slice(0,16);state.rpg.rewardLog=`開啟${type==="wood"?"木":type==="silver"?"銀":"金"}寶箱！\n獲得 ${loot} 與 ${gold} 金幣。`;saveLocal();render();toast(`獲得 ${loot}`)}
+function rank(lv){if(lv>=20)return"傳奇帳本大師";if(lv>=12)return"黃金冒險家";if(lv>=7)return"熟練記帳戰士";if(lv>=4)return"見習帳本獵人";return"新手村記錄員"}
+function renderRpg(){const xp=state.rpg.xp,lv=Math.floor(xp/100)+1,cur=xp%100,pct=cur;$("lv").textContent=`Lv.${lv}`;$("rank").textContent=(state.profile.name||"帳本冒險者")+"｜"+rank(lv);$("xpText").textContent=`${cur} / 100 EXP`;$("xpFill").style.width=pct+"%";$("xpPct").textContent=pct+"%";$("gold").textContent=state.rpg.gold;$("woodChest").textContent=state.rpg.chests.wood||0;$("silverChest").textContent=state.rpg.chests.silver||0;$("goldChest").textContent=state.rpg.chests.gold||0;$("rewardLog").textContent=state.rpg.rewardLog;$("inventory").innerHTML=state.rpg.inventory.length?state.rpg.inventory.map(x=>`<span class="loot pixel">${esc(x)}</span>`).join(""):'<span class="loot pixel">尚未取得戰利品</span>';ensureDaily(today());const m=state.daily[today()].monster;$("monsterName").textContent=m.name;$("monsterDate").textContent=today();$("monsterState").textContent=m.defeated?"已擊敗":"戰鬥中";$("hpFill").style.width=Math.round(m.hp/m.maxHp*100)+"%";$("hpText").textContent=`${m.hp} / ${m.maxHp}`;$("monsterMeta").textContent=m.defeated?"明天會出現新的怪物":"新增記帳造成 8 傷害；完成任務造成 10 傷害"}
+function renderSummary(){const all=state.entries.reduce((s,x)=>s+Number(x.amount||0),0),init=Number(state.profile.initialAmount||0),bal=init-all,m=$("month").value||today().slice(0,7),ms=state.entries.filter(x=>x.date.startsWith(m)).reduce((s,x)=>s+Number(x.amount||0),0),st=computeStreak();$("initialAmount").textContent=money(init);$("allSpend").textContent=money(all);$("balance").textContent=money(bal);$("balance").style.color=bal<0?"var(--red)":"var(--green)";$("monthSpend").textContent=money(ms);$("monthLabel").textContent=m;$("streak").textContent=st.current+" 天";$("bestStreak").textContent="最長 "+st.best+" 天";$("streakBig").textContent=st.current;$("bestBig").textContent=st.best}
+function renderQuests(){ensureDaily(today());const ds=dayStats(today());$("questList").innerHTML=QUESTS.map(q=>{const p=q.id==="q3"?ds.cats:ds.count,done=p>=q.goal,claim=state.daily[today()].questClaims[q.id];return `<div class="quest pixel ${done?'done':''}"><div class="row"><div class="quest-name">${done?'✓ ':'◇ '}${q.name}</div><div class="quest-reward">+${q.rewardXp} EXP</div></div><div class="quest-desc">${q.desc}</div><div class="quest-progress"><div style="width:${Math.min(100,Math.round(p/q.goal*100))}%"></div></div><div class="quest-desc">${Math.min(p,q.goal)} / ${q.goal}${claim?'・已領取':''}</div></div>`}).join("")}
+function filtered(){const m=$("month").value,c=$("cat").value,q=$("search").value.trim().toLowerCase();return state.entries.filter(x=>(!m||x.date.startsWith(m))&&(!c||x.category===c)&&(!q||[x.store,x.note,x.invoice,x.category,...(x.items||[]).map(i=>i.name)].join(" ").toLowerCase().includes(q))).sort((a,b)=>b.date.localeCompare(a.date)||b.amount-a.amount)}
+function renderBoard(){const rows=filtered(),g={};rows.forEach(x=>(g[x.date]??=[]).push(x));const dates=Object.keys(g).sort().reverse();if(!dates.length){$("board").innerHTML='<div class="empty pixel">目前沒有資料，先新增一筆記帳吧！</div>';return}$("board").innerHTML='<div class="board">'+dates.map(d=>`<section class="day pixel"><div class="dayhead"><div><b>${d}</b><div class="s">${g[d].length} 筆</div></div><div class="daytotal">${money(g[d].reduce((s,x)=>s+Number(x.amount||0),0))}</div></div>${g[d].map(x=>`<article class="card pixel"><div class="row"><div class="store">${esc(x.store)}</div><div class="amt">${money(x.amount)}</div></div><div class="badges"><span class="badge pixel">${esc(x.category)}</span><span class="badge pixel">${esc(x.payment||"未設定")}</span></div><div class="items">${(x.items||[]).slice(0,3).map(i=>esc(i.name)).join("、")||esc(x.note||"—")}</div><button class="pixel" style="margin-top:7px;background:#39507d" data-edit="${x.id}">編輯</button></article>`).join("")}</section>`).join("")+'</div>';document.querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>openEdit(b.dataset.edit))}
+function render(){refreshCats();checkQuests();renderSummary();renderRpg();renderQuests();renderBoard();saveLocal()}
+function openEdit(id){const e=id?state.entries.find(x=>x.id===id):null;$("dlgTitle").textContent=e?"編輯支出":"新增支出";$("eid").value=e?.id||"";$("edate").value=e?.date||today();$("eamt").value=e?.amount??"";$("estore").value=e?.store||"";$("ecat").value=e?.category||"其他";$("epay").value=e?.payment||"未設定";$("enote").value=e?.note||"";$("del").style.display=e?"":"none";$("dlg").showModal()}
+function saveEntry(){const id=$("eid").value,old=state.entries.find(x=>x.id===id),obj={...(old||{}),id:id||"manual-"+Date.now(),date:$("edate").value,amount:Number($("eamt").value||0),store:$("estore").value.trim()||"未命名支出",category:$("ecat").value,payment:$("epay").value,note:$("enote").value.trim(),source:old?.source||"手動",items:old?.items||[]};if(id){state.entries=state.entries.map(x=>x.id===id?obj:x);state.rpg.rewardLog=`已編輯：${obj.store}\n編輯不增加 EXP。`}else{state.entries.unshift(obj);grantXp(XP_PER_ENTRY,`新增記帳：${obj.store}`);if(obj.date===today())damageMonster(8)}saveLocal();$("dlg").close();render();toast(id?"已更新":"+10 EXP")}
+function deleteEntry(){const id=$("eid").value;if(id&&confirm("確定刪除這筆記帳？")){state.entries=state.entries.filter(x=>x.id!==id);saveLocal();$("dlg").close();render();toast("已刪除")}}
+function parseCSV(text){const rows=[];let row=[],f="",q=false;for(let i=0;i<text.length;i++){const c=text[i],n=text[i+1];if(q){if(c=='"'&&n=='"'){f+='"';i++}else if(c=='"')q=false;else f+=c}else if(c=='"')q=true;else if(c==','){row.push(f);f=""}else if(c=='\n'){row.push(f);rows.push(row);row=[];f=""}else if(c!='\r')f+=c}if(f||row.length){row.push(f);rows.push(row)}if(!rows.length)return[];const h=rows.shift();return rows.filter(r=>r.some(Boolean)).map(r=>{while(r.length<h.length)r.push("");if(r.length>h.length)r=[...r.slice(0,h.length-1),r.slice(h.length-1).join(",")];return Object.fromEntries(h.map((k,i)=>[k,r[i]||""]))})}
+function autoCat(store,items){const t=(store+" "+items.join(" ")).toLowerCase(),r=[["便利商店",["統一超商","7-eleven","全家便利","萊爾富"]],["飲料",["茶","咖啡","飲料","鮮奶"]],["交通",["捷運","台鐵","高鐵","uber","停車"]],["訂閱/數位",["apple","google","icloud","netflix","spotify"]],["餐飲",["餐盒","便當","早餐","午餐","晚餐","飯","麵","餐廳"]],["購物",["誠品","紀伊國屋","百貨","商場"]],["醫療",["藥局","診所","醫院"]],["娛樂",["電影","遊戲","steam"]]];for(const [c,k] of r)if(k.some(z=>t.includes(z)))return c;return"其他"}
+async function importCsv(ev){let added=0,updated=0;for(const f of [...ev.target.files]){const rows=parseCSV((await f.text()).replace(/^\ufeff/,"")),g={};rows.forEach(r=>{const inv=(r["發票號碼"]||"").trim(),d=(r["發票日期"]||"").trim();if(inv&&/^\d{8}$/.test(d))(g[inv]??=[]).push(r)});for(const [inv,rs] of Object.entries(g)){const d=rs[0]["發票日期"],date=`${d.slice(0,4)}-${d.slice(4,6)}-${d.slice(6,8)}`,store=(rs[0]["賣方名稱"]||"未命名店家").trim(),items=rs.map(r=>({name:(r["消費明細_品名"]||"未提供品名").trim(),amount:Number(r["消費明細_金額"]||r["發票金額"]||0)})),amount=items.reduce((s,i)=>s+i.amount,0),id="inv-"+inv,old=state.entries.find(x=>x.id===id),obj={id,date,invoice:inv,store,amount,items,category:old?.category||autoCat(store,items.map(i=>i.name)),payment:old?.payment||"未設定",note:old?.note||"",source:"電子發票"};if(old){state.entries=state.entries.map(x=>x.id===id?obj:x);updated++}else{state.entries.push(obj);added++;grantXp(XP_PER_ENTRY,`匯入新發票：${store}`);if(date===today())damageMonster(8)}}}saveLocal();render();toast(`新增 ${added} 筆，更新 ${updated} 筆`);ev.target.value=""}
+function dl(name,content,type){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([content],{type}));a.download=name;a.click()}
+function exportCsv(){const h=["日期","店家/用途","金額","分類","付款方式","發票號碼","備註","來源"],b=state.entries.map(x=>[x.date,x.store,x.amount,x.category,x.payment,x.invoice||"",x.note||"",x.source||""]),q=v=>/[",\n]/.test(String(v??""))?'"'+String(v).replaceAll('"','""')+'"':String(v??"");dl("冒險記帳匯出.csv","\ufeff"+[h,...b].map(r=>r.map(q).join(",")).join("\n"),"text/csv;charset=utf-8")}
+function backup(){dl("冒險記帳_v2_備份.json",JSON.stringify(state,null,2),"application/json")}
+async function restore(ev){try{const p=JSON.parse(await ev.target.files[0].text());if(!p||!Array.isArray(p.entries))throw 0;if(confirm("以此備份覆蓋目前資料？")){state=migrate(p);saveLocal();render();toast("已還原")}}catch{alert("備份格式不正確")}ev.target.value=""}
+function clearAll(){if(confirm("確定清除所有記帳與 RPG 進度？")){state=defaultState();saveLocal();render();toast("已清除")}}
+function saveSettings(){state.profile.initialAmount=Math.max(0,Number($("initialInput").value||0));state.profile.name=$("playerName").value.trim()||"帳本冒險者";saveLocal();render();toast("設定已儲存")}
+function px(x,y,w,h,c){return `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${c}"/>`}
+function icon(type,size=48){let z='';if(type==='star')z=px(14,3,4,6,'#fff3a8')+px(8,9,16,5,'#ffd166')+px(10,14,12,5,'#f5b700')+px(13,19,6,9,'#ffd166');if(type==='hero')z=px(7,5,18,5,'#5b3a29')+px(5,10,22,12,'#f4c28c')+px(10,14,3,3,'#000')+px(19,14,3,3,'#000')+px(12,22,8,3,'#d76786')+px(9,25,14,6,'#4b9be8');if(type==='slime')z=px(8,12,16,12,'#72e0aa')+px(6,18,20,8,'#55c785')+px(11,17,3,3,'#000')+px(18,17,3,3,'#000')+px(14,22,4,2,'#d76786');return `<svg width="${size}" height="${size}" viewBox="0 0 32 32">${z}</svg>`}
+function setTab(id){document.querySelectorAll('.section').forEach(s=>s.classList.toggle('active',s.id===id));document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===id));if(id==='settings'){$("initialInput").value=state.profile.initialAmount||0;$("playerName").value=state.profile.name||"帳本冒險者"}}
+$("logo").innerHTML=icon('star',38);$("heroIcon").innerHTML=icon('hero',60);$("monsterIcon").innerHTML=icon('slime',56);
+$("save").onclick=saveEntry;$("del").onclick=deleteEntry;$("add").onclick=$("fab").onclick=$("bottomAdd").onclick=()=>openEdit();$("csv").onchange=importCsv;$("export").onclick=exportCsv;$("backup").onclick=backup;$("restore").onchange=restore;$("clear").onclick=clearAll;$("saveSettings").onclick=saveSettings;$("openWood").onclick=()=>openChest('wood');$("openSilver").onclick=()=>openChest('silver');$("openGold").onclick=()=>openChest('gold');document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>setTab(t.dataset.tab));document.querySelectorAll('[data-goto]').forEach(b=>b.onclick=()=>setTab(b.dataset.goto));["month","cat","search"].forEach(id=>$(id).oninput=render);$("month").value=today().slice(0,7);render();
 </script>
-</body></html>
+</body>
+</html>
