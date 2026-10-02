@@ -491,7 +491,7 @@ function runExploration(){
   ex.activeShop=null;
   ex.actions--;ex.spent++;ex.runs++;
   const kind=explorationEventKind();
-  let title='',detail='',reward='',stamp='FIELD',xp=18,ctx={area:area.name,kind:kind};
+  let title='',detail='',reward='',stamp='FIELD',xp=18,ctx={area:area.name,kind:kind},combat=null;
   let resultSuccess=true;
 
   if(kind==='abnormality'){
@@ -529,6 +529,14 @@ function runExploration(){
     }).join('；');
     detail+=' '+injuryText+'。';
     ex.abnormalityProgress[id]=prog;
+    combat={
+      enemy:{name:ab.name,maxHp:maxHp,remaining:remaining,level:ab.level,type:ab.type},
+      allies:attacks.map(function(hit){
+        const inj=injuries.find(function(x){return x.name===hit.name})||{damage:0,hp:0,maxHp:100,healed:{amount:0,item:''}};
+        return {name:hit.name,damage:hit.damage,notes:hit.notes||[],taken:inj.damage||0,hp:inj.hp,maxHp:inj.maxHp,healed:inj.healed||{amount:0,item:''}};
+      }),
+      result:{success:killed,contained:!!prog.contained,progress:Math.min(prog.kills,ab.kills),required:ab.kills}
+    };
     ctx.abnormality=ab.name;ctx.abnormalityId=id;ctx.abnormalityType=ab.type;ctx.success=resultSuccess;ctx.attacks=attacks;ctx.injuries=injuries;ctx.remaining=remaining;ctx.maxHp=maxHp;
   }else if(kind==='event'){
     const ev=EXPLORATION_EVENTS[Math.floor(Math.random()*EXPLORATION_EVENTS.length)];
@@ -560,11 +568,11 @@ function runExploration(){
   names.forEach(function(n){const res=awardSinnerExp(n,xp);if(res.after>res.before)levelUps.push(n+' Lv.'+res.after)});
   if(levelUps.length)reward+=(reward?'；':'')+'升級：'+levelUps.join('、');
   const dialogue=typeof generateExplorationDialogue==='function'?generateExplorationDialogue(names,kind,ctx):[];
-  ex.lastResult={at:new Date().toISOString(),areaId:area.id,area:area.name,names:names,kind:kind,title:title,detail:detail,reward:reward,stamp:stamp,xp:xp,dialogue:dialogue};
+  ex.lastResult={at:new Date().toISOString(),areaId:area.id,area:area.name,names:names,kind:kind,title:title,detail:detail,reward:reward,stamp:stamp,xp:xp,dialogue:dialogue,combat:combat};
   ex.logs=Array.isArray(ex.logs)?ex.logs:[];
   ex.logs.unshift({
     at:ex.lastResult.at,areaId:area.id,area:area.name,names:[...names],kind:kind,title:title,detail:detail,
-    reward:reward,stamp:stamp,xp:xp,dialogue:Array.isArray(dialogue)?dialogue:[]
+    reward:reward,stamp:stamp,xp:xp,dialogue:Array.isArray(dialogue)?dialogue:[],combat:combat
   });
   ex.logs=ex.logs.slice(0,100);
   // spent 已增加，重新依記帳筆數校正剩餘行動點數。
@@ -579,6 +587,21 @@ function runExploration(){
 function containedAbnormalityCount(){
   ensureExplorationState();
   return Object.values(state.exploration.abnormalityProgress||{}).filter(function(x){return x&&x.contained}).length;
+}
+function renderCombatBreakdown(combat){
+  if(!combat||!combat.enemy)return '';
+  const enemy=combat.enemy,result=combat.result||{},allies=Array.isArray(combat.allies)?combat.allies:[];
+  const enemyHtml='<div class="combat-report-row enemy"><div class="combat-report-label">ENEMY / 怪異</div><div class="combat-report-main"><strong>'+esc(enemy.name)+'</strong><span>HP '+enemy.maxHp+' → '+enemy.remaining+' · Lv.'+enemy.level+(enemy.type?' · '+esc(enemy.type):'')+'</span></div></div>';
+  const allyHtml=allies.map(function(x){
+    const notes=x.notes&&x.notes.length?' · '+esc(x.notes.join('、')):'';
+    const taken=x.taken>0?' · 受到 '+x.taken+' 傷害':' · 未受傷';
+    const healed=x.healed&&x.healed.amount?' · '+esc(x.healed.item)+' +'+x.healed.amount:'';
+    return '<div class="combat-report-row ally"><div class="combat-report-label">ALLY / 我方</div><div class="combat-report-main"><strong>'+esc(x.name)+'</strong><span>造成 '+x.damage+' 傷害'+notes+taken+' · HP '+x.hp+' / '+x.maxHp+healed+'</span></div></div>';
+  }).join('');
+  const resultText=result.contained?'正式收容完成':result.success?'有效制壓完成':'怪異未被擊倒';
+  const progress='收容進度 '+Number(result.progress||0)+' / '+Number(result.required||0);
+  const resultHtml='<div class="combat-report-row outcome '+(result.success?'success':'pending')+'"><div class="combat-report-label">RESULT / 結果</div><div class="combat-report-main"><strong>'+resultText+'</strong><span>'+progress+'</span></div></div>';
+  return '<div class="combat-report">'+enemyHtml+allyHtml+resultHtml+'</div>';
 }
 function renderExploration(){
   ensureExplorationState();const ex=state.exploration;
@@ -619,10 +642,17 @@ function renderExploration(){
   const r=ex.lastResult;
   if($('exploreResultStamp'))$('exploreResultStamp').textContent=r?r.stamp:'STANDBY';
   if($('exploreResult'))$('exploreResult').innerHTML=r
-    ?'<div class="explore-result-title">'+esc(r.title)+'</div><div class="explore-result-meta">'+esc(r.area)+' / '+esc(r.names.join('＋'))+' / EXP +'+r.xp+'</div><div class="explore-result-detail">'+esc(r.detail)+'</div>'+(r.reward?'<div class="explore-reward">REWARD / '+esc(r.reward)+'</div>':'')
+    ?'<div class="explore-result-title">'+esc(r.title)+'</div><div class="explore-result-meta">'+esc(r.area)+' / '+esc(r.names.join('＋'))+' / EXP +'+r.xp+'</div>'+
+      (r.combat?renderCombatBreakdown(r.combat):'<div class="explore-result-detail">'+esc(r.detail)+'</div>')+
+      (r.reward?'<div class="explore-reward">REWARD / '+esc(r.reward)+'</div>':'')
     :'等待探索命令。';
   if($('exploreDialogue'))$('exploreDialogue').innerHTML=r&&r.dialogue&&r.dialogue.length
-    ?'<div class="explore-dialogue-head">EVENT DIALOGUE / 現場對話</div>'+r.dialogue.map(function(line){return '<div class="explore-dialogue-line"><b>'+esc(line.speaker)+'</b><span>'+esc(line.text)+'</span></div>'}).join('')
+    ?'<div class="explore-dialogue-head">EVENT DIALOGUE / 現場對話</div>'+r.dialogue.map(function(line){
+      const speaker=typeof normalizeExplorationTraditional==='function'?normalizeExplorationTraditional(line.speaker):line.speaker;
+      const txt=typeof normalizeExplorationTraditional==='function'?normalizeExplorationTraditional(line.text):line.text;
+      const color=typeof sinnerColorForSpeaker==='function'?sinnerColorForSpeaker(speaker):'#d08b91';
+      return '<div class="explore-dialogue-line '+(line.kind==='action'?'action':'')+'"><b style="color:'+color+'">'+esc(speaker)+'</b><span>'+esc(txt)+'</span></div>';
+    }).join('')
     :'';
 
   if($('exploreHomeCode'))$('exploreHomeCode').textContent=r?r.stamp:'STANDBY';
@@ -639,7 +669,7 @@ function renderExploration(){
         '<div class="exploration-log-head"><span>'+esc(log.stamp||'FIELD')+'</span><time>'+esc(time)+'</time></div>'+
         '<div class="exploration-log-title">'+esc(log.title||'探索紀錄')+'</div>'+
         '<div class="exploration-log-meta">'+esc(log.area||'未知區域')+' / '+esc((log.names||[]).join('＋'))+' / EXP +'+Number(log.xp||0)+'</div>'+
-        '<div class="exploration-log-detail">'+esc(log.detail||'')+'</div>'+
+        (log.combat?renderCombatBreakdown(log.combat):'<div class="exploration-log-detail">'+esc(log.detail||'')+'</div>')+
         (log.reward?'<div class="exploration-log-reward">REWARD / '+esc(log.reward)+'</div>':'')+
         (Array.isArray(log.dialogue)&&log.dialogue.length?'<div class="exploration-log-dialogue">'+log.dialogue.map(function(line){
           const speaker=typeof normalizeExplorationTraditional==='function'?normalizeExplorationTraditional(line.speaker):line.speaker;
