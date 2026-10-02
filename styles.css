@@ -1996,3 +1996,181 @@ dialog#commentDlg{
   --accent:#ff7d5c!important;--accent2:#55c3cf!important;--gold:#d5a13f!important;--green:#55a977!important;--red:#d95d65!important;
   --shadow:rgba(57,111,122,.12)!important;
 }
+
+
+/* ===== Final light-only cleanup: remaining legacy dark surfaces ===== */
+.empty,
+.map-scene,
+.map-title,
+.map-node,
+.explore-action-banner,
+.team-sinner,
+.sinner-exp,
+.sinner-stat-grid span,
+.sinner-skill,
+.loot,
+.loot-icon,
+.report-table th,
+.comment-dialog,
+.entry-advanced,
+.quick-type button,
+.quick-cat,
+.tabs-directory-chevron,
+.money-overview-chevron,
+.backpack-category-chevron{
+  background:#f5fbfc!important;
+  color:#42636c!important;
+  border-color:#bddde2!important;
+  box-shadow:none!important;
+}
+.empty{background:#f8fcfd!important;color:#718d94!important}
+.map-scene{
+  background:linear-gradient(180deg,#f0fafc,#fff)!important;
+}
+.map-title{
+  background:#eaf7f9!important;
+  color:#315f69!important;
+  border-left-color:#ef765e!important;
+}
+.map-node{
+  background:#fff!important;
+}
+.map-node:hover{
+  background:#f4fbfc!important;
+  border-color:#7fc4cd!important;
+}
+.logo,.avatar,.monster-icon{
+  background:linear-gradient(180deg,#eef8fa,#fff)!important;
+  border-color:#b9dce1!important;
+}
+.loot{background:#fff!important;color:#3e6069!important}
+.loot-icon{background:#eef8fa!important;color:#b07b2d!important}
+
+/* Exploration overview and roster */
+.containment-progress-row{
+  background:#f5fbfc!important;
+  color:#496972!important;
+  border-color:#c4e1e5!important;
+}
+.containment-progress-row:nth-child(even){background:#eef8fa!important}
+.containment-progress-row b{color:#527e88!important}
+.containment-progress-row.done{
+  background:#eef8f0!important;
+  color:#4f7f5e!important;
+  border-left-color:#68aa78!important;
+}
+.explore-action-banner{
+  background:#eef8fa!important;
+  border-color:#b7dce1!important;
+}
+.explore-action-banner strong{color:#315d68!important}
+.team-sinner{
+  background:#fff!important;
+  border-color:#c2e0e4!important;
+}
+.team-sinner.active{
+  background:#fff0eb!important;
+  border-color:#ec9d8b!important;
+  box-shadow:inset 4px 0 0 #ef765e!important;
+}
+.team-sinner.down{
+  background:#f3f4f4!important;
+  opacity:.6!important;
+}
+.team-sinner-head span{color:#8a7135!important}
+.team-sinner-meta{color:#718d94!important}
+.explore-result-detail,.exploration-log-detail{color:#42626b!important}
+.explore-result-meta,.exploration-log-meta{color:#718d94!important}
+.explore-dialogue-head{color:#6f8d94!important}
+.explore-dialogue-line{border-bottom-color:#d9eaed!important}
+.explore-dialogue-line span{color:#36545d!important}
+.exploration-log-reward,.explore-reward{color:#8a6d2c!important}
+
+/* Sinner management */
+.sinner-file{background:#fff!important}
+.sinner-level{
+  background:#fff8e8!important;
+  color:#8f702f!important;
+  border-color:#dbc57f!important;
+}
+.sinner-specialty,.sinner-condition{color:#718d94!important}
+.sinner-exp{
+  background:#eaf5f7!important;
+  border-color:#acd4da!important;
+}
+.sinner-exp>div{
+  background:linear-gradient(90deg,#66bdc9,#a4dfe5)!important;
+}
+.sinner-exp span{color:#315760!important}
+.sinner-stat-grid span{
+  background:#f6fbfc!important;
+  color:#66838a!important;
+  border-color:#c6e2e6!important;
+}
+.sinner-stat-grid b{
+  color:#315760!important;
+}
+.sinner-skill{
+  background:#f7fbfc!important;
+  color:#4d6d75!important;
+  border-color:#c9e2e6!important;
+}
+.sinner-skill.unlocked{
+  background:#eff9f2!important;
+  border-color:#a8cfb4!important;
+}
+.sinner-skill.locked{
+  background:#f5f6f6!important;
+  color:#8b9ba0!important;
+}
+.sinner-gear-select{
+  background:#fff!important;
+  color:#315760!important;
+  border-color:#b7d9de!important;
+}
+
+/* Commentary popup and transaction editor */
+.comment-dialog{
+  background:#fff!important;
+  color:#294a52!important;
+  border-color:#a8d4da!important;
+  box-shadow:0 18px 50px rgba(60,111,121,.18)!important;
+}
+.comment-dialog-actions button{
+  background:#f2f9fa!important;
+  color:#365e68!important;
+  border-color:#b8d9de!important;
+}
+.entry-advanced{background:#f8fcfd!important}
+.entry-advanced summary{color:#607c83!important}
+.quick-type button,.quick-cat{background:#f7fcfd!important}
+
+/* Tables, charts and archive helpers */
+.report-table th{
+  background:#edf8fa!important;
+  color:#57747c!important;
+  border-color:#c5e1e5!important;
+}
+.report-table td{border-color:#d7e9ec!important}
+.legend-row{border-bottom-color:#d8e9ec!important}
+.chart-empty{color:#718d94!important}
+
+/* Mobile must stay light as well */
+@media(max-width:700px){
+  .filters{
+    background:rgba(246,252,253,.97)!important;
+    border-bottom:1px solid #c8e3e7!important;
+    backdrop-filter:blur(8px);
+  }
+  .bottom button.nav-add{
+    background:#ffece6!important;
+    color:#ab4c3b!important;
+    border-left-color:#f0b0a1!important;
+    border-right-color:#f0b0a1!important;
+  }
+}
+
+/* No theme selector remains in the product; all aliases resolve to this palette. */
+:root[data-theme="dark"]{
+  color-scheme:light!important;
+}
