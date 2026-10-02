@@ -552,19 +552,54 @@ function situationReaction(sinner,entry){
   }).filter(Boolean);
 }
 
+const AMOUNT_THRESHOLDS={
+  TWD:{
+    expense:{tiny:100,large:3000,huge:10000},
+    income:{tiny:500,large:30000,huge:100000}
+  },
+  CNY:{
+    expense:{tiny:25,large:700,huge:2500},
+    income:{tiny:120,large:7000,huge:25000}
+  },
+  JPY:{
+    expense:{tiny:500,large:15000,huge:50000},
+    income:{tiny:2500,large:150000,huge:500000}
+  },
+  USD:{
+    expense:{tiny:5,large:100,huge:350},
+    income:{tiny:20,large:1000,huge:3500}
+  }
+};
+function activeCurrencyCode(){
+  const code=state&&state.profile&&state.profile.currency;
+  return AMOUNT_THRESHOLDS[code]?code:'TWD';
+}
+function medianAmount(rows){
+  if(!rows.length)return 0;
+  const nums=rows.map(function(x){return Number(x.amount||0)}).filter(function(n){return n>0}).sort(function(a,b){return a-b});
+  if(!nums.length)return 0;
+  const mid=Math.floor(nums.length/2);
+  return nums.length%2?nums[mid]:(nums[mid-1]+nums[mid])/2;
+}
 function amountTier(entry){
   const amount=Number(entry.amount||0);
-  const sameCat=state.entries.filter(function(x){return x.id!==entry.id&&x.type===entry.type&&x.category===entry.category&&Number(x.amount)>0});
-  const avg=sameCat.length?sameCat.reduce(function(s,x){return s+Number(x.amount||0)},0)/sameCat.length:0;
-  if(entry.type==='income'){
-    if(amount>=100000 || (avg&&amount>=avg*4))return 'huge';
-    if(amount>=30000 || (avg&&amount>=avg*2))return 'large';
-    if(amount<=500)return 'tiny';
-    return 'medium';
-  }
-  if(amount>=10000 || (avg&&amount>=avg*5))return 'huge';
-  if(amount>=3000 || (avg&&amount>=avg*2.5))return 'large';
-  if(amount<=100)return 'tiny';
+  const code=activeCurrencyCode();
+  const type=entry.type==='income'?'income':'expense';
+  const limits=AMOUNT_THRESHOLDS[code][type];
+  const sameCat=state.entries.filter(function(x){
+    return x.id!==entry.id&&x.type===entry.type&&x.category===entry.category&&Number(x.amount)>0;
+  });
+  const median=medianAmount(sameCat);
+
+  // 絕對門檻依主要幣別判定；相對門檻只有累積至少 3 筆同類紀錄才啟用，
+  // 並設最低金額護欄，避免「10 → 40」這種小額變化被誤判成巨額。
+  if(amount>=limits.huge)return 'huge';
+  if(sameCat.length>=3&&median>0&&amount>=median*4&&amount>=limits.huge*.65)return 'huge';
+
+  if(amount>=limits.large)return 'large';
+  if(sameCat.length>=3&&median>0&&amount>=median*2.5&&amount>=limits.large*.6)return 'large';
+
+  if(amount<=limits.tiny)return 'tiny';
   return 'medium';
 }
 function amountReaction(sinner,entry){
