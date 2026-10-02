@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="終端記錄">
 <title>RPG 化記帳工具</title>
-<link rel="stylesheet" href="styles.css?v=20261002q">
+<link rel="stylesheet" href="styles.css?v=20261002r">
 </head>
 <body>
 <div class="wrap">
@@ -203,6 +203,15 @@
         </div>
         <div id="exploreResult" class="explore-result">等待探索命令。</div>
         <div id="exploreDialogue" class="explore-dialogue"></div>
+      </div>
+
+      <div class="wood panel exploration-result-panel">
+        <div class="archive-header">
+          <div><div class="archive-id">ARCHIVE // EXPLORATION-LOG</div><div class="archive-title">探索紀錄 LOG</div></div>
+          <div class="archive-stamp">LATEST 100</div>
+        </div>
+        <div class="sub">每次探索都會保留區域、編成、結果、EXP、掉落與現場對話。</div>
+        <div id="explorationLog" class="exploration-log"></div>
       </div>
     </div>
   </section>
@@ -410,8 +419,9 @@
 </dialog>
 
 <script src="dialogues.js?v=20261002z"></script>
-<script src="app.js?v=20261002v"></script>
+<script src="app.js?v=20261002w"></script>
 <script src="sinner-management.js?v=20261002a"></script>
 <script src="bestiary.js?v=20261002a"></script>
+<script src="exploration.js?v=20261002a"></script>
 </body>
 </html>
