@@ -7,7 +7,7 @@ const ENEMY_CATALOG=[
  {id:'E-101',name:'商街扒手',type:'人類',area:'zone-1',level:1,hp:46,note:'躲在商店後場，利用櫃架與暗巷接近探索者。',drop:'銅製錶扣',price:14},
  {id:'E-102',name:'貨架爬蟲',type:'野獸',area:'zone-1',level:2,hp:56,note:'築巢於倒塌貨架間，會從紙箱與櫃板下突然竄出。',drop:'爬蟲硬殼',price:20},
  {id:'E-201',name:'鏽蝕維修機',type:'機械',area:'zone-2',level:3,hp:78,note:'僅在地下維修層運作，仍會以破損的工具臂驅逐靠近者。',drop:'鏽蝕傳動輪',price:26},
- {id:'E-202',name:'管道伏擊者',type:'人類',area:'zone-2',level:4,hp:88,note:'熟悉泵房和管道的伏擊者，經常封住轉角後再出手。',drop:'舊壓力錶',price:30},
+ {id:'E-202',name:'管道伏擊者',type:'人類',area:'zone-2',level:4,hp:88,note:'泵房和管道的伏擊者，經常封住轉角後再出手。',drop:'舊壓力錶',price:30},
  {id:'E-301',name:'封鎖區守衛',type:'人類',area:'zone-3',level:5,hp:110,note:'守著研究棟的殘餘警衛，把所有未登記的訪客視為入侵者。',drop:'失效識別晶片',price:38},
  {id:'E-302',name:'實驗室清掃機',type:'機械',area:'zone-3',level:6,hp:122,note:'損壞的清掃機仍在隔離區內反覆執行危險的清除程序。',drop:'陶瓷刀片',price:44},
  {id:'E-401',name:'黑區獵犬',type:'野獸',area:'zone-4',level:8,hp:150,note:'適應了失照軌道的獵犬，能憑細微聲響追蹤獵物。',drop:'黑區獸骨',price:54},
