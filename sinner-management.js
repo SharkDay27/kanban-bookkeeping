@@ -26,6 +26,7 @@
 
       ensureExplorationState();
 
+      var expanded=new Set(Array.from(box.querySelectorAll('details[data-sinner-file][open]')).map(function(card){return card.dataset.sinnerFile}));
       var ex=state.exploration;
       var owned=Array.from(new Set(Array.isArray(ex.fieldGear)?ex.fieldGear:[]))
         .filter(function(id){return FIELD_GEAR[id]});
@@ -52,11 +53,11 @@
         ).join('');
 
         var skills=Array.isArray(p.skills)?p.skills:[];
-        return '<article class="sinner-file wood">'+
-          '<div class="sinner-file-head"><div>'+
+        return '<details class="sinner-file wood sinner-dossier" data-sinner-file="'+safeEsc(name)+'" '+(expanded.has(name)?'open':'')+'>'+
+          '<summary class="sinner-file-head"><div>'+
             '<div class="archive-id">LCB // '+safeEsc(name)+'</div>'+
             '<div class="sinner-file-name" style="color:'+(typeof sinnerColorForSpeaker==='function'?sinnerColorForSpeaker(name):'#eee9df')+'">'+safeEsc(name)+'</div>'+
-          '</div><div class="sinner-level">Lv.'+lv+'</div></div>'+
+          '</div><div class="sinner-dossier-status"><span class="sinner-level">Lv.'+lv+'</span><span class="sinner-summary-hp">'+(Number(data.hp||0)<=0?'已倒下':'HP '+Number(data.hp||0)+' / '+Number(data.maxHp||100))+'</span><span class="sinner-dossier-chevron" aria-hidden="true">⌄</span></div></summary><div class="sinner-dossier-body">'+
           '<div class="sinner-specialty">'+safeEsc(p.specialty||'—')+' / 基礎 E.G.O：'+safeEsc(p.ego||'—')+'</div>'+
           '<div class="sinner-exp"><div style="width:'+exp+'%"></div><span>'+exp+' / 100 EXP</span></div>'+
           '<div class="sinner-hp-row"><span>HP</span><b>'+Number(data.hp||0)+' / '+Number(data.maxHp||100)+'</b></div>'+
@@ -77,7 +78,7 @@
               '<b>Lv.'+Number(skill.lv||1)+' / '+safeEsc(skill.name||'技能')+'</b>'+
               '<span>'+safeEsc((unlocked?'已生效 · ':'待解鎖 · ')+(skill.desc||''))+'</span></div>';
           }).join('')+'</div>'+
-        '</article>';
+        '</div></details>';
       }).join('');
 
       box.querySelectorAll('[data-revive-sinner]').forEach(function(btn){

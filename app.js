@@ -570,6 +570,7 @@ function renderExploration(){
   }
 }
 function renderSinnerManagement(){
+  if(typeof window.forceRenderSinnerManagement==='function'){window.forceRenderSinnerManagement();return}
   ensureExplorationState();
   const box=$('sinnerManagementGrid');if(!box)return;
   const owned=[...new Set(state.exploration.fieldGear)];

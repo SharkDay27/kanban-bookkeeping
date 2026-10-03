@@ -2762,3 +2762,20 @@ dialog#fieldRevivalDialog{width:min(460px,calc(100vw - 28px));max-width:calc(100
 /* Keep the action row centered even when generic details rules set a minimum height. */
 .compact-entry-actions{grid-template-rows:32px!important;align-content:center!important}
 .compact-entry-actions>.other-functions{min-height:32px!important;box-sizing:border-box!important}
+
+/* Compact, expandable sinner dossiers. */
+.sinner-dossier{min-height:0!important;padding:0!important;overflow:hidden}
+.sinner-dossier>summary{list-style:none;cursor:pointer;padding:12px 14px;align-items:center;min-height:62px;box-sizing:border-box}
+.sinner-dossier>summary::-webkit-details-marker{display:none}
+.sinner-dossier>summary:focus-visible{outline:2px solid #628a9a;outline-offset:-3px;border-radius:8px}
+.sinner-dossier[open]>summary{background:#edf4f6;border-bottom:1px solid #ccdde3}
+.sinner-dossier-status{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.sinner-summary-hp{font-size:11px;color:#4c666e;white-space:nowrap}
+.sinner-dossier-chevron{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;color:#426676;background:#dfebee;font-size:17px;transition:transform .15s}
+.sinner-dossier[open] .sinner-dossier-chevron{transform:rotate(180deg)}
+.sinner-dossier-body{padding:12px 14px}
+dialog#dlg .dialog-close{background:#f5dcd5!important;color:#8b342d!important;border:1px solid #cc8e80!important;box-shadow:0 2px 5px #85453920}
+dialog#dlg .dialog-close:hover,dialog#dlg .dialog-close:focus-visible{background:#ecc1b7!important;color:#702720!important;outline:2px solid #bc7568;outline-offset:2px}
+#explorationTeamPicker{scroll-margin-top:16px}
+.panel:has(#explorationTeamPicker){scroll-margin-top:16px}
+@media(max-width:700px){.sinner-dossier>summary{padding:10px 12px;min-height:56px}.sinner-dossier-status{gap:6px}.sinner-summary-hp{font-size:10px}.sinner-dossier-body{padding:10px 12px}}
