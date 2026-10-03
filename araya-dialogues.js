@@ -107,6 +107,7 @@ const ARAYA_ABBREVIATIONS={
  '投資':['賠・先。','媽媽，這樣像叫我先賠一筆。她是要先看最多會賠多少，再決定要不要買。','這個。']
 };
 function arayaCommentScene(entry,ageId,style){
+ const large=largeArayaCommentScene(entry,ageId,style);if(large)return large;
  const age=ARAYA_AGES.find(a=>a.id===ageId)||ARAYA_AGES[Math.floor(Math.random()*ARAYA_AGES.length)];
  const category=ARAYA_AGE_SCENES[age.id][entry.category]?entry.category:entry.type==='income'?'其他收入':'其他';
  const speech=(speaker,text)=>({speaker,text,kind:'speech'}),roll=Math.random();let lines;

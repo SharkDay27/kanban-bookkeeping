@@ -1,5 +1,5 @@
 /* Original fan dialogue, informed by Chinese story transcripts; never concatenate analyst filler. */
-const COMMENTARY_VERSION=6;
+const COMMENTARY_VERSION=7;
 const COMMENT_CATEGORIES=['餐飲','飲料','交通','服飾','學習','日用品','訂閱','娛樂','醫療','其他','薪資','獎金','退款','零用錢','投資','禮金','其他收入'];
 const COMMENT_VOICES={
  '李箱':[
@@ -48,9 +48,9 @@ const COMMENT_SCENES={
  '其他收入':[['辛克萊','浮士德','浮士德小姐，這筆來源要另外寫嗎？','辛克萊先生，寫下來。之後才知道它與其他收入是否相同。'],['羅佳','格里高爾','格雷格，今天還多了這一筆。','嗯，先弄清楚是哪裡來的。']]
 };
 function commentCategory(entry){return COMMENT_CATEGORIES.includes(entry.category)?entry.category:(entry.type==='income'?'其他收入':'其他')}
-function sinnerCommentLine(name,entry){if(name==='希斯克利夫'&&Number(entry.amount)>=(entry.type==='income'?100000:5000))return {speaker:name,text:'喂，這數字你最好再看一遍。',kind:'speech'};const cat=commentCategory(entry),i=COMMENT_CATEGORIES.indexOf(cat);return {speaker:name,text:(COMMENT_VOICES[name]||COMMENT_VOICES['格里高爾'])[i],kind:'speech'}}
+function sinnerCommentLine(name,entry){const large=largeSinnerCommentLine(name,entry);if(large)return large;const cat=commentCategory(entry),i=COMMENT_CATEGORIES.indexOf(cat);return {speaker:name,text:(COMMENT_VOICES[name]||COMMENT_VOICES['格里高爾'])[i],kind:'speech'}}
 function authoredComment(entry,kind,previous){
- const cat=commentCategory(entry),scenes=[...COMMENT_SCENES[cat],...(typeof COMMENT_PAIR_SCENES==='undefined'?[]:COMMENT_PAIR_SCENES[cat]||[])],scene=scenes[Math.floor(Math.random()*scenes.length)];
+ const context=commentaryAmountContext(entry),cat=context.category,scenes=context.large?COMMENT_LARGE_SCENES[cat]:[...COMMENT_SCENES[cat],...(typeof COMMENT_PAIR_SCENES==='undefined'?[]:COMMENT_PAIR_SCENES[cat]||[])],scene=scenes[Math.floor(Math.random()*scenes.length)];
  let lines,arayaAge;
  if(kind==='araya'){const scene=arayaCommentScene(entry);lines=scene.lines;arayaAge=scene.age;}
  else if(kind==='single'){const name=previous&&SINNERS.some(s=>s.name===previous)?previous:SINNERS[Math.floor(Math.random()*SINNERS.length)].name;lines=[sinnerCommentLine(name,entry)];}
@@ -62,8 +62,8 @@ function authoredComment(entry,kind,previous){
     chosen.forEach(s=>lines.push(sinnerCommentLine(s.name,entry)));
    }
  }
- return {version:COMMENTARY_VERSION,kind,arayaAge,category:entry.category,amount:Number(entry.amount||0),createdAt:new Date().toISOString(),lines};
+ return {version:COMMENTARY_VERSION,kind,arayaAge,category:entry.category,amount:Number(entry.amount||0),amountBand:context.large?'large':'normal',amountThreshold:context.threshold,currency:context.currency,createdAt:new Date().toISOString(),lines};
 }
 function generateSinnerComment(entry){const roll=Math.random();if(roll<.03)return authoredComment(entry,Math.random()<.15?'all':'group');if(roll<.16)return authoredComment(entry,'duo');const s=SINNERS[Math.floor(Math.random()*SINNERS.length)];return authoredComment(entry,s.name==='良秀'&&Math.random()<.82?'araya':'single',s.name)}
-function refreshSinnerComment(entry){const old=entry.comment;if(!old||old.version===COMMENTARY_VERSION)return old;if(old.version===5&&old.kind==='araya')return {...old,version:COMMENTARY_VERSION,lines:(old.lines||[]).map(reviseArayaLine)};if(old.kind!=='araya')return {...old,version:COMMENTARY_VERSION};const c=authoredComment(entry,['single','duo','group','all','araya'].includes(old.kind)?old.kind:'single',old.lines&&old.lines[0]&&old.lines[0].speaker);if(old.kind==='araya'&&ARAYA_AGES.some(a=>a.id===old.arayaAge)){const scene=arayaCommentScene(entry,old.arayaAge);c.lines=scene.lines;c.arayaAge=scene.age;}c.createdAt=old.createdAt||entry.date;return c}
+function refreshSinnerComment(entry){const old=entry.comment;if(!old||old.version===COMMENTARY_VERSION)return old;if(old.version===6)return {...old,version:COMMENTARY_VERSION};if(old.version===5&&old.kind==='araya')return {...old,version:COMMENTARY_VERSION,lines:(old.lines||[]).map(reviseArayaLine)};if(old.kind!=='araya')return {...old,version:COMMENTARY_VERSION};const c=authoredComment(entry,['single','duo','group','all','araya'].includes(old.kind)?old.kind:'single',old.lines&&old.lines[0]&&old.lines[0].speaker);if(old.kind==='araya'&&ARAYA_AGES.some(a=>a.id===old.arayaAge)){const scene=arayaCommentScene(entry,old.arayaAge);c.lines=scene.lines;c.arayaAge=scene.age;}c.createdAt=old.createdAt||entry.date;return c}
 function commentKindLabel(kind){return ({all:'RARE / 全員評議',group:'RARE / 多人評議',duo:'RARE / 雙人評議',araya:'SPECIAL / 良秀・阿賴耶'})[kind]||'SINGLE / 單人評議'}
