@@ -1,5 +1,6 @@
 /* Ordinary opponents are separate from abnormalities and never add containment progress. */
 const ENEMY_CATALOG=[
+ ...INTERMEDIATE_ENEMIES,
  {id:'E-001',name:'流浪鬣犬',type:'野獸',area:'any',level:1,hp:45,note:'在廢棄通道和街巷間覓食，會追逐落單的行人。',drop:'鬣犬硬牙',price:12},
  {id:'E-002',name:'廢墟掠奪者',type:'人類',area:'any',level:1,hp:52,note:'在各區活動的掠奪者，攜帶簡陋武器，伺機搶走回收物。',drop:'掠奪者銅牌',price:16},
  {id:'E-003',name:'失控巡檢機',type:'機械',area:'any',level:2,hp:58,note:'沿殘存巡邏路線運作的小型機械，已無法辨別通行者。',drop:'報廢感測片',price:18},
@@ -13,11 +14,11 @@ const ENEMY_CATALOG=[
  {id:'E-402',name:'軌道劫掠者',type:'人類',area:'zone-4',level:9,hp:164,note:'盤據廢棄軌道的劫掠者，會從路基高處襲擊回收隊伍。',drop:'軌道合金扣',price:60}
 ];
 const ENEMY_MATERIALS=Object.fromEntries(ENEMY_CATALOG.map(e=>[e.drop,{price:e.price,source:e.name,desc:'戰利品素材，僅供出售換取金幣。'}]));
-function enemiesForArea(areaId){return ENEMY_CATALOG.filter(e=>e.area==='any'||e.area===areaId)}
+function enemiesForArea(areaId){return ENEMY_CATALOG.filter(e=>(e.area==='any'&&EXPLORATION_AREAS.find(a=>a.id===areaId)?.tier==='beginner')||e.area===areaId)}
 function enemyCombat(names,area){
  const ex=state.exploration,pool=enemiesForArea(area.id),base=pool[Math.floor(Math.random()*pool.length)];
- const enemy={...base,level:base.area==='any'?Math.max(base.level,area.level):base.level};
- const maxHp=base.hp+(enemy.level-base.level)*12;let hp=maxHp,rounds=0;
+ const enemy={...base,difficultyMultiplier:area.difficultyMultiplier||1,level:base.area==='any'?Math.max(base.level,area.level):base.level};
+ const maxHp=Math.round((base.hp+(enemy.level-base.level)*12)*(area.difficultyMultiplier||1));let hp=maxHp,rounds=0;
  const allies=names.map(name=>({name,damage:0,notes:[],taken:0,hp:ex.sinners[name].hp,maxHp:ex.sinners[name].maxHp,healed:{amount:0,item:''}}));
  while(hp>0&&names.some(n=>ex.sinners[n].hp>0)&&rounds<30){
   rounds++;

@@ -1,16 +1,16 @@
 (function(){
   const SUPPLIES={water:{name:'瓶裝水',rarity:'common',basePrice:12,desc:'探索中罪人 HP ≤45% 時自動使用，回復 25 HP。'},potion:{name:'小型治療藥水',rarity:'uncommon',basePrice:30,desc:'瓶裝水不足且 HP ≤20% 時自動使用，回復 45 HP。'}};
   const GEAR_PRICES={'runner-boots':115,'field-vest':125,'survey-lens':130,'shock-baton':140,'field-kit':210};
-  const AREA_SHOPS={'zone-1':{name:'封鎖線雜貨攤',flavor:'撤離區留下的臨時商販，價格最接近基準。',mult:1},'zone-2':{name:'維修層零件販子',flavor:'貨物多由維修通道回收，運送成本略高。',mult:1.08},'zone-3':{name:'研究棟回收櫃',flavor:'高危區物資有額外風險成本。',mult:1.18},'zone-4':{name:'黑區行腳商',flavor:'深入黑區的物流風險最高，但裝備種類也較多。',mult:1.30}};
+  const AREA_SHOPS={'zone-5':{name:'潮線回收艇',flavor:'繫在高處的回收艇販售耐壓用品，交易前請確認岸上繫索。',mult:1.5},'zone-6':{name:'黃牆補給間',flavor:'商販在門框留下自己的記號，貨架上放著導引線與備用信標。',mult:1.7},'zone-1':{name:'封鎖線雜貨攤',flavor:'撤離區留下的臨時商販，價格最接近基準。',mult:1},'zone-2':{name:'維修層零件販子',flavor:'貨物多由維修通道回收，運送成本略高。',mult:1.08},'zone-3':{name:'研究棟回收櫃',flavor:'高危區物資有額外風險成本。',mult:1.18},'zone-4':{name:'黑區行腳商',flavor:'深入黑區的物流風險最高，但裝備種類也較多。',mult:1.30}};
   window.EXPLORATION_SHOP_CATALOG=AREA_SHOPS;
   let mode='buy',stockSequence=0;
   const round=n=>Math.max(1,Math.round(n/5)*5),sid=()=>('S-'+Date.now().toString(36)+'-'+(stockSequence++).toString(36)+'-'+Math.random().toString(36).slice(2,7));
   function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
   function createExplorationShop(area,names){ensureExplorationState();const info=AREA_SHOPS[area.id]||AREA_SHOPS['zone-1'],n=area.level>=8?3:area.level>=5?2:1;
     const stock=[{stockId:sid(),type:'supply',itemId:'water',name:SUPPLIES.water.name,desc:SUPPLIES.water.desc,rarity:'common',price:round(12*info.mult),qty:2+Math.floor(Math.random()*3)},{stockId:sid(),type:'supply',itemId:'potion',name:SUPPLIES.potion.name,desc:SUPPLIES.potion.desc,rarity:'uncommon',price:round(30*info.mult),qty:1+Math.floor(Math.random()*2)}];
-    shuffle(Object.keys(FIELD_GEAR)).slice(0,n).forEach(function(id){const g=FIELD_GEAR[id];stock.push({stockId:sid(),type:'gear',itemId:id,name:g.name,desc:g.desc,rarity:g.rarity||'common',price:round((GEAR_PRICES[id]||{common:130,uncommon:180,rare:260,epic:380,legendary:560}[g.rarity]||140)*info.mult*(.95+Math.random()*.1)),qty:1})});
+    shuffle(Object.keys(FIELD_GEAR).filter(id=>!FIELD_GEAR[id].areas||FIELD_GEAR[id].areas.includes(area.id))).slice(0,n).forEach(function(id){const g=FIELD_GEAR[id];stock.push({stockId:sid(),type:'gear',itemId:id,name:g.name,desc:g.desc,rarity:g.rarity||'common',price:round((GEAR_PRICES[id]||{common:130,uncommon:180,rare:260,epic:380,legendary:560}[g.rarity]||140)*info.mult*(.95+Math.random()*.1)),qty:1})});
     const supports=window.RPG_EQUIPMENT_CATALOG||{};
-    shuffle(Object.keys(supports)).slice(0,area.level>=5?2:1).forEach(name=>{const g=supports[name],base={common:110,uncommon:180,rare:280,epic:440,legendary:720}[g.rarity]||110;stock.push({stockId:sid(),type:'support',itemId:name,name,desc:g.desc,rarity:g.rarity,price:round(base*info.mult),qty:1});});
+    shuffle(Object.keys(supports).filter(name=>!supports[name].areas||supports[name].areas.includes(area.id))).slice(0,area.level>=5?2:1).forEach(name=>{const g=supports[name],base={common:110,uncommon:180,rare:280,epic:440,legendary:720}[g.rarity]||110;stock.push({stockId:sid(),type:'support',itemId:name,name,desc:g.desc,rarity:g.rarity,price:round(base*info.mult),qty:1});});
     const shop={id:'SHOP-'+Date.now(),areaId:area.id,name:info.name,flavor:info.flavor,openedAt:new Date().toISOString(),team:(names||[]).slice(0,2),stock:stock,purchases:[],sales:[]};state.exploration.activeShop=shop;mode='buy';return shop;
   }
   function refresh(){try{renderExplorationShop();renderBackpack();renderSinnerManagement();renderRpg();if(typeof forceRenderManagerProgress==='function')forceRenderManagerProgress()}catch(e){console.error(e)}}

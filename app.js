@@ -79,6 +79,7 @@ const FIELD_GEAR={
  'impact-shield':{name:'折疊抗衝盾',rarity:'rare',desc:'穩定 +3、戰鬥 +1。降低承傷並提高制壓能力。',stats:{stability:3,combat:1}},
  'precision-blade':{name:'精密制壓刃',rarity:'epic',desc:'戰鬥 +3、機動 +1。適合需要快速擊倒敵人的編成。',stats:{combat:3,mobility:1}},
  'hazard-suit':{name:'隔離作業服',rarity:'epic',desc:'穩定 +3、觀察 +2。提高高危事件判讀與生存能力。',stats:{stability:3,observe:2}},
+ ...REGIONAL_FIELD_GEAR,
  'survey-array':{name:'複合觀測組',rarity:'legendary',desc:'觀察 +4、穩定 +2。專精高危異常判讀，亦協助戰鬥觀察。',stats:{observe:4,stability:2}}
 
 };
@@ -88,9 +89,11 @@ const EXPLORATION_AREAS=[
  {id:'zone-2',name:'地下維修層',level:3,risk:'MEDIUM',desc:'泵房、維修井、管線與輸送設備構成的複雜區域。機械型與聲響型怪異較常出現。',abnos:['A-203','A-227','A-241','A-256','A-269']},
  {id:'zone-3',name:'封鎖研究棟',level:5,risk:'HIGH',desc:'舊研究設施與觀測室仍殘留未終止的實驗。認知、鏡像與檔案型怪異密度較高。',abnos:['A-311','A-338','A-352','A-367','A-379']},
  {id:'zone-4',name:'外緣黑區',level:8,risk:'EXTREME',desc:'城市邊緣的失照區與廢棄軌道帶。空間、獵食與無法穩定觀測的高危怪異活動頻繁。',abnos:['A-402','A-417','A-431','A-446','A-459']}
-];
+ ,...INTERMEDIATE_AREAS
+].map(a=>({...a,tier:a.tier||'beginner',difficultyMultiplier:a.difficultyMultiplier||1}));
 
 const ABNORMALITY_CATALOG={
+ ...INTERMEDIATE_ABNORMALITIES,
  'A-101':{name:'逆向時鐘',level:1,kills:2,area:'zone-1',type:'時間型',note:'櫥窗內的老式時鐘。所有指針皆向反方向運作；靠近者會短暫忘記自己剛做過的事。'},
  'A-114':{name:'紙面訪客',level:2,kills:3,area:'zone-1',type:'模仿型',note:'會從傳單、收據與海報中形成薄片人影，模仿最近接觸紙張的人。'},
  'A-126':{name:'永不打烊的店員',level:2,kills:3,area:'zone-1',type:'執念型',note:'徘徊在已封鎖商店櫃檯後方，持續向不存在的顧客重複結帳流程。'},
@@ -116,14 +119,7 @@ const ABNORMALITY_CATALOG={
  'A-459':{name:'折疊街口',level:11,kills:7,area:'zone-4',type:'空間型',note:'一段會把四個方向折回原點的街口。長時間滯留後，探索者會開始看見「沒有跟隊的自己」。'}
 };
 
-const EXPLORATION_EVENTS=[
- {id:'sealed-door',name:'封死的防火門',desc:'前方通道被不明力量從另一側反覆撞擊。'},
- {id:'false-radio',name:'錯頻廣播',desc:'通訊器傳來並不存在的第三名隊員聲音。'},
- {id:'abandoned-meal',name:'仍溫熱的餐桌',desc:'無人區域裡出現剛擺好的兩套餐點。'},
- {id:'mirror-corridor',name:'錯位鏡廊',desc:'鏡中的兩名罪人比本人慢了半拍才轉頭。'},
- {id:'red-file',name:'紅色封存檔',desc:'地面上有一份標著兩名探索者姓名的未來日期檔案。'},
- ...EXTRA_EXPLORATION_EVENTS
-];
+const EXPLORATION_EVENTS=REGIONAL_EVENTS;
 let state=load();ensureExplorationState();
 function $(id){return document.getElementById(id)}
 function localDateKey(value=new Date()){const d=new Date(value);if(isNaN(d.getTime()))return '';return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
@@ -314,8 +310,8 @@ function pickExplorationLoot(){
   if(roll<.8){state.rpg.consumables.potion++;return '小型治療藥水 ×1'}
   state.rpg.itemBoxes=(state.rpg.itemBoxes||0)+1;return '道具箱 ×1';
 }
-function pickFieldGear(){
- ensureExplorationState();const id=weightedEquipmentPick(Object.keys(FIELD_GEAR),id=>FIELD_GEAR[id].rarity);
+function pickFieldGear(area){
+ ensureExplorationState();const areaId=area?.id||state.exploration.areaId;const pool=Object.keys(FIELD_GEAR).filter(id=>!FIELD_GEAR[id].areas||FIELD_GEAR[id].areas.includes(areaId));const id=weightedEquipmentPick(pool,id=>FIELD_GEAR[id].rarity);
  state.exploration.fieldGear.push(id);return FIELD_GEAR[id].name+' ×1';
 }
 function availableAbnormalities(area){return (area.abnos||[]).filter(id=>!state.exploration.abnormalityProgress[id]?.contained)}
@@ -339,12 +335,13 @@ function runExploration(){
   if(names.length!==2||names[0]===names[1]){toast('請選擇兩名不同罪人');return}
   if(names.some(function(n){return ex.sinners[n].hp<=0})){toast('隊伍中有倒下的罪人，請先復活');return}
   const area=EXPLORATION_AREAS.find(function(x){return x.id===ex.areaId})||EXPLORATION_AREAS[0];
+  if(area.requiredLevel&&names.some(n=>sinnerLevel(ex.sinners[n])<area.requiredLevel)){toast(area.name+'需要兩名罪人都達 Lv.'+area.requiredLevel);return}
   ex.activeShop=null;
   ex.actions--;ex.spent++;ex.runs++;
   if(!ex.stats.visited.includes(area.id))ex.stats.visited.push(area.id);
   let kind=explorationEventKind(names,area);
   if(kind==='abnormality'&&availableAbnormalities(area).length===0)kind='quiet';
-  let title='',detail='',reward='',stamp='FIELD',xp=0,ctx={area:area.name,kind:kind},combat=null;
+  let title='',detail='',reward='',stamp='FIELD',xp=0,ctx={area:area.name,areaId:area.id,kind:kind},combat=null;
   let resultSuccess=true;
 
   if(kind==='quiet'){
@@ -355,18 +352,7 @@ function runExploration(){
     const remainingPool=availableAbnormalities(area),id=remainingPool[Math.floor(Math.random()*remainingPool.length)],ab=ABNORMALITY_CATALOG[id];
     if(!ex.seenAbnormalities.includes(id))ex.seenAbnormalities.push(id);
     const prog=ex.abnormalityProgress[id]||{kills:0,contained:false};
-    const maxHp=30+ab.level*12,attacks=[],damageTotal=0;
-    let total=0;
-    names.forEach(function(n){
-      const hit=sinnerCombatDamage(n,{...ab,id},area);total+=hit.damage;attacks.push({name:n,damage:hit.damage,notes:hit.notes});
-    });
-    const remaining=Math.max(0,maxHp-total),killed=remaining===0;
-    const injuries=[];
-    names.forEach(function(n){
-      const dmg=sinnerIncomingDamage(n,ab,killed),data=ex.sinners[n];
-      if(dmg>0){data.hp=Math.max(0,data.hp-dmg);const healed=maybeAutoHealSinner(n);injuries.push({name:n,damage:dmg,hp:data.hp,maxHp:data.maxHp,healed:healed});}
-      else injuries.push({name:n,damage:0,hp:data.hp,maxHp:data.maxHp,healed:{amount:0,item:''}});
-    });
+    const {maxHp,attacks,remaining,killed,injuries,rounds}=resolveAbnormalityCombat(names,{...ab,id},area);
     resultSuccess=killed;
     if(killed){
       prog.kills++;
@@ -384,7 +370,7 @@ function runExploration(){
       return x.name+(x.damage?' 受到 '+x.damage+' 傷害，HP '+x.hp+' / '+x.maxHp:' 未受傷')+
         (x.healed.amount?'，自動使用'+x.healed.item+' +'+x.healed.amount:'')+(x.hp<=0?'【倒下】':'');
     }).join('；');
-    detail+=' '+injuryText+'。';
+    detail+=' '+injuryText+'。'+(area.tier==='intermediate'?' 共交戰 '+rounds+' 回合。':'');
     ex.abnormalityProgress[id]=prog;
     ex.encounters[id]=(ex.encounters[id]||0)+1;
     combat={
@@ -429,7 +415,7 @@ function runExploration(){
     ctx.shopName=shop?shop.name:'臨時補給商';ctx.success=true;
   }else{
     title='裝備回收';resultSuccess=resolveFieldAttempt(names,area,'gear').success;
-    if(resultSuccess){reward=pickFieldGear();detail='完成拆卸與檢查，帶回可配置的探索裝備。';stamp='GEAR';ex.stats.gearRecovered++;}
+    if(resultSuccess){reward=pickFieldGear(area);detail='完成拆卸與檢查，帶回可配置的探索裝備。';stamp='GEAR';ex.stats.gearRecovered++;}
     else{ctx.failureReason='固定扣在拆卸時斷裂，裝備跌入無法接近的殘骸下。';ctx.hazard='斷裂的固定架';detail=ctx.failureReason;reward='未取得裝備';stamp='INCIDENT';ex.stats.gearFailures++;}
     ctx.success=resultSuccess;
   }
@@ -573,9 +559,8 @@ function renderExploration(){
       if(!known)return '<article class="containment-progress-row containment-unknown" aria-label="尚未接觸的怪異，探索後解鎖"><div class="containment-file-head"><span class="containment-file-id">未登錄</span><span class="containment-pending">未接觸</span></div><div class="containment-obscured" aria-hidden="true"><div class="containment-file-name">尚未辨識的怪異</div><div class="containment-file-progress">制壓進度尚未確認</div><div class="containment-meter"><span style="width:35%"></span></div></div><div class="containment-unknown-hint">探索後揭露名稱與收容進度</div></article>';
       const required=Math.max(1,Number(ab.kills)||1),kills=p.contained?required:Math.max(0,Math.min(Number(p.kills)||0,required)),pct=Math.round(kills/required*100);
       return '<article class="containment-progress-row '+(p.contained?'done':'')+'">'+
-        '<div class="containment-file-head"><span class="containment-file-id">'+esc(id)+'</span>'+
+        '<div class="containment-file-head"><div class="containment-file-identity"><span class="containment-file-id">'+esc(id)+'</span><span class="containment-file-name">'+esc(ab.name)+'</span></div>'+
         (p.contained?'<span class="contained-seal" aria-label="已收容">已收容</span>':'<span class="containment-pending">'+(kills?'收容中':'未收容')+'</span>')+'</div>'+
-        '<div class="containment-file-name">'+esc(ab.name)+'</div>'+
         '<div class="containment-file-progress"><span>制壓進度</span><b>'+kills+' / '+required+'</b></div>'+
         '<div class="containment-meter" role="progressbar" aria-label="'+esc(ab.name)+'收容進度" aria-valuemin="0" aria-valuemax="'+required+'" aria-valuenow="'+kills+'"><span style="width:'+pct+'%"></span></div></article>';
     });

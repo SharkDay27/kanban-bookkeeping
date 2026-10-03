@@ -16,12 +16,12 @@ const SINNERS=[
 const SINNER_COLORS={
   '李箱':'#3e6798',
   '浮士德':'#237682',
-  '堂吉訶德':'#866511',
+  '堂吉訶德':'#9b790d',
   '良秀':'#b43e49',
   '默爾索':'#4d6b85',
   '鴻璐':'#227b79',
   '希斯克利夫':'#78539e',
-  '以實瑪利':'#a45c24',
+  '以實瑪利':'#ba5d22',
   '羅佳':'#a74360',
   '辛克萊':'#4d7737',
   '奧提斯':'#65712f',
@@ -185,7 +185,7 @@ function sinnerIncomingDamage(name,ab,killed){
  const st=sinnerEffectiveStats(name,{ab}),ef=sinnerSkillEffects(name,{ab});
  if(Math.random()>(killed?.28:.72))return 0;
  const base=5+ab.level*2+Math.floor(Math.random()*7)-Math.floor(st.stability*.65);
- return Math.max(1,Math.round(base*(1-Math.min(.6,ef.damageReduction||0))));
+ return Math.max(1,Math.round(base*(ab.difficultyMultiplier||1)*(1-Math.min(.6,ef.damageReduction||0))));
 }
 function fieldGearCounts(id){
  const total=(state.exploration.fieldGear||[]).filter(g=>g===id).length;

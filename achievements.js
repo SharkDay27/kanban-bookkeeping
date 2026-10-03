@@ -1,4 +1,9 @@
 (function(){
+  const beginnerAbnos=EXPLORATION_AREAS.filter(a=>a.tier==='beginner').flatMap(a=>a.abnos);
+  const beginnerEnemies=ENEMY_CATALOG.filter(e=>!INTERMEDIATE_ENEMIES.some(n=>n.id===e.id));
+  const legacyEvents=['sealed-door','false-radio','abandoned-meal','mirror-corridor','red-file','hanging-sign','returning-footsteps','stalled-minute','fallen-shutter','last-sale','empty-queue','pressure-valve','moving-ladder','unlabeled-vial','repeating-monitor','unlit-crossing','hollow-waymark'];
+  const originalRegional=['last-sale','empty-queue','pressure-valve','moving-ladder','unlabeled-vial','repeating-monitor','unlit-crossing','hollow-waymark'];
+  const areaContained=id=>EXPLORATION_AREAS.find(a=>a.id===id).abnos.filter(n=>state.exploration.abnormalityProgress[n]?.contained).length;
   const defs=[
     {id:'RPG-A01',cat:'記錄',name:'旅程的第一格',desc:'完成第 1 筆記帳',target:1,progress:function(){return state.entries.length},reward:{gold:30}},
     {id:'RPG-A02',cat:'記錄',name:'帳本開始變厚',desc:'累積 25 筆記帳',target:25,progress:function(){return state.entries.length},reward:{gold:80,box:1}},
@@ -19,7 +24,7 @@
   defs.push(
     {id:'RPG-A16',cat:'記錄',name:'不只一種日常',desc:'記錄 6 種不同支出分類',target:6,progress:()=>new Set(state.entries.filter(e=>e.type==='expense').map(e=>e.category)).size,reward:{gold:80}},
     {id:'RPG-A17',cat:'記錄',name:'收入也有來處',desc:'建立 10 筆收入紀錄',target:10,progress:()=>state.entries.filter(e=>e.type==='income').length,reward:{gold:100}},
-    {id:'RPG-A18',cat:'探索',name:'四區足跡',desc:'探索全部 4 個區域',target:4,progress:()=>state.exploration.stats.visited.length,reward:{gold:180,box:1}},
+    {id:'RPG-A18',cat:'探索',name:'四區足跡',desc:'探索全部 4 個初級區域',target:4,progress:()=>state.exploration.stats.visited.filter(id=>['zone-1','zone-2','zone-3','zone-4'].includes(id)).length,reward:{gold:180,box:1}},
     {id:'RPG-A19',cat:'探索',name:'意料之外',desc:'成功解決 10 次隨機事件',target:10,progress:()=>state.exploration.stats.eventsResolved||0,reward:{gold:120,water:3}},
     {id:'RPG-A20',cat:'收容',name:'一區安靜',desc:'完成一個區域全部怪異的收容',target:1,progress:()=>EXPLORATION_AREAS.filter(a=>a.abnos.every(id=>state.exploration.abnormalityProgress[id]?.contained)).length,reward:{gold:250,box:2}},
     {id:'RPG-A21',cat:'裝備',name:'同型整備',desc:'將同一種裝備配置給兩名罪人',target:2,progress:()=>Math.max(0,...Object.keys(FIELD_GEAR).map(id=>fieldGearCounts(id).used)),reward:{gold:100}},
@@ -27,15 +32,30 @@
     {id:'RPG-A23',cat:'探索',name:'拆封的驚喜',desc:'開啟 10 個道具箱',target:10,progress:()=>state.exploration.stats.boxesOpened||0,reward:{gold:100,box:1}}
   );
   const hard=[
-    {id:'RPG-H01',cat:'挑戰',name:'全域收容官',desc:'完成全部 20 種怪異收容',target:Object.keys(ABNORMALITY_CATALOG).length,progress:()=>containedAbnormalityCount(),reward:{gold:1500,box:5},badge:{id:'containment-master',name:'全域收容徽章',mark:'I'}},
-    {id:'RPG-H02',cat:'挑戰',name:'十一份作戰檔案',desc:'11 種普通敵人各擊敗至少 5 次',target:ENEMY_CATALOG.length,progress:()=>ENEMY_CATALOG.filter(e=>(state.exploration.enemyProgress[e.id]?.kills||0)>=5).length,reward:{gold:900,box:3},badge:{id:'enemy-veteran',name:'討伐先鋒徽章',mark:'II'}},
-    {id:'RPG-H03',cat:'挑戰',name:'每個岔路的答案',desc:'成功解決全部 17 種隨機事件，每種至少 1 次',target:EXPLORATION_EVENTS.length,progress:()=>EXPLORATION_EVENTS.filter(e=>(state.exploration.eventProgress[e.id]?.resolved||0)>0).length,reward:{gold:1000,box:3},badge:{id:'event-archivist',name:'異常解讀徽章',mark:'III'}},
-    {id:'RPG-H04',cat:'挑戰',name:'區域專家',desc:'全部 8 種地區限定事件，各成功解決至少 3 次',target:EXPLORATION_EVENTS.filter(e=>e.area&&e.area!=='any').length,progress:()=>EXPLORATION_EVENTS.filter(e=>e.area&&e.area!=='any'&&(state.exploration.eventProgress[e.id]?.resolved||0)>=3).length,reward:{gold:900,box:3},badge:{id:'regional-expert',name:'四區勘察徽章',mark:'IV'}},
+    {id:'RPG-H01',cat:'挑戰',name:'初級全域收容官',desc:'完成四個初級區域全部 20 種怪異收容',target:20,progress:()=>beginnerAbnos.filter(id=>state.exploration.abnormalityProgress[id]?.contained).length,reward:{gold:1500,box:5},badge:{id:'containment-master',name:'全域收容徽章',mark:'I'}},
+    {id:'RPG-H02',cat:'挑戰',name:'十一份作戰檔案',desc:'初級 11 種普通敵人各擊敗至少 5 次',target:11,progress:()=>beginnerEnemies.filter(e=>(state.exploration.enemyProgress[e.id]?.kills||0)>=5).length,reward:{gold:900,box:3},badge:{id:'enemy-veteran',name:'討伐先鋒徽章',mark:'II'}},
+    {id:'RPG-H03',cat:'挑戰',name:'每個岔路的答案',desc:'成功解決原有 17 種事件，每種至少 1 次',target:17,progress:()=>legacyEvents.filter(id=>(state.exploration.eventProgress[id]?.resolved||0)>0).length,reward:{gold:1000,box:3},badge:{id:'event-archivist',name:'異常解讀徽章',mark:'III'}},
+    {id:'RPG-H04',cat:'挑戰',name:'區域專家',desc:'原有 8 種地區限定事件，各成功解決至少 3 次',target:8,progress:()=>originalRegional.filter(id=>(state.exploration.eventProgress[id]?.resolved||0)>=3).length,reward:{gold:900,box:3},badge:{id:'regional-expert',name:'四區勘察徽章',mark:'IV'}},
     {id:'RPG-H05',cat:'挑戰',name:'十二人的老練',desc:'12 名罪人全部達 Lv.10',target:12,progress:()=>Object.values(state.exploration.sinners).filter(d=>sinnerLevel(d)>=10).length,reward:{gold:1400,box:5},badge:{id:'sinner-veterans',name:'全員精銳徽章',mark:'V'}},
     {id:'RPG-H06',cat:'挑戰',name:'三十日的鐘聲',desc:'最佳連續記帳達 30 天',target:30,progress:()=>computeStreak().best,reward:{gold:800,box:3},badge:{id:'steady-clock',name:'三十日堅守徽章',mark:'VI'}},
     {id:'RPG-H07',cat:'挑戰',name:'黑區領航者',desc:'在外緣黑區成功解決 25 次隨機事件',target:25,progress:()=>state.exploration.stats.eventsResolvedByArea['zone-4']||0,reward:{gold:1200,box:4},badge:{id:'black-zone-guide',name:'黑區領航徽章',mark:'VII'}},
     {id:'RPG-H08',cat:'挑戰',name:'二百五十次出勤',desc:'累積完成 250 次探索',target:250,progress:()=>state.exploration.runs||0,reward:{gold:1000,box:4},badge:{id:'field-veteran',name:'長途出勤徽章',mark:'VIII'}}
   ];
+  defs.push(
+    {id:'RPG-A24',cat:'探索',name:'鞋上的鹽',desc:'探索沉潮港灣',target:1,progress:()=>Number(state.exploration.stats.visited.includes('zone-5')),reward:{gold:250,water:3}},
+    {id:'RPG-A25',cat:'探索',name:'牆上的第一道記號',desc:'探索無窗迴廊',target:1,progress:()=>Number(state.exploration.stats.visited.includes('zone-6')),reward:{gold:300,potion:2}},
+    {id:'RPG-A26',cat:'收容',name:'潮線之外',desc:'收容沉潮港灣的全部 6 種怪異',target:6,progress:()=>areaContained('zone-5'),reward:{gold:800,box:3}},
+    {id:'RPG-A27',cat:'收容',name:'找到出口',desc:'收容無窗迴廊的全部 6 種怪異',target:6,progress:()=>areaContained('zone-6'),reward:{gold:1000,box:4}},
+    {id:'RPG-A28',cat:'探索',name:'六區足跡',desc:'探索全部 6 個區域',target:6,progress:()=>EXPLORATION_AREAS.filter(a=>state.exploration.stats.visited.includes(a.id)).length,reward:{gold:500,box:2}},
+    {id:'RPG-A29',cat:'裝備',name:'遠行整備',desc:'同時為兩名罪人配置新區域裝備',target:2,progress:()=>Object.values(state.exploration.sinners).filter(d=>REGIONAL_FIELD_GEAR[d.gear]).length,reward:{gold:350,box:1}}
+  );
+  hard.push(
+    {id:'RPG-H09',cat:'挑戰',name:'潮與迴廊的封條',desc:'收容全部 12 種中級怪異',target:12,progress:()=>areaContained('zone-5')+areaContained('zone-6'),reward:{gold:2200,box:6},badge:{id:'intermediate-keeper',name:'深域收容徽章',mark:'IX'}},
+    {id:'RPG-H10',cat:'挑戰',name:'深域討伐紀錄',desc:'6 種中級普通敵人各擊敗至少 10 次',target:6,progress:()=>INTERMEDIATE_ENEMIES.filter(e=>(state.exploration.enemyProgress[e.id]?.kills||0)>=10).length,reward:{gold:1600,box:4},badge:{id:'deep-hunter',name:'深域討伐徽章',mark:'X'}},
+    {id:'RPG-H11',cat:'挑戰',name:'三十六條歸路',desc:'全部 36 種地區限定事件各成功解決至少 3 次',target:36,progress:()=>EXPLORATION_EVENTS.filter(e=>(state.exploration.eventProgress[e.id]?.resolved||0)>=3).length,reward:{gold:2000,box:5},badge:{id:'six-region-guide',name:'六區勘察徽章',mark:'XI'}},
+    {id:'RPG-H12',cat:'挑戰',name:'遠行的全套工具',desc:'取得全部 6 種新區域罪人裝備',target:6,progress:()=>Object.keys(REGIONAL_FIELD_GEAR).filter(id=>state.exploration.fieldGear.includes(id)).length,reward:{gold:1400,box:3},badge:{id:'deep-outfitter',name:'遠行整備徽章',mark:'XII'}},
+    {id:'RPG-H13',cat:'挑戰',name:'三十二份封存檔',desc:'完成全部 32 種怪異收容',target:32,progress:()=>containedAbnormalityCount(),reward:{gold:3000,box:8},badge:{id:'complete-keeper',name:'全域封存徽章',mark:'XIII'}}
+  );
   hard.forEach(d=>{d.hard=true;d.reward.badge=d.badge.id;defs.push(d)});
   window.RPG_ACHIEVEMENTS=defs;
   let activeFilter='pending',category='all';

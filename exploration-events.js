@@ -1,22 +1,8 @@
 /* Regional field incidents and noncombat resolution. No field result awards EXP. */
-const EXTRA_EXPLORATION_EVENTS=[
- {id:'hanging-sign',name:'搖晃的路牌',area:'any',theme:'terrain',desc:'頭頂的路牌只剩一條固定索，通道下方散著新掉落的碎片。',success:'沿牆繞過吊索下方，確認了可通行的路線。',failure:'吊索突然斷裂，兩人被迫退回轉角。',hazard:'落下的碎片',observe:'那條固定索',difficulty:0},
- {id:'returning-footsteps',name:'折返的腳步',area:'any',theme:'sound',desc:'身後的腳步聲總在兩人停下後才停，回頭卻看不到任何人。',success:'改變步距後辨明了回聲來源，離開聲音聚集的通道。',failure:'回聲突然從前方傳來，兩人在轉角處失去了方向。',hazard:'轉角散落的尖銳殘骸',observe:'跟在後面的腳步聲',difficulty:3},
- {id:'stalled-minute',name:'遺失的一分鐘',area:'any',theme:'time',desc:'終端時間跳過了一分鐘，但走廊盡頭的水滴仍停在半空。',success:'避開停滯的區段，終端與現場的時間重新一致。',failure:'踏入異常範圍後，周圍動作突然加速，隊伍只得撤出。',hazard:'突然恢復移動的雜物',observe:'停在半空的水滴',difficulty:5},
- {id:'fallen-shutter',name:'半落的鐵捲門',area:'any',theme:'mechanical',desc:'鐵捲門卡在半空，門後透出工作燈的光，馬達卻已燒毀。',success:'確認支架後繞過捲門，找到另一側的通道。',failure:'捲門再次下滑，隊伍未能進入門後通道。',hazard:'下滑的金屬門片',observe:'捲門的支架',difficulty:2},
- {id:'last-sale',name:'最後一場特賣',area:'zone-1',theme:'lure',desc:'商店櫥窗忽然亮起，只剩一秒的折扣倒數不斷重新開始。',success:'辨明倒數並未結束，避開了自動開啟的櫥窗。',failure:'靠近價牌時櫥窗突然合攏，隊伍匆忙退開。',hazard:'合攏的櫥窗與玻璃碎片',observe:'反覆重來的倒數',difficulty:3},
- {id:'empty-queue',name:'沒有人的隊伍',area:'zone-1',theme:'lure',desc:'地面排隊標記逐一亮起，空蕩的收銀台不斷呼叫下一位。',success:'沒有踏入排隊標記，從後場繞過收銀區。',failure:'踏入標記後欄杆自行收攏，出口被暫時封住。',hazard:'突然收攏的排隊欄杆',observe:'亮起的排隊標記',difficulty:1},
- {id:'pressure-valve',name:'超壓的閥門',area:'zone-2',theme:'mechanical',desc:'壓力錶指針來回震動，閥門縫隙傳出越來越尖的聲音。',success:'避開洩壓方向，在蒸氣噴出前通過維修側道。',failure:'閥門提前洩壓，蒸氣封住了原定路線。',hazard:'高溫蒸氣',observe:'壓力錶的指針',difficulty:4},
- {id:'moving-ladder',name:'移位的維修梯',area:'zone-2',theme:'terrain',desc:'維修梯每次被燈照到，都比上一次更靠近井口。',success:'在穩固位置重新固定梯腳，繞過維修井。',failure:'梯腳滑入井口，周圍的踏板一併鬆脫。',hazard:'鬆脫的踏板',observe:'梯腳留下的刮痕',difficulty:3},
- {id:'unlabeled-vial',name:'無標籤的樣本',area:'zone-3',theme:'chemical',desc:'隔離櫃裡的試管沒有標籤，一支裂開的玻璃管正在滲出透明液體。',success:'隔離了破損樣本，從尚未污染的通道離開。',failure:'隔離櫃內突然加壓，破損試管向外噴濺。',hazard:'樣本液與玻璃碎片',observe:'裂開的試管',difficulty:5},
- {id:'repeating-monitor',name:'重播的觀測室',area:'zone-3',theme:'time',desc:'監視器反覆播放兩人走入房間的畫面，門外的時鐘卻一格也沒有前進。',success:'對照現場節奏找出未被重播的出口，離開觀測室。',failure:'畫面與現場同時跳回起點，房門在兩人身後突然關上。',hazard:'突然閉合的房門',observe:'不再走動的時鐘',difficulty:7},
- {id:'unlit-crossing',name:'失照的平交道',area:'zone-4',theme:'sound',desc:'平交道警鈴在黑暗中響起，兩側軌道都看不見列車的燈。',success:'等震動平息後沿路基通過，沒有踏入警鈴指向的軌道。',failure:'路基突然震動，隊伍被迫離開原定的通行位置。',hazard:'震動中飛起的道碴',observe:'沒有車燈的軌道',difficulty:8},
- {id:'hollow-waymark',name:'空心的路標',area:'zone-4',theme:'terrain',desc:'每個路標都指向同一條岔路，路旁的腳印卻只進不出。',success:'留下新的實際標記，從腳印以外的路線返回主道。',failure:'岔路在身後收窄，來時的地面開始崩落。',hazard:'崩落的路面',observe:'只有去程的腳印',difficulty:6}
-];
-function explorationEventsForArea(areaId){return EXPLORATION_EVENTS.filter(ev=>!ev.area||ev.area==='any'||ev.area===areaId)}
+function explorationEventsForArea(areaId){return EXPLORATION_EVENTS.filter(ev=>ev.area===areaId)}
 function resolveFieldAttempt(names,area,kind,event){
  const manager=equipmentEffects(),power=teamFieldPower(names,area)+(manager.eventBonus||0)*40;
- const difficulty=40+area.level*5+(event?.difficulty||0)+(kind==='gear'?4:0);
+ const difficulty=(40+area.level*5+(event?.difficulty||0)+(kind==='gear'?4:0))*(area.difficultyMultiplier||1);
  const chance=Math.max(.15,Math.min(.92,.55+(power-difficulty)/110));
  return {success:Math.random()<chance,chance};
 }
@@ -26,7 +12,7 @@ function fieldFailureInjuries(names,area){
  const targets=Math.random()<.3?names:[names[Math.floor(Math.random()*names.length)]];
  return targets.map(name=>{
   const stats=sinnerEffectiveStats(name,{area}),d=state.exploration.sinners[name];
-  const damage=Math.min(d.hp,Math.max(2,Math.round(7+area.level*2+Math.random()*7-stats.stability*.45-stats.mobility*.2)));
+  const damage=Math.min(d.hp,Math.max(2,Math.round((7+area.level*2+Math.random()*7-stats.stability*.45-stats.mobility*.2)*(area.difficultyMultiplier||1))));
   d.hp=Math.max(0,d.hp-damage);const healed=maybeAutoHealSinner(name);
   return {name,damage,hp:d.hp,maxHp:d.maxHp,healed};
  });
@@ -41,6 +27,7 @@ const FIELD_EVENT_VOICES={
  chemical:{'李箱':'無名之物既已溢出，且給它留些距離。','浮士德':'未標示成分。不要接觸滲出的液體。','堂吉訶德':'有東西漏出來了！吾等先退開！','良秀':'漏了。別沾。','默爾索':'無法確認成分。維持距離。','鴻璐':'連標籤都沒留，這要怎麼知道裡面是什麼？','希斯克利夫':'別伸手。誰知道這玩意會把手弄成什麼樣。','以實瑪利':'先看地上，別踩到流出來的東西。','羅佳':'這可不能光看著乾淨就去碰啊。','辛克萊':'是不是流到櫃子外面了？先退一點吧。','奧提斯':'避免接觸。尋找未污染的撤離路線。','格里高爾':'沒標籤的東西我可不敢碰。離遠一點吧。'}
 };
 function newFieldEventScene(names,ev){
+ const regional=regionalEventDialogue(names,ev,{success:true});if(regional)return regional;
  const [first,second]=names,speech=(speaker,text)=>({speaker,text,kind:'speech'}),action=(speaker,text)=>({speaker,text,kind:'action'});
  if(ev.theme==='time'&&names.includes('良秀')){const other=names.find(n=>n!=='良秀');return [action(other,other+'停下腳步，看著與終端顯示不同步的現場。'),speech('良秀','時間少了一拍。先別動。'),action('良秀','良秀在刀鞘上敲了兩下，等聲音與動作重合才帶搭檔繞開異常的區段。')];}
  if(ev.theme==='lure'&&names.includes('羅佳')&&names.includes('格里高爾'))return [action('羅佳','羅佳往前探了探身，還沒踏進亮起的標記。'),speech('羅佳','格雷格，你說走過去會怎樣？'),speech('格里高爾','別拿自己試啊。你看，連它後面的門都關上了。'),action('羅佳','羅佳抬眼看了看門口，收回原本準備邁出去的腳。')];

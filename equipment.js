@@ -1,5 +1,6 @@
 (function(){
   const catalog={
+    ...REGIONAL_SUPPORT_GEAR,
     '銀色羽毛筆':{slot:'工具',rarity:'common',desc:'適合日常記帳與經理成長的文書工具。',expBonus:.15,source:'道具箱'},
     '見習短劍':{slot:'武裝',rarity:'common',desc:'輕量制壓武裝，適合補足直接輸出的探索編成。',allDamage:2,source:'道具箱'},
 
@@ -35,5 +36,5 @@
   window.rpgEquipmentAttributes=attrs;
 
   // Preserve existing gear while allowing newly introduced support equipment to appear in rewards.
-  window.rpgSupportEquipmentNames=function(){return Object.keys(catalog)};
+  window.rpgSupportEquipmentNames=function(){return Object.keys(catalog).filter(name=>!catalog[name].areas)};
 })();
