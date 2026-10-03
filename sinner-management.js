@@ -53,11 +53,19 @@
         ).join('');
 
         var skills=Array.isArray(p.skills)?p.skills:[];
-        return '<details class="sinner-file wood sinner-dossier" data-sinner-file="'+safeEsc(name)+'" '+(expanded.has(name)?'open':'')+'>'+
-          '<summary class="sinner-file-head"><div>'+
-            '<div class="archive-id">LCB // '+safeEsc(name)+'</div>'+
-            '<div class="sinner-file-name" style="color:'+(typeof sinnerColorForSpeaker==='function'?sinnerColorForSpeaker(name):'#eee9df')+'">'+safeEsc(name)+'</div>'+
-          '</div><div class="sinner-dossier-status"><span class="sinner-level">Lv.'+lv+'</span><span class="sinner-summary-hp">'+(Number(data.hp||0)<=0?'已倒下':'HP '+Number(data.hp||0)+' / '+Number(data.maxHp||100))+'</span><span class="sinner-dossier-chevron" aria-hidden="true">⌄</span></div></summary><div class="sinner-dossier-body">'+
+        var color=typeof sinnerColorForSpeaker==='function'?sinnerColorForSpeaker(name):'#426676';
+        var identity=typeof SINNERS!=='undefined'?SINNERS.find(function(s){return s.name===name}):null;
+        var hp=Number(data.hp||0),maxHp=Math.max(1,Number(data.maxHp||100));
+        var hpPercent=Math.max(0,Math.min(100,Math.round(hp/maxHp*100)));
+        return '<details class="sinner-file wood sinner-dossier '+(hp<=0?'is-down':'')+'" style="--sinner-accent:'+color+'" data-sinner-file="'+safeEsc(name)+'" '+(expanded.has(name)?'open':'')+'>'+
+          '<summary class="sinner-file-head">'+
+            '<span class="sinner-roster-number" aria-hidden="true"><small>LCB</small>'+safeEsc(identity?identity.id:'—')+'</span>'+
+            '<span class="sinner-summary-main">'+
+              '<span class="sinner-summary-title"><span class="sinner-file-name">'+safeEsc(name)+'</span><span class="sinner-level">Lv.'+lv+'</span></span>'+
+              '<span class="sinner-summary-health"><span class="sinner-summary-hp">'+(hp<=0?'已倒下':'HP '+hp+' / '+maxHp)+'</span><span class="sinner-summary-meter" aria-hidden="true"><span style="width:'+hpPercent+'%"></span></span></span>'+
+            '</span>'+
+            '<span class="sinner-dossier-chevron" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none"><path d="m5 7.5 5 5 5-5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span>'+
+          '</summary><div class="sinner-dossier-body">'+
           '<div class="sinner-specialty">'+safeEsc(p.specialty||'—')+' / 基礎 E.G.O：'+safeEsc(p.ego||'—')+'</div>'+
           '<div class="sinner-exp"><div style="width:'+exp+'%"></div><span>'+exp+' / 100 EXP</span></div>'+
           '<div class="sinner-hp-row"><span>HP</span><b>'+Number(data.hp||0)+' / '+Number(data.maxHp||100)+'</b></div>'+

@@ -2822,3 +2822,65 @@ dialog#dlg .dialog-close:hover,dialog#dlg .dialog-close:focus-visible{background
 .template-remove{background:#f4dfd9;color:#8a4237;border:1px solid #d3a196;border-radius:5px;width:26px;padding:0;cursor:pointer}
 #saveBookkeepingFavorite{margin:0 10px;padding:6px 9px;font-size:11px}
 @media(max-width:350px){.bookkeeping-date-tools{grid-template-columns:minmax(0,1fr) auto auto}.bookkeeping-date-tools label{grid-column:1/-1}.habit-progress-head{font-size:12px}}
+
+/* Sinner roster: colored index tabs and a calm, compact disclosure header. */
+.sinner-management-grid{align-items:start;gap:12px}
+:root[data-theme="light"] .sinner-dossier{
+ border:1px solid #c5d9df!important;border-left:3px solid var(--sinner-accent)!important;
+ border-radius:12px!important;box-shadow:0 3px 12px #35576b09!important;
+ transition:border-color .16s,box-shadow .16s;
+}
+.sinner-dossier>summary.sinner-file-head{
+ display:grid!important;grid-template-columns:40px minmax(0,1fr) 26px;
+ gap:10px;align-items:center;min-height:80px;padding:12px!important;
+ background:linear-gradient(110deg,color-mix(in srgb,var(--sinner-accent) 6%,white),#fff 75%);
+ border:0;list-style:none;user-select:none;
+}
+.sinner-dossier>summary::marker{content:""}
+.sinner-dossier>summary:hover{background:color-mix(in srgb,var(--sinner-accent) 7%,white)}
+.sinner-dossier>summary:focus-visible{outline:2px solid var(--sinner-accent);outline-offset:-3px;border-radius:10px}
+.sinner-dossier[open]>summary.sinner-file-head{border-bottom:1px solid #d9e5e9;background:color-mix(in srgb,var(--sinner-accent) 6%,white)}
+.sinner-roster-number{height:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border-radius:9px;background:color-mix(in srgb,var(--sinner-accent) 11%,white);color:var(--sinner-accent);font-size:18px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.1}
+.sinner-roster-number small{font-size:8px;letter-spacing:1.2px;font-weight:700}
+.sinner-summary-main{display:flex;flex-direction:column;gap:8px;min-width:0}
+.sinner-summary-title{display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0}
+.sinner-dossier .sinner-file-name{font-size:16px;line-height:1.35;margin:0;color:var(--sinner-accent);font-weight:800}
+.sinner-dossier .sinner-level{padding:0!important;border:0!important;background:transparent!important;color:#536b76!important;font-size:11px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.sinner-summary-health{display:flex;align-items:center;gap:10px;min-width:0}
+.sinner-dossier .sinner-summary-hp{font-size:10px;line-height:1.2;color:#536b76;font-variant-numeric:tabular-nums;white-space:nowrap}
+.sinner-summary-meter{height:4px;flex:1;min-width:24px;max-width:90px;border-radius:4px;background:#e5eeeb;overflow:hidden}
+.sinner-summary-meter>span{display:block;height:100%;background:#78a68c;border-radius:inherit}
+.sinner-dossier.is-down .sinner-summary-hp{color:#a84750;font-weight:800}
+.sinner-dossier.is-down .sinner-summary-meter{background:#f0dfe0}
+.sinner-dossier-chevron{width:26px;height:26px;border-radius:8px;background:#eef3f5;color:#537381}
+.sinner-dossier-chevron svg{width:18px;height:18px}
+.sinner-dossier[open] .sinner-dossier-chevron{transform:rotate(180deg);background:color-mix(in srgb,var(--sinner-accent) 12%,white);color:var(--sinner-accent)}
+.sinner-dossier-body{padding:12px 14px 14px;background:#fff}
+.sinner-dossier .sinner-specialty{margin:0;font-size:11px;line-height:1.65;color:#526c78!important}
+.sinner-dossier .sinner-exp{height:14px;margin-top:8px;border-radius:4px;overflow:hidden;border:0;background:#eaf1f4!important}
+.sinner-dossier .sinner-exp>div{background:color-mix(in srgb,var(--sinner-accent) 30%,white)!important}
+.sinner-dossier .sinner-exp span{font-size:9px;color:#344f5c!important}
+.sinner-dossier .sinner-stat-grid{gap:6px;margin-top:10px}
+.sinner-dossier .sinner-stat-grid>span{border:0!important;border-radius:7px;padding:7px 3px;background:#f1f6f8!important;color:#4c6875!important;font-size:10px}
+.sinner-dossier .sinner-stat-grid b{font-size:17px;line-height:1.3;margin-top:2px;color:#304e5e!important}
+.sinner-dossier .sinner-stat-grid small{display:block;font-size:9px;margin-top:2px;color:#637b85}
+.sinner-dossier .sinner-gear-label{font-size:11px;color:#4c6875;gap:6px;margin-top:12px}
+.sinner-dossier .sinner-gear-select{border-radius:7px;min-height:36px;font-size:11px}
+.sinner-dossier .sinner-skill-list{gap:6px;margin-top:12px}
+.sinner-dossier .sinner-skill{border:0!important;border-left:2px solid #9ebbb1!important;border-radius:6px;padding:8px 10px;background:#f2f7f5!important}
+.sinner-dossier .sinner-skill b{font-size:11px;color:#365969}
+.sinner-dossier .sinner-skill span{font-size:11px;line-height:1.6;color:#526b76!important}
+.sinner-dossier .sinner-skill.locked{opacity:1;background:#f4f6f7!important;border-left-color:#c4d0d6!important}
+.sinner-dossier .sinner-skill.locked b{color:#6c7d85}
+@media(max-width:700px){
+ .sinner-management-grid{gap:9px}
+ .sinner-dossier>summary.sinner-file-head{min-height:76px;gap:10px;padding:10px 12px!important}
+ .sinner-dossier-body{padding:12px}
+ .sinner-dossier .sinner-file-name{font-size:16px}
+}
+@media(prefers-reduced-motion:reduce){.sinner-dossier,.sinner-dossier-chevron{transition:none}}
+.sinner-dossier .sinner-hp-row{color:#526b76;font-size:11px;margin-top:9px}
+.sinner-dossier .sinner-hp-row b{color:#355f4b}
+.sinner-dossier .sinner-hp-bar{height:5px;border:0!important;border-radius:4px;background:#e7f0ea!important;margin-top:5px}
+.sinner-dossier .sinner-hp-bar>div{border-radius:inherit;background:#78a68c}
+.sinner-dossier.is-down .sinner-hp-row b{color:#a84750}
