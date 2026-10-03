@@ -26,6 +26,7 @@ const REGIONAL_FAILURE_VOICES={
  'zone-6':['吾所留之痕尚在，且循此歸去。','門牌已失去參考價值。沿繫線返回。','吾留下的記號尚在！跟吾來！','別追。回頭。','沿實際標記撤離。','它又換了門牌，還好線沒有斷呢。','別盯著門牌，跟著線走！','確認同伴在身邊，再往回走。','好啦，這間就不住了。','線還在這裡……我們沒有走散。','停止前進，確認兩人的位置。','這走廊真夠折騰的。先回記號那裡吧。']
 };
 function regionalEventDialogue(names,ev,ctx={}){
+ if(ev&&FRONTIER_AREAS.some(a=>a.id===ev.area))return frontierEventDialogue(names,ev,ctx);
  if(!ev?.lines)return null;
  const [first,second]=names,speech=(speaker,text)=>({speaker,text,kind:'speech'}),action=(speaker,text)=>({speaker,text,kind:'action'});
  const failed=ctx.success===false,focus=ev.observe,cast=SINNERS.map(s=>s.name);
@@ -49,6 +50,7 @@ function regionalEventDialogue(names,ev,ctx={}){
  return variant===0?[lead,react]:variant===1?[action(first,regionalPersonalAction(first,focus)),lead,react]:[lead,react,result,action(second,second+'走過轉角，確認搭檔仍在身旁。')];
 }
 function regionalAbnormalityDialogue(names,ctx){
+ if(FRONTIER_ABNORMALITIES[ctx.abnormalityId])return frontierAbnormalityDialogue(names,ctx);
  const ab=INTERMEDIATE_ABNORMALITIES[ctx.abnormalityId];if(!ab)return null;
  const [first,second]=names,speech=(speaker,text)=>({speaker,text,kind:'speech'}),action=(speaker,text)=>({speaker,text,kind:'action'});
  const clues={'A-501':'還在往岸上靠的空船','A-502':'先響後動的鐘','A-503':'灌滿水的救生衣','A-504':'水底的歌聲','A-505':'覆著鹽殼的船舵','A-506':'新露出的第七道潮痕','A-601':'掛在空椅上的房卡','A-602':'只亮著零號的按鍵','A-603':'早一步轉身的影子','A-604':'地毯下的人形','A-605':'沒有人回應的廣播','A-606':'盡頭穿著相同裝備的人影'};

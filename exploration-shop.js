@@ -1,7 +1,7 @@
 (function(){
-  const SUPPLIES={water:{name:'瓶裝水',rarity:'common',basePrice:12,desc:'探索中罪人 HP ≤45% 時自動使用，回復 25 HP。'},potion:{name:'小型治療藥水',rarity:'uncommon',basePrice:30,desc:'瓶裝水不足且 HP ≤20% 時自動使用，回復 45 HP。'}};
+  const SUPPLIES={water:{name:'瓶裝水',rarity:'common',basePrice:12,desc:'依出發前的自動補給策略使用，回復 25 HP。'},potion:{name:'小型治療藥水',rarity:'uncommon',basePrice:30,desc:'依出發前的自動補給策略使用，回復 45 HP。'}};
   const GEAR_PRICES={'runner-boots':115,'field-vest':125,'survey-lens':130,'shock-baton':140,'field-kit':210};
-  const AREA_SHOPS={'zone-5':{name:'潮線回收艇',flavor:'繫在高處的回收艇販售耐壓用品，交易前請確認岸上繫索。',mult:1.5},'zone-6':{name:'黃牆補給間',flavor:'商販在門框留下自己的記號，貨架上放著導引線與備用信標。',mult:1.7},'zone-1':{name:'封鎖線雜貨攤',flavor:'撤離區留下的臨時商販，價格最接近基準。',mult:1},'zone-2':{name:'維修層零件販子',flavor:'貨物多由維修通道回收，運送成本略高。',mult:1.08},'zone-3':{name:'研究棟回收櫃',flavor:'高危區物資有額外風險成本。',mult:1.18},'zone-4':{name:'黑區行腳商',flavor:'深入黑區的物流風險最高，但裝備種類也較多。',mult:1.30}};
+  const AREA_SHOPS={'zone-7':{name:'隔離線回收亭',flavor:'仍在運作的回收亭只接收封裝完好的物資，提供污染區作業工具。',mult:1.85},'zone-8':{name:'轉接艙補給庫',flavor:'交易透過密閉轉運櫃完成，供貨端要求先固定回收袋再開櫃。',mult:2.05},'zone-5':{name:'潮線回收艇',flavor:'繫在高處的回收艇販售耐壓用品，交易前請確認岸上繫索。',mult:1.5},'zone-6':{name:'黃牆補給間',flavor:'商販在門框留下自己的記號，貨架上放著導引線與備用信標。',mult:1.7},'zone-1':{name:'封鎖線雜貨攤',flavor:'撤離區留下的臨時商販，價格最接近基準。',mult:1},'zone-2':{name:'維修層零件販子',flavor:'貨物多由維修通道回收，運送成本略高。',mult:1.08},'zone-3':{name:'研究棟回收櫃',flavor:'高危區物資有額外風險成本。',mult:1.18},'zone-4':{name:'黑區行腳商',flavor:'深入黑區的物流風險最高，但裝備種類也較多。',mult:1.30}};
   window.EXPLORATION_SHOP_CATALOG=AREA_SHOPS;
   let mode='buy',stockSequence=0;
   const round=n=>Math.max(1,Math.round(n/5)*5),sid=()=>('S-'+Date.now().toString(36)+'-'+(stockSequence++).toString(36)+'-'+Math.random().toString(36).slice(2,7));

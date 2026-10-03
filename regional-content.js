@@ -1,9 +1,11 @@
 /* Original regional content. Intermediate encounters use twice the combat HP and damage. */
 const INTERMEDIATE_AREAS=[
  {id:'zone-5',name:'沉潮港灣',level:12,requiredLevel:12,tier:'intermediate',difficultyMultiplier:2,risk:'HIGH',desc:'退潮後才露出的碼頭、沉船艙室與潮汐觀測站。水位不依月相變化；回程前務必確認繫索。',abnos:['A-501','A-502','A-503','A-504','A-505','A-506']},
- {id:'zone-6',name:'無窗迴廊',level:16,requiredLevel:16,tier:'intermediate',difficultyMultiplier:2,risk:'EXTREME',desc:'黃牆、潮濕地毯與不停嗡鳴的燈管。房間彼此相似，門牌、步數與時間都可能失去意義。',abnos:['A-601','A-602','A-603','A-604','A-605','A-606']}
+ {id:'zone-6',name:'無窗迴廊',level:16,requiredLevel:16,tier:'intermediate',difficultyMultiplier:2,risk:'EXTREME',desc:'黃牆、潮濕地毯與不停嗡鳴的燈管。房間彼此相似，門牌、步數與時間都可能失去意義。',abnos:['A-601','A-602','A-603','A-604','A-605','A-606']},
+ ...FRONTIER_AREAS
 ];
 const INTERMEDIATE_ABNORMALITIES={
+ ...FRONTIER_ABNORMALITIES,
  'A-501':{name:'返航的空船',area:'zone-5',level:12,kills:5,type:'執念型',note:'一艘無人漁船反覆駛進泊位。接住它的纜繩後，岸上的人會聽見自己的離港廣播。'},
  'A-502':{deathBurst:8,deathEffectLabel:'逆潮鐘殘響',name:'逆潮鐘',area:'zone-5',level:13,kills:5,type:'時間型',note:'鐘聲先於敲擊響起，附近浪花逐滴退回海面。兩次鐘聲之間的時間長度不一致。鐘體被擊破後，殘響仍會衝擊現場人員（擊倒時觸發一次殘響傷害）。'},
  'A-503':{name:'穿救生衣的人',area:'zone-5',level:13,kills:6,type:'誘引型',note:'在浪間揮手求援，衣內卻塞滿潮水。它靠近時，繫在岸上的繩索會朝水中滑去。'},
@@ -18,6 +20,7 @@ const INTERMEDIATE_ABNORMALITIES={
  'A-606':{name:'盡頭的自己',area:'zone-6',level:19,kills:7,type:'模仿型',note:'走廊盡頭有穿著探索者裝備的背影，總在探索者停步後才停下。靠近時，它會轉身露出相同的臉，伸手試圖將來者拉向身後的門。'}
 };
 const INTERMEDIATE_ENEMIES=[
+ ...FRONTIER_ENEMIES,
  {id:'E-501',name:'潮穴鉗蟹',area:'zone-5',type:'野獸',level:12,hp:105,note:'盤據碼頭裂縫的巨蟹，以鉗腳夾斷繫索。',drop:'潮蟹硬鉗',price:90},
  {id:'E-502',name:'沉艙掠奪者',area:'zone-5',type:'人類',level:13,hp:115,note:'熟悉沉船內部的掠奪者，以漁叉攔截回收隊。',drop:'鍍錫漁叉頭',price:105},
  {id:'E-503',name:'故障潛航機',area:'zone-5',type:'機械',level:14,hp:125,note:'仍在碼頭水道巡行，以切割臂破壞攔路物。',drop:'耐壓螺旋芯',price:120},
@@ -26,6 +29,7 @@ const INTERMEDIATE_ENEMIES=[
  {id:'E-603',name:'失控樓層巡機',area:'zone-6',type:'機械',level:18,hp:145,note:'沿牆掃描熱源的巡機，轉角後會立即突進。',drop:'蜂巢掃描模組',price:155}
 ];
 const REGIONAL_FIELD_GEAR={
+ ...FRONTIER_FIELD_GEAR,
  'tide-harness':{name:'潮汐安全索',rarity:'rare',areas:['zone-5'],desc:'穩定 +4、機動 +2。固定繫索與重心，提高生存及回收判定。',stats:{stability:4,mobility:2}},
  'pressure-lens':{name:'耐壓觀測罩',rarity:'epic',areas:['zone-5'],desc:'觀察 +5、穩定 +2。協助潮下觀測與事件判讀。',stats:{observe:5,stability:2}},
  'boarding-pike':{name:'登艙制壓槍',rarity:'epic',areas:['zone-5'],desc:'戰鬥 +5、機動 +2。適合狹窄船艙的近距離制壓。',stats:{combat:5,mobility:2}},
@@ -34,6 +38,7 @@ const REGIONAL_FIELD_GEAR={
  'corner-blade':{name:'轉角截擊刃',rarity:'legendary',areas:['zone-6'],desc:'戰鬥 +6、機動 +3。強化近距離攻擊與複雜地形移動。',stats:{combat:6,mobility:3}}
 };
 const REGIONAL_SUPPORT_GEAR={
+ ...FRONTIER_SUPPORT_GEAR,
  '潮位校對儀':{slot:'工具',rarity:'epic',areas:['zone-5'],desc:'事件與補給／裝備回收判定 +8；裝備後適用所有區域。',eventBonus:.20,source:'沉潮港灣商店'},
  '登艙指揮旗':{slot:'工具',rarity:'epic',areas:['zone-5'],desc:'全隊每次攻擊基礎傷害 +8，戰鬥 EXP +8%；裝備後適用所有區域。',allDamage:8,exploreXpBonus:.08,source:'沉潮港灣商店'},
  '迴廊校準盤':{slot:'工具',rarity:'epic',areas:['zone-6'],desc:'事件與補給／裝備回收判定 +10；裝備後適用所有區域。',eventBonus:.25,source:'無窗迴廊商店'},

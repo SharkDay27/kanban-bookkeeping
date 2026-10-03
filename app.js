@@ -419,6 +419,8 @@ function runExploration(){
     else{ctx.failureReason='固定扣在拆卸時斷裂，裝備跌入無法接近的殘骸下。';ctx.hazard='斷裂的固定架';detail=ctx.failureReason;reward='未取得裝備';stamp='INCIDENT';ex.stats.gearFailures++;}
     ctx.success=resultSuccess;
   }
+  const recoveryFailure=FRONTIER_RECOVERY_FAILURES[area.id]?.[kind];
+  if(!resultSuccess&&recoveryFailure){ctx.failureReason=recoveryFailure.detail;ctx.hazard=recoveryFailure.hazard;detail=recoveryFailure.detail;}
   if(!resultSuccess&&['event','supply','gear'].includes(kind)){
     ctx.injuries=fieldFailureInjuries(names,area);
     if(ctx.injuries.length){detail+=' '+ctx.hazard+'波及隊伍。'+fieldInjuryDescription(ctx.injuries)+'。';ex.stats.fieldIncidentsWithInjury++;}

@@ -46,15 +46,33 @@
     {id:'RPG-A25',cat:'探索',name:'牆上的第一道記號',desc:'探索無窗迴廊',target:1,progress:()=>Number(state.exploration.stats.visited.includes('zone-6')),reward:{gold:300,potion:2}},
     {id:'RPG-A26',cat:'收容',name:'潮線之外',desc:'收容沉潮港灣的全部 6 種怪異',target:6,progress:()=>areaContained('zone-5'),reward:{gold:800,box:3}},
     {id:'RPG-A27',cat:'收容',name:'找到出口',desc:'收容無窗迴廊的全部 6 種怪異',target:6,progress:()=>areaContained('zone-6'),reward:{gold:1000,box:4}},
-    {id:'RPG-A28',cat:'探索',name:'六區足跡',desc:'探索全部 6 個區域',target:6,progress:()=>EXPLORATION_AREAS.filter(a=>state.exploration.stats.visited.includes(a.id)).length,reward:{gold:500,box:2}},
+    {id:'RPG-A28',cat:'探索',name:'六區足跡',desc:'探索全部 6 個區域',target:6,progress:()=>EXPLORATION_AREAS.filter(a=>!['zone-7','zone-8'].includes(a.id)&&state.exploration.stats.visited.includes(a.id)).length,reward:{gold:500,box:2}},
     {id:'RPG-A29',cat:'裝備',name:'遠行整備',desc:'同時為兩名罪人配置新區域裝備',target:2,progress:()=>Object.values(state.exploration.sinners).filter(d=>REGIONAL_FIELD_GEAR[d.gear]).length,reward:{gold:350,box:1}}
   );
   hard.push(
-    {id:'RPG-H09',cat:'挑戰',name:'潮與迴廊的封條',desc:'收容全部 12 種中級怪異',target:12,progress:()=>areaContained('zone-5')+areaContained('zone-6'),reward:{gold:2200,box:6},badge:{id:'intermediate-keeper',name:'深域收容徽章',mark:'IX'}},
-    {id:'RPG-H10',cat:'挑戰',name:'深域討伐紀錄',desc:'6 種中級普通敵人各擊敗至少 10 次',target:6,progress:()=>INTERMEDIATE_ENEMIES.filter(e=>(state.exploration.enemyProgress[e.id]?.kills||0)>=10).length,reward:{gold:1600,box:4},badge:{id:'deep-hunter',name:'深域討伐徽章',mark:'X'}},
-    {id:'RPG-H11',cat:'挑戰',name:'三十六條歸路',desc:'全部 36 種地區限定事件各成功解決至少 3 次',target:36,progress:()=>EXPLORATION_EVENTS.filter(e=>(state.exploration.eventProgress[e.id]?.resolved||0)>=3).length,reward:{gold:2000,box:5},badge:{id:'six-region-guide',name:'六區勘察徽章',mark:'XI'}},
-    {id:'RPG-H12',cat:'挑戰',name:'遠行的全套工具',desc:'取得全部 6 種新區域罪人裝備',target:6,progress:()=>Object.keys(REGIONAL_FIELD_GEAR).filter(id=>state.exploration.fieldGear.includes(id)).length,reward:{gold:1400,box:3},badge:{id:'deep-outfitter',name:'遠行整備徽章',mark:'XII'}},
-    {id:'RPG-H13',cat:'挑戰',name:'三十二份封存檔',desc:'完成全部 32 種怪異收容',target:32,progress:()=>containedAbnormalityCount(),reward:{gold:3000,box:8},badge:{id:'complete-keeper',name:'全域封存徽章',mark:'XIII'}}
+    {id:'RPG-H09',cat:'挑戰',name:'潮與迴廊的封條',desc:'收容沉潮港灣與無窗迴廊的全部 12 種怪異',target:12,progress:()=>areaContained('zone-5')+areaContained('zone-6'),reward:{gold:2200,box:6},badge:{id:'intermediate-keeper',name:'深域收容徽章',mark:'IX'}},
+    {id:'RPG-H10',cat:'挑戰',name:'深域討伐紀錄',desc:'沉潮港灣與無窗迴廊的 6 種普通敵人各擊敗至少 10 次',target:6,progress:()=>INTERMEDIATE_ENEMIES.filter(e=>['zone-5','zone-6'].includes(e.area)&&(state.exploration.enemyProgress[e.id]?.kills||0)>=10).length,reward:{gold:1600,box:4},badge:{id:'deep-hunter',name:'深域討伐徽章',mark:'X'}},
+    {id:'RPG-H11',cat:'挑戰',name:'三十六條歸路',desc:'前六區的全部 36 種地區限定事件各成功解決至少 3 次',target:36,progress:()=>EXPLORATION_EVENTS.filter(e=>!['zone-7','zone-8'].includes(e.area)&&(state.exploration.eventProgress[e.id]?.resolved||0)>=3).length,reward:{gold:2000,box:5},badge:{id:'six-region-guide',name:'六區勘察徽章',mark:'XI'}},
+    {id:'RPG-H12',cat:'挑戰',name:'遠行的全套工具',desc:'取得沉潮港灣與無窗迴廊的全部 6 種罪人裝備',target:6,progress:()=>Object.keys(REGIONAL_FIELD_GEAR).filter(id=>REGIONAL_FIELD_GEAR[id].areas.some(a=>['zone-5','zone-6'].includes(a))&&state.exploration.fieldGear.includes(id)).length,reward:{gold:1400,box:3},badge:{id:'deep-outfitter',name:'遠行整備徽章',mark:'XII'}},
+    {id:'RPG-H13',cat:'挑戰',name:'三十二份封存檔',desc:'完成前六區全部 32 種怪異收容',target:32,progress:()=>EXPLORATION_AREAS.filter(a=>!['zone-7','zone-8'].includes(a.id)).reduce((n,a)=>n+areaContained(a.id),0),reward:{gold:3000,box:8},badge:{id:'complete-keeper',name:'全域封存徽章',mark:'XIII'}}
+  );
+  defs.push(
+    {id:'RPG-A30',cat:'探索',name:'隔離線另一側',desc:'探索灰疫封鎖市',target:1,progress:()=>Number(state.exploration.stats.visited.includes('zone-7')),reward:{gold:400,water:4}},
+    {id:'RPG-A31',cat:'探索',name:'窗外沒有座標',desc:'探索寂星觀測站',target:1,progress:()=>Number(state.exploration.stats.visited.includes('zone-8')),reward:{gold:450,potion:3}},
+    {id:'RPG-A32',cat:'收容',name:'真正的撤離',desc:'收容灰疫封鎖市全部 6 種怪異',target:6,progress:()=>areaContained('zone-7'),reward:{gold:1200,box:4}},
+    {id:'RPG-A33',cat:'收容',name:'把未知留在窗外',desc:'收容寂星觀測站全部 6 種怪異',target:6,progress:()=>areaContained('zone-8'),reward:{gold:1500,box:5}},
+    {id:'RPG-A34',cat:'探索',name:'六條隔離側道',desc:'灰疫封鎖市 6 種事件各成功處置一次',target:6,progress:()=>FRONTIER_EVENTS.filter(e=>e.area==='zone-7'&&(state.exploration.eventProgress[e.id]?.resolved||0)>0).length,reward:{gold:500,potion:3}},
+    {id:'RPG-A35',cat:'探索',name:'訊號仍能返回',desc:'寂星觀測站 6 種事件各成功處置一次',target:6,progress:()=>FRONTIER_EVENTS.filter(e=>e.area==='zone-8'&&(state.exploration.eventProgress[e.id]?.resolved||0)>0).length,reward:{gold:600,potion:4}},
+    {id:'RPG-A36',cat:'裝備',name:'隔離與繫索',desc:'兩名罪人同時配置灰疫或寂星區域裝備',target:2,progress:()=>Object.values(state.exploration.sinners).filter(d=>FRONTIER_FIELD_GEAR[d.gear]).length,reward:{gold:500,box:2}},
+    {id:'RPG-A37',cat:'戰鬥',name:'新航線的清障',desc:'擊敗全部 6 種新區域普通敵人',target:6,progress:()=>FRONTIER_ENEMIES.filter(e=>(state.exploration.enemyProgress[e.id]?.kills||0)>0).length,reward:{gold:600,box:2}},
+    {id:'RPG-A38',cat:'探索',name:'八區足跡',desc:'探索全部 8 個區域',target:8,progress:()=>EXPLORATION_AREAS.filter(a=>state.exploration.stats.visited.includes(a.id)).length,reward:{gold:800,box:3}}
+  );
+  hard.push(
+    {id:'RPG-H14',cat:'挑戰',name:'灰疫與寂星的封條',desc:'收容新增兩區全部 12 種怪異',target:12,progress:()=>areaContained('zone-7')+areaContained('zone-8'),reward:{gold:3200,box:8},badge:{id:'frontier-keeper',name:'邊境收容徽章',mark:'XIV'}},
+    {id:'RPG-H15',cat:'挑戰',name:'隔離線外的獵手',desc:'新增兩區 6 種普通敵人各擊敗至少 10 次',target:6,progress:()=>FRONTIER_ENEMIES.filter(e=>(state.exploration.enemyProgress[e.id]?.kills||0)>=10).length,reward:{gold:2200,box:5},badge:{id:'frontier-hunter',name:'異域討伐徽章',mark:'XV'}},
+    {id:'RPG-H16',cat:'挑戰',name:'十二次未知的回信',desc:'新增兩區 12 種事件各成功處置至少 3 次',target:12,progress:()=>FRONTIER_EVENTS.filter(e=>(state.exploration.eventProgress[e.id]?.resolved||0)>=3).length,reward:{gold:2600,box:6},badge:{id:'frontier-guide',name:'未知勘察徽章',mark:'XVI'}},
+    {id:'RPG-H17',cat:'挑戰',name:'越過邊境的工具',desc:'取得新增兩區全部 6 種罪人裝備',target:6,progress:()=>Object.keys(FRONTIER_FIELD_GEAR).filter(id=>state.exploration.fieldGear.includes(id)).length,reward:{gold:2000,box:4},badge:{id:'frontier-outfitter',name:'邊境整備徽章',mark:'XVII'}},
+    {id:'RPG-H18',cat:'挑戰',name:'四十四份封存檔',desc:'收容八區全部 44 種怪異',target:44,progress:()=>containedAbnormalityCount(),reward:{gold:5000,box:12},badge:{id:'eight-region-keeper',name:'八區封存徽章',mark:'XVIII'}}
   );
   hard.forEach(d=>{d.hard=true;d.reward.badge=d.badge.id;defs.push(d)});
   window.RPG_ACHIEVEMENTS=defs;
