@@ -42,7 +42,7 @@ function regionalEventDialogue(names,ev,ctx={}){
   const other=names.find(n=>n!=='良秀');
   return Math.random()<.5?[action(other,regionalPersonalAction(other,focus)),speech('良秀',ev.lines['良秀']||'時間錯了。跟我走。'),action('良秀','良秀以指節敲了兩次刀鞘，在動作與聲音重新重合的空隙帶搭檔通過。')]:[speech('良秀',ev.lines['良秀']||'時間錯了。先別動。'),action('良秀','良秀先停在異常邊緣，辨清那一拍的差距才帶搭檔繞過。')];
  }
- if(names.includes('羅佳')&&names.includes('格里高爾')&&ev.theme==='lure')return [action('羅佳','羅佳靠近'+focus+'，停在伸手便能碰到的位置。'),speech('羅佳',ev.lines['羅佳']||'格雷格，你說再靠近一點會怎樣？'),speech('格里高爾',ev.lines['格里高爾']||'別拿自己試啊。先看看退路還在不在。'),action('羅佳','羅佳回頭看過出口，收回手，朝另一條路走去。')];
+ if(names.includes('羅佳')&&names.includes('格里高爾')&&ev.theme==='lure'&&ev.lines['羅佳']&&ev.lines['格里高爾'])return [action('羅佳','羅佳停下腳步，打量'+focus+'。'),speech('羅佳',ev.lines['羅佳']),speech('格里高爾',ev.lines['格里高爾']),action('羅佳',ev.success)];
  const voice=ev.lines[first]||FIELD_EVENT_VOICES[ev.theme][first];
  const lead=speech(first,voice),react=action(second,regionalPersonalAction(second,focus));
  const result=action(first,ev.success);
