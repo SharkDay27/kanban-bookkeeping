@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="終端記錄">
 <title>RPG 化記帳工具</title>
-<link rel="stylesheet" href="styles.css?v=20261003c">
+<link rel="stylesheet" href="styles.css?v=20261003d">
 </head>
 <body>
 <script>
@@ -41,7 +41,7 @@ window.addEventListener('pageshow',function(){
   <div class="notice wood panel zone zone-privacy">資料只保存在目前瀏覽器 localStorage。GitHub Pages 不會儲存你任何資料。換裝置或清除網站資料前，請先備份 JSON。</div>
 
   <div class="actions zone zone-actions compact-entry-actions">
-    <button id="addExpense" class="wood primary action-main">＋新增匯入發票</button>
+    <button id="addExpense" class="wood primary action-main">＋新增支出</button>
     <button id="addIncome" class="wood income-btn action-main">＋新增收入</button>
     <details class="other-functions">
       <summary class="wood action-main">其他功能 <span class="collapse-chevron">⌄</span></summary>
@@ -58,7 +58,7 @@ window.addEventListener('pageshow',function(){
   <div class="currency-console wood panel zone zone-currency" id="currencyConsole">
     <div class="currency-compact">
       <div>
-        <div class="currency-eyebrow">PRIMARY CURRENCY / 主要幣別</div>
+        <div class="currency-eyebrow"><span>PRIMARY CURRENCY</span><span class="currency-label-zh"> / 主要幣別</span></div>
         <div class="currency-note">僅切換顯示單位，不自動換算既有金額。</div>
       </div>
       <select id="currencySelect" class="wood currency-select" aria-label="選擇主要幣別">
@@ -113,9 +113,8 @@ window.addEventListener('pageshow',function(){
 
     <div class="main-grid">
       <details class="wood panel manager-profile" open>
-        <summary class="archive-header"><div><div class="archive-id">FILE // IDENTITY-ACCOUNT-01</div><div class="archive-title">執行經理檔案 / MANAGER IDENTITY</div></div><span class="collapse-chevron">⌄</span></summary><div class="manager-profile-body"><div class="sub">你被固定識別為 LCB 執行經理「但丁」。每完成 1 筆新記帳，獲得經理 EXP 與 1 次探索行動；編輯既有紀錄不重複獲得獎勵。</div>
+        <summary class="archive-header"><div><div class="archive-id">FILE // IDENTITY-ACCOUNT-01</div><div class="archive-title">執行經理檔案 / MANAGER IDENTITY</div></div><span class="collapse-chevron">⌄</span></summary><div class="manager-profile-body"><div class="sub">每完成 1 筆新記帳，獲得經理 EXP 與 1 次探索行動；編輯既有紀錄不重複獲得獎勵。</div>
         <div class="hero">
-          <div class="avatar" id="heroIcon"></div>
           <div>
             <div class="row"><div id="rank" style="font-size:18px;font-weight:900">但丁｜LCB 執行經理</div><div id="lv" style="font-size:18px;font-weight:900">Lv.1</div></div>
             <div style="margin:8px 0 6px;color:var(--muted);font-size:12px" id="xpText">0 / 100 EXP</div>
@@ -226,6 +225,7 @@ window.addEventListener('pageshow',function(){
           <div><span class="k">AVAILABLE ACTIONS / 可用行動</span><strong id="exploreActions">0</strong></div>
           <div class="sub">每次探索消耗 1 次行動。記帳新增成功時補充行動。只有普通敵人與怪異戰鬥會獲得罪人 EXP。事件及補給／裝備回收可能失敗並造成受傷，出發前請確認隊伍狀態。偶爾也會平安無事地返回。</div>
         </div>
+        <p id="explorationDebtNotice" class="exploration-action-debt" hidden></p>
         <div id="explorationAreas" class="exploration-area-grid"></div>
       </div>
 
@@ -449,33 +449,36 @@ window.addEventListener('pageshow',function(){
   </form>
 </dialog>
 
+<dialog id="fieldRevivalDialog" class="revival-dialog" aria-labelledby="fieldRevivalTitle"><div class="revival-dialog-body"><div class="archive-id">LCB // EMERGENCY REVIVAL</div><h2 id="fieldRevivalTitle"></h2><p id="fieldRevivalMessage"></p><div class="revival-dialog-actions"><button type="button" id="fieldRevivalCancel" class="wood">稍後復活</button><button type="button" id="fieldRevivalConfirm" class="wood primary">復活</button></div></div></dialog>
 <button type="button" id="backToTop" class="back-to-top wood" aria-label="回到頂端" title="回到頂端" hidden>↑<span>置頂</span></button>
-<script src="regional-content.js?v=20261003c"></script>
-<script src="regional-events.js?v=20261003c"></script>
-<script src="sinners.js?v=20261003c"></script>
-<script src="sinner-addresses.js?v=20261003c"></script>
-<script src="sinner-skills.js?v=20261003c"></script>
-<script src="area-exploration.js?v=20261003c"></script>
-<script src="enemies.js?v=20261003c"></script>
-<script src="araya-dialogues.js?v=20261003c"></script>
-<script src="dialogues.js?v=20261003c"></script>
-<script src="exploration-events.js?v=20261003c"></script>
-<script src="exploration-dialogues.js?v=20261003c"></script>
-<script src="regional-dialogues.js?v=20261003c"></script>
-<script src="compact-ui.js?v=20261003c"></script>
-<script src="app.js?v=20261003c"></script>
-<script src="item-rarity.js?v=20261003c"></script>
-<script src="equipment.js?v=20261003c"></script>
-<script src="item-economy.js?v=20261003c"></script>
-<script src="records.js?v=20261003c"></script>
-<script src="sinner-management.js?v=20261003c"></script>
-<script src="bestiary.js?v=20261003c"></script>
-<script src="exploration.js?v=20261003c"></script>
-<script src="exploration-shop.js?v=20261003c"></script>
-<script src="backpack.js?v=20261003c"></script>
-<script src="achievements.js?v=20261003c"></script>
-<script src="quests.js?v=20261003c"></script>
-<script src="statistics.js?v=20261003c"></script>
-<script src="manager-progress.js?v=20261003c"></script>
+<script src="regional-content.js?v=20261003d"></script>
+<script src="regional-events.js?v=20261003d"></script>
+<script src="sinners.js?v=20261003d"></script>
+<script src="sinner-addresses.js?v=20261003d"></script>
+<script src="sinner-skills.js?v=20261003d"></script>
+<script src="area-exploration.js?v=20261003d"></script>
+<script src="enemies.js?v=20261003d"></script>
+<script src="araya-dialogues.js?v=20261003d"></script>
+<script src="commentary-pairs.js?v=20261003d"></script>
+<script src="dialogues.js?v=20261003d"></script>
+<script src="exploration-events.js?v=20261003d"></script>
+<script src="exploration-dialogues.js?v=20261003d"></script>
+<script src="regional-dialogues.js?v=20261003d"></script>
+<script src="compact-ui.js?v=20261003d"></script>
+<script src="revival.js?v=20261003d"></script>
+<script src="app.js?v=20261003d"></script>
+<script src="item-rarity.js?v=20261003d"></script>
+<script src="equipment.js?v=20261003d"></script>
+<script src="item-economy.js?v=20261003d"></script>
+<script src="records.js?v=20261003d"></script>
+<script src="sinner-management.js?v=20261003d"></script>
+<script src="bestiary.js?v=20261003d"></script>
+<script src="exploration.js?v=20261003d"></script>
+<script src="exploration-shop.js?v=20261003d"></script>
+<script src="backpack.js?v=20261003d"></script>
+<script src="achievements.js?v=20261003d"></script>
+<script src="quests.js?v=20261003d"></script>
+<script src="statistics.js?v=20261003d"></script>
+<script src="manager-progress.js?v=20261003d"></script>
 </body>
 </html>

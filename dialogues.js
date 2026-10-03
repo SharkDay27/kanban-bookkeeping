@@ -50,14 +50,14 @@ const COMMENT_SCENES={
 function commentCategory(entry){return COMMENT_CATEGORIES.includes(entry.category)?entry.category:(entry.type==='income'?'其他收入':'其他')}
 function sinnerCommentLine(name,entry){if(name==='希斯克利夫'&&Number(entry.amount)>=(entry.type==='income'?100000:5000))return {speaker:name,text:'喂，這數字你最好再看一遍。',kind:'speech'};const cat=commentCategory(entry),i=COMMENT_CATEGORIES.indexOf(cat);return {speaker:name,text:(COMMENT_VOICES[name]||COMMENT_VOICES['格里高爾'])[i],kind:'speech'}}
 function authoredComment(entry,kind,previous){
- const cat=commentCategory(entry),scenes=COMMENT_SCENES[cat],scene=scenes[Math.floor(Math.random()*scenes.length)];
+ const cat=commentCategory(entry),scenes=[...COMMENT_SCENES[cat],...(typeof COMMENT_PAIR_SCENES==='undefined'?[]:COMMENT_PAIR_SCENES[cat]||[])],scene=scenes[Math.floor(Math.random()*scenes.length)];
  let lines,arayaAge;
  if(kind==='araya'){const scene=arayaCommentScene(entry);lines=scene.lines;arayaAge=scene.age;}
  else if(kind==='single'){const name=previous&&SINNERS.some(s=>s.name===previous)?previous:SINNERS[Math.floor(Math.random()*SINNERS.length)].name;lines=[sinnerCommentLine(name,entry)];}
  else{
-   lines=[{speaker:scene[0],text:scene[2],kind:'speech'},{speaker:scene[1],text:scene[3],kind:'speech'}];
+   lines=scene.lines?scene.lines.map(line=>({...line})):[{speaker:scene[0],text:scene[2],kind:'speech'},{speaker:scene[1],text:scene[3],kind:'speech'}];
    if(kind==='group'||kind==='all'){
-    const others=SINNERS.filter(s=>!scene.slice(0,2).includes(s.name));
+    const others=SINNERS.filter(s=>!(scene.names||scene.slice(0,2)).includes(s.name));
     const chosen=kind==='all'?others:others.slice().sort(()=>Math.random()-.5).slice(0,1+Math.floor(Math.random()*2));
     chosen.forEach(s=>lines.push(sinnerCommentLine(s.name,entry)));
    }

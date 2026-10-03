@@ -47,7 +47,7 @@
               unavailable=fieldGearAssignedElsewhere(id,name);
             }
             return '<option value="'+safeEsc(id)+'" '+(selected?'selected':'')+' '+(unavailable&&!selected?'disabled':'')+'>'+
-              safeEsc(FIELD_GEAR[id].name)+'（使用 '+fieldGearCounts(id).used+' / 未使用 '+fieldGearCounts(id).unused+'）'+'</option>';
+              safeEsc(FIELD_GEAR[id].name)+'｜'+safeEsc(fieldGearStatLabel(FIELD_GEAR[id]))+'（使用 '+fieldGearCounts(id).used+' / 未使用 '+fieldGearCounts(id).unused+'）'+'</option>';
           })
         ).join('');
 

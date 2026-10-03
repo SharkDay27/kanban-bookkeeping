@@ -1,5 +1,5 @@
 (function(){
- const VERSION=8;
+ const VERSION=9;
  const speech=(speaker,text)=>({speaker,text,kind:'speech'});
  const action=(speaker,text)=>({speaker,text,kind:'action'});
  const pick=arr=>arr[Math.floor(Math.random()*arr.length)];
@@ -294,8 +294,8 @@
   const has=n=>names.includes(n);
   if(kind==='enemy')return [];
   const fallen=names.filter(n=>(ctx.injuries||[]).some(i=>i.name===n&&i.hp<=0));
-  if(fallen.length===2)return [action(first,'兩人相繼倒下，現場通訊中斷。')];
-  if(fallen.length===1){const standing=names.find(n=>n!==fallen[0]);return [action(fallen[0],fallen[0]+'倒下後沒有回應。'),action(standing,standing+'退到同伴身旁，向終端回報位置並請求支援。')];}
+  if(fallen.length===2)return [action(first,'兩名罪人已倒下，現場通訊中斷。')];
+  if(fallen.length===1){const standing=names.find(n=>n!==fallen[0]);return [action(fallen[0],fallen[0]+'已倒下。'),action(standing,standing+'退到同伴身旁，向終端回報位置並請求支援。')];}
   if(kind==='event'&&ctx.success===false){const ev=EXPLORATION_EVENTS.find(e=>e.id===ctx.eventId),scene=regionalEventDialogue(names,ev,ctx);if(scene)return scene;}
   if(kind==='abnormality'){const scene=regionalAbnormalityDialogue(names,ctx);if(scene)return scene;}
   if(ctx.success===false&&['event','supply','gear'].includes(kind))return fieldFailureScene(first,second,kind,ctx);
@@ -323,7 +323,7 @@
   }
   if(kind==='abnormality'){
    const injury=n=>(ctx.injuries||[]).find(x=>x.name===n),a=injury(first),b=injury(second);
-   if(a?.hp<=0&&b?.hp<=0)return [action(first,'兩人相繼倒下，現場通訊中斷。')];
+   if(a?.hp<=0&&b?.hp<=0)return [action(first,'兩名罪人已倒下，現場通訊中斷。')];
    if(a?.hp<=0||b?.hp<=0){const fallen=a?.hp<=0?first:second,standing=fallen===first?second:first;return [action(fallen,fallen+'倒下後沒有回應。'),action(standing,standing+'移到同伴身旁，向終端回報位置並請求支援。')];}
    if(has('良秀')&&/時間|時序|時鐘|時間性|temporal/i.test([ctx.abnormalityType,ctx.abnormality].join(' ')))return [speech('良秀','又少了一瞬。別跟它的節奏走。'),action('良秀','良秀沒有收回刀，目光跟著仍慢了一拍的碎片移動，伸手將搭檔攔在原地。')];
    if(!ctx.success)return withdrawal(first,second);
@@ -352,8 +352,9 @@
   ensureExplorationState();const ex=state.exploration;
   const update=l=>{
    if(!l||l.dialogueVersion===VERSION||!(l.names||[]).length||l.kind==='revive')return false;
-   if(l.dialogueVersion===7){
+   if(l.dialogueVersion===7||l.dialogueVersion===8){
     l.dialogue=(l.dialogue||[]).map(line=>line.speaker==='良秀'&&line.text==='良秀接過袋子，指腹掠過封邊。'?{...line,text:'良秀接過袋子，指尖掠過封口。',kind:'action'}:line);
+    l.dialogue=(l.dialogue||[]).map(line=>({...line,text:String(line.text||'').replace(/倒下後沒有回應。/g,'已倒下。').replace('兩人相繼倒下，現場通訊中斷。','兩名罪人已倒下，現場通訊中斷。')}));
     l.dialogueVersion=VERSION;return true;
    }
    const ev=EXPLORATION_EVENTS.find(e=>String(l.title).includes(e.name));

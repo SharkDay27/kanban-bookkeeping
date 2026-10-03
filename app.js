@@ -433,11 +433,11 @@ function runExploration(){
   names.forEach(function(n){xpBySinner[n]=sinnerExplorationXp(n,xp,{area,kind,success:resultSuccess});if(xpBySinner[n]>0){const res=awardSinnerExp(n,xpBySinner[n]);if(res.after>res.before)levelUps.push(n+' Lv.'+res.after)}});
   if(levelUps.length)reward+=(reward?'；':'')+'升級：'+levelUps.join('、');
   const dialogue=kind==='enemy'?[]:typeof generateExplorationDialogue==='function'?generateExplorationDialogue(names,kind,ctx):[];
-  ex.lastResult={at:new Date().toISOString(),areaId:area.id,area:area.name,names:names,kind:kind,title:title,detail:detail,reward:reward,stamp:stamp,xp:xp,dialogue:dialogue,combat:combat,eventId:ctx.eventId,enemyId:ctx.enemyId,dialogueVersion:8,xpBySinner:xpBySinner,injuries:ctx.injuries||[],failureReason:ctx.failureReason||''};
+  ex.lastResult={at:new Date().toISOString(),areaId:area.id,area:area.name,names:names,kind:kind,title:title,detail:detail,reward:reward,stamp:stamp,xp:xp,dialogue:dialogue,combat:combat,eventId:ctx.eventId,enemyId:ctx.enemyId,dialogueVersion:9,xpBySinner:xpBySinner,injuries:ctx.injuries||[],failureReason:ctx.failureReason||''};
   ex.logs=Array.isArray(ex.logs)?ex.logs:[];
   ex.logs.unshift({
     at:ex.lastResult.at,areaId:area.id,area:area.name,names:[...names],kind:kind,title:title,detail:detail,
-    reward:reward,stamp:stamp,xp:xp,dialogue:Array.isArray(dialogue)?dialogue:[],combat:combat,eventId:ctx.eventId,enemyId:ctx.enemyId,dialogueVersion:8,xpBySinner:xpBySinner,injuries:ctx.injuries||[],failureReason:ctx.failureReason||''
+    reward:reward,stamp:stamp,xp:xp,dialogue:Array.isArray(dialogue)?dialogue:[],combat:combat,eventId:ctx.eventId,enemyId:ctx.enemyId,dialogueVersion:9,xpBySinner:xpBySinner,injuries:ctx.injuries||[],failureReason:ctx.failureReason||''
   });
   const dailyKey=localDateKey(ex.lastResult.at),daily=ex.dailyProgress[dailyKey]||(ex.dailyProgress[dailyKey]={runs:0,suppressions:0});
   daily.runs++;if(combat?.result?.success&&kind==='abnormality')daily.suppressions++;
@@ -451,6 +451,7 @@ function runExploration(){
   try{renderExploration();renderSinnerManagement();renderBestiary();renderBackpack();renderQuests();renderProgress()}catch(e){console.error('exploration render',e)}
   if($('exploreReportPanel'))$('exploreReportPanel').open=true;
   toast('探索完成：'+title);
+  handleExplorationKnockouts(names);
 }
 function containedAbnormalityCount(){
   ensureExplorationState();
@@ -486,6 +487,7 @@ function renderExploration(){
   if($('containedCountHome'))$('containedCountHome').textContent=containedAbnormalityCount();
   if($('exploreTeamHome'))$('exploreTeamHome').textContent=(ex.selected||[]).join('＋')||'未指定';
 
+  if($('explorationDebtNotice')){const debt=explorationActionDebt();$('explorationDebtNotice').hidden=!debt;$('explorationDebtNotice').textContent=debt?'已預扣 '+debt+' 次探索行動。之後新增記帳取得的行動會先抵銷欠額。':'';}
   if(typeof renderExplorationAreas==='function')renderExplorationAreas();
 
   const picker=$('explorationTeamPicker');
@@ -575,7 +577,7 @@ function renderSinnerManagement(){
     const p=SINNER_FIELD_PROFILES[name],data=state.exploration.sinners[name],lv=sinnerLevel(data),exp=data.exp%100,st=sinnerEffectiveStats(name),skills=unlockedFieldSkills(name);
     const options=['<option value="">LCB 標準裝備</option>'].concat(owned.map(function(id){
       const unavailable=fieldGearAssignedElsewhere(id,name),selected=data.gear===id;
-      return '<option value="'+id+'" '+(selected?'selected':'')+' '+(unavailable&&!selected?'disabled':'')+'>'+esc(FIELD_GEAR[id].name)+(unavailable&&!selected?'（已配置）':'')+'</option>';
+      return '<option value="'+id+'" '+(selected?'selected':'')+' '+(unavailable&&!selected?'disabled':'')+'>'+esc(FIELD_GEAR[id].name)+'｜'+esc(fieldGearStatLabel(FIELD_GEAR[id]))+(unavailable&&!selected?'（已配置）':'')+'</option>';
     })).join('');
     return '<article class="sinner-file wood">'+
       '<div class="sinner-file-head"><div><div class="archive-id">LCB // '+esc(name)+'</div><div class="sinner-file-name">'+esc(name)+'</div></div><div class="sinner-level">Lv.'+lv+'</div></div>'+
@@ -691,6 +693,7 @@ function useConsumable(kind,autoUse=false){
   ensurePlayerState();
   const item=CONSUMABLE_EFFECTS[kind];
   if(!item||Number(state.rpg.consumables[kind]||0)<=0)return false;
+  if(state.rpg.player.hp<=0){if(!autoUse)toast('倒下時不能使用消耗品恢復 HP');return false}
   if(state.rpg.player.hp>=state.rpg.player.maxHp){if(!autoUse)toast('HP 已滿');return false}
   state.rpg.consumables[kind]--;
   const before=state.rpg.player.hp;

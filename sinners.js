@@ -14,8 +14,8 @@ const SINNERS=[
  {id:'13',name:'格里高爾',address:'經理'}
 ];
 const SINNER_COLORS={
-  '李箱':'#3e6798',
-  '浮士德':'#237682',
+  '李箱':'#30363b',
+  '浮士德':'#ad527e',
   '堂吉訶德':'#9b790d',
   '良秀':'#b43e49',
   '默爾索':'#4d6b85',
@@ -163,16 +163,9 @@ function maybeAutoHealSinner(name){
   return {amount:0,item:''};
 }
 function reviveSinner(name){
-  ensureExplorationState();const ex=state.exploration,data=ex.sinners[name];
-  if(!data||data.hp>0)return;
-  if(ex.actions<=0){toast('沒有可用行動點數，無法復活');return}
-  ex.spent++;ex.actions=Math.max(0,state.entries.length-ex.spent);
-  data.hp=Math.max(1,Math.round(data.maxHp*0.5));
-  ex.logs=Array.isArray(ex.logs)?ex.logs:[];
-  ex.logs.unshift({at:new Date().toISOString(),area:'LCB 巴士',names:[name],kind:'revive',title:'罪人復活：'+name,detail:'消耗 1 次探索行動，恢復至 '+data.hp+' / '+data.maxHp+' HP。',reward:'',stamp:'REVIVED',xp:0,dialogue:[]});
-  saveLocal();try{renderExploration();renderSinnerManagement()}catch(e){console.error(e)}
-  toast(name+' 已復活');
+ const result=reviveFieldSinners([name]);if(result)toast(name+' 已復活'+(result.borrowed?'（已預扣 1 行動）':''));
 }
+
 function sinnerCombatDamage(name,ab,area){
  const st=sinnerEffectiveStats(name,{ab,area}),lv=sinnerLevel(state.exploration.sinners[name]),ef=sinnerSkillEffects(name,{ab,area});
  const support=equipmentEffects().allDamage||0,flat=(ef.flatDamage||0)+support;
