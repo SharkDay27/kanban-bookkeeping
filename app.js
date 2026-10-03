@@ -85,10 +85,10 @@ const FIELD_GEAR={
 };
 
 const EXPLORATION_AREAS=[
- {id:'zone-1',name:'廢棄商業區',level:1,risk:'LOW',desc:'封鎖後的商業街、百貨後場與地下通道。常見與消費、廣告、人群殘響相關的怪異。',abnos:['A-101','A-114','A-126','A-139','A-148']},
- {id:'zone-2',name:'地下維修層',level:3,risk:'MEDIUM',desc:'泵房、維修井、管線與輸送設備構成的複雜區域。機械型與聲響型怪異較常出現。',abnos:['A-203','A-227','A-241','A-256','A-269']},
- {id:'zone-3',name:'封鎖研究棟',level:5,risk:'HIGH',desc:'舊研究設施與觀測室仍殘留未終止的實驗。認知、鏡像與檔案型怪異密度較高。',abnos:['A-311','A-338','A-352','A-367','A-379']},
- {id:'zone-4',name:'外緣黑區',level:8,risk:'EXTREME',desc:'城市邊緣的失照區與廢棄軌道帶。空間、獵食與無法穩定觀測的高危怪異活動頻繁。',abnos:['A-402','A-417','A-431','A-446','A-459']}
+ {id:'zone-1',name:'廢棄商業區',level:1,risk:'LOW',desc:"封鎖後的商業街、百貨後場與地下通道。",abnos:['A-101','A-114','A-126','A-139','A-148']},
+ {id:'zone-2',name:'地下維修層',level:3,risk:'MEDIUM',desc:"泵房、維修井、管線與輸送設備構成的複雜區域。",abnos:['A-203','A-227','A-241','A-256','A-269']},
+ {id:'zone-3',name:'封鎖研究棟',level:5,risk:'HIGH',desc:"舊研究設施與觀測室仍殘留未終止的實驗。",abnos:['A-311','A-338','A-352','A-367','A-379']},
+ {id:'zone-4',name:'外緣黑區',level:8,risk:'EXTREME',desc:"城市邊緣的失照區與廢棄軌道帶。",abnos:['A-402','A-417','A-431','A-446','A-459']}
  ,...INTERMEDIATE_AREAS
 ].map(a=>({...a,tier:a.tier||'beginner',difficultyMultiplier:a.difficultyMultiplier||1}));
 

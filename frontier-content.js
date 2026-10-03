@@ -1,6 +1,6 @@
 /* Original fan regions: an infected city and a sealed station beyond a spatial transit gate. */
 const FRONTIER_AREAS=[
- {id:'zone-7',name:'灰疫封鎖市',level:18,requiredLevel:18,tier:'intermediate',difficultyMultiplier:2,risk:'HIGH',desc:'撤離警報停在同一天的感染都市。雨水流過廢棄醫院、警署與地下培養所；有些東西仍在等待被宣布痊癒。',abnos:['A-701','A-702','A-703','A-704','A-705','A-706']},
+ {id:'zone-7',name:'灰疫封鎖市',level:18,requiredLevel:18,tier:'intermediate',difficultyMultiplier:2,risk:'HIGH',desc:"撤離警報停在同一天的感染都市，有些東西仍在等待被宣布痊癒。",abnos:['A-701','A-702','A-703','A-704','A-705','A-706']},
  {id:'zone-8',name:'寂星觀測站',level:22,requiredLevel:22,tier:'intermediate',difficultyMultiplier:2,risk:'EXTREME',desc:'經空間轉接門抵達的深空觀測設施。密閉艙段仍有重力與空氣，窗外卻沒有已知星圖；遙遠訊號偶爾比提問更早抵達。',abnos:['A-801','A-802','A-803','A-804','A-805','A-806']}
 ];
 const FRONTIER_ABNORMALITIES={
