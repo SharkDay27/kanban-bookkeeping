@@ -2884,3 +2884,12 @@ dialog#dlg .dialog-close:hover,dialog#dlg .dialog-close:focus-visible{background
 .sinner-dossier .sinner-hp-bar{height:5px;border:0!important;border-radius:4px;background:#e7f0ea!important;margin-top:5px}
 .sinner-dossier .sinner-hp-bar>div{border-radius:inherit;background:#78a68c}
 .sinner-dossier.is-down .sinner-hp-row b{color:#a84750}
+
+/* Commentary actions have a visible label and their own paper tone. */
+.commentary-line.commentary-action{background:#f4f0e7!important;border:1px solid #e0d7c2!important;border-left:3px solid #b3a078!important}
+.commentary-action .commentary-text{font-family:"Noto Serif TC","Songti TC","PMingLiU",serif;font-style:italic;color:#5b5343!important}
+.commentary-action-label{display:block;width:max-content;margin-top:3px;padding:1px 5px;background:#e9e0cd;color:#6a593a;font-size:10px;font-weight:600;font-style:normal;line-height:1.5;letter-spacing:.3px}
+/* All sinner management fields use square corners. */
+:root[data-theme="light"] .sinner-management-grid .sinner-dossier,
+.sinner-management-grid,
+.sinner-management-grid *{border-radius:0!important}

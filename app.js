@@ -951,7 +951,8 @@ function renderCommentLines(comment){
   if(!comment||!Array.isArray(comment.lines))return '';
   return comment.lines.map(function(line){
     const color=typeof sinnerColorForSpeaker==='function'?sinnerColorForSpeaker(line.speaker):'#c9c5bb';
-    return '<div class="commentary-line" style="--speaker-color:'+color+'"><div class="commentary-speaker">'+speakerMarkup(line.speaker)+'</div><div class="commentary-text">'+esc(line.text)+'</div></div>';
+    const isAction=line.kind==='action';
+    return '<div class="commentary-line '+(isAction?'commentary-action':'commentary-speech')+'" style="--speaker-color:'+color+'"><div class="commentary-speaker">'+speakerMarkup(line.speaker)+(isAction?'<span class="commentary-action-label">動作／旁白</span>':'')+'</div><div class="commentary-text">'+esc(line.text)+'</div></div>';
   }).join('');
 }
 function showSinnerComment(comment){
