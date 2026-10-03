@@ -447,11 +447,11 @@ function runExploration(){
   names.forEach(function(n){xpBySinner[n]=sinnerExplorationXp(n,xp,{area,kind,success:resultSuccess});if(xpBySinner[n]>0){const res=awardSinnerExp(n,xpBySinner[n]);if(res.after>res.before)levelUps.push(n+' Lv.'+res.after)}});
   if(levelUps.length)reward+=(reward?'；':'')+'升級：'+levelUps.join('、');
   const dialogue=kind==='enemy'?[]:typeof generateExplorationDialogue==='function'?generateExplorationDialogue(names,kind,ctx):[];
-  ex.lastResult={at:new Date().toISOString(),areaId:area.id,area:area.name,names:names,kind:kind,title:title,detail:detail,reward:reward,stamp:stamp,xp:xp,dialogue:dialogue,combat:combat,eventId:ctx.eventId,enemyId:ctx.enemyId,dialogueVersion:7,xpBySinner:xpBySinner,injuries:ctx.injuries||[],failureReason:ctx.failureReason||''};
+  ex.lastResult={at:new Date().toISOString(),areaId:area.id,area:area.name,names:names,kind:kind,title:title,detail:detail,reward:reward,stamp:stamp,xp:xp,dialogue:dialogue,combat:combat,eventId:ctx.eventId,enemyId:ctx.enemyId,dialogueVersion:8,xpBySinner:xpBySinner,injuries:ctx.injuries||[],failureReason:ctx.failureReason||''};
   ex.logs=Array.isArray(ex.logs)?ex.logs:[];
   ex.logs.unshift({
     at:ex.lastResult.at,areaId:area.id,area:area.name,names:[...names],kind:kind,title:title,detail:detail,
-    reward:reward,stamp:stamp,xp:xp,dialogue:Array.isArray(dialogue)?dialogue:[],combat:combat,eventId:ctx.eventId,enemyId:ctx.enemyId,dialogueVersion:7,xpBySinner:xpBySinner,injuries:ctx.injuries||[],failureReason:ctx.failureReason||''
+    reward:reward,stamp:stamp,xp:xp,dialogue:Array.isArray(dialogue)?dialogue:[],combat:combat,eventId:ctx.eventId,enemyId:ctx.enemyId,dialogueVersion:8,xpBySinner:xpBySinner,injuries:ctx.injuries||[],failureReason:ctx.failureReason||''
   });
   const dailyKey=localDateKey(ex.lastResult.at),daily=ex.dailyProgress[dailyKey]||(ex.dailyProgress[dailyKey]={runs:0,suppressions:0});
   daily.runs++;if(combat?.result?.success&&kind==='abnormality')daily.suppressions++;
@@ -534,7 +534,7 @@ function renderExploration(){
       const speaker=typeof normalizeExplorationTraditional==='function'?normalizeExplorationTraditional(line.speaker):line.speaker;
       const txt=typeof normalizeExplorationTraditional==='function'?normalizeExplorationTraditional(line.text):line.text;
       const color=typeof sinnerColorForSpeaker==='function'?sinnerColorForSpeaker(speaker):'#d08b91';
-      return '<div class="explore-dialogue-line '+(line.kind==='action'?'action':'')+'"><b style="color:'+color+'">'+esc(speaker)+'</b><span>'+esc(txt)+'</span></div>';
+      return '<div class="explore-dialogue-line '+(line.kind==='action'?'action':'')+'"><b style="color:'+color+'">'+esc(speaker)+(speaker==='阿賴耶'?arayaAgeMarkup(line.arayaAge,true):'')+'</b><span>'+esc(txt)+'</span></div>';
     }).join('')
     :'';
 
@@ -558,7 +558,7 @@ function renderExploration(){
           const speaker=typeof normalizeExplorationTraditional==='function'?normalizeExplorationTraditional(line.speaker):line.speaker;
           const txt=typeof normalizeExplorationTraditional==='function'?normalizeExplorationTraditional(line.text):line.text;
           const color=(typeof sinnerColorForSpeaker==='function'?sinnerColorForSpeaker(speaker):'#d08b91');
-          return '<div class="'+(line.kind==='action'?'action':'')+'"><b style="color:'+color+'">'+esc(speaker)+'</b> <span>'+esc(txt)+'</span></div>';
+          return '<div class="'+(line.kind==='action'?'action':'')+'"><b style="color:'+color+'">'+esc(speaker)+(speaker==='阿賴耶'?arayaAgeMarkup(line.arayaAge,true):'')+'</b> <span>'+esc(txt)+'</span></div>';
         }).join('')+'</div>':'')+
       '</article>';
     }).join(''):'<div class="empty">尚無探索紀錄。</div>';
@@ -962,7 +962,7 @@ function showSinnerComment(comment){
   if(!comment)return;
   const dlg=$('commentDlg'),body=$('commentDlgBody'),tag=$('commentDlgTag');
   if(!dlg||!body)return;
-  body.innerHTML='<div class="commentary-meta" style="margin-bottom:8px">'+esc(comment.category||'未分類')+(arayaAgeLabel(comment)?' · 阿賴耶／'+esc(arayaAgeLabel(comment)):'')+(comment.amount!=null?' / '+money(comment.amount):'')+'</div>'+renderCommentLines(comment);
+  body.innerHTML='<div class="commentary-meta" style="margin-bottom:8px">'+esc(comment.category||'未分類')+arayaAgeMarkup(comment.arayaAge)+(comment.amount!=null?' / '+money(comment.amount):'')+'</div>'+renderCommentLines(comment);
   if(tag)tag.textContent=commentKindLabel(comment.kind).replace(/^.*\/\s*/,'');
   if(dlg.open)dlg.close();
   requestAnimationFrame(function(){
@@ -999,7 +999,7 @@ function commentEntryCard(entry,opts){
   }
   if(!lines.length)return '';
   const copy={...entry.comment,lines:lines};
-  return '<div class="commentary-entry wood kind-'+esc(entry.comment.kind)+' '+(opts.sinner?'compact-by-sinner':'')+'"><div class="commentary-head"><div><b>'+esc(entry.store)+'</b><div class="commentary-meta">'+esc(entry.date)+' / '+(entry.type==='income'?'收入':'支出')+' / '+esc(entry.category||'其他')+' / '+money(entry.amount)+(arayaAgeLabel(entry.comment)?' · 阿賴耶／'+esc(arayaAgeLabel(entry.comment)):'')+'</div></div><span class="commentary-tag '+(rare?'rare':'')+'">'+commentKindLabel(entry.comment.kind)+'</span></div><div class="commentary-lines">'+renderCommentLines(copy)+'</div></div>';
+  return '<div class="commentary-entry wood kind-'+esc(entry.comment.kind)+' '+(opts.sinner?'compact-by-sinner':'')+'"><div class="commentary-head"><div><b>'+esc(entry.store)+'</b><div class="commentary-meta">'+esc(entry.date)+' / '+(entry.type==='income'?'收入':'支出')+' / '+esc(entry.category||'其他')+' / '+money(entry.amount)+arayaAgeMarkup(entry.comment.arayaAge)+'</div></div><span class="commentary-tag '+(rare?'rare':'')+'">'+commentKindLabel(entry.comment.kind)+'</span></div><div class="commentary-lines">'+renderCommentLines(copy)+'</div></div>';
 }
 function setCommentaryView(view){
   commentaryView=view==='sinner'?'sinner':'time';

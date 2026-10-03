@@ -1,5 +1,5 @@
 (function(){
- const VERSION=7;
+ const VERSION=8;
  const speech=(speaker,text)=>({speaker,text,kind:'speech'});
  const action=(speaker,text)=>({speaker,text,kind:'action'});
  const pick=arr=>arr[Math.floor(Math.random()*arr.length)];
@@ -227,7 +227,7 @@
  '李箱':'未見滲漏。可收下。','浮士德':'底部完好。可以回收。','堂吉訶德':'完好無損！待吾一併收好！','良秀':'乾的。收。','默爾索':'未發現滲漏。','鴻璐':'沒有呢。連邊角都沒破。','希斯克利夫':'沒漏。拿著，別掉了。','以實瑪利':'沒問題。這份可以帶回去。','羅佳':'好好的呢。這份別落下了。','辛克萊':'沒漏，封口也還在。','奧提斯':'未見滲漏。可以裝袋。','格里高爾':'沒漏。還好，總算有份能用的。'
  };
  const CHECK_SUPPLY={
- '李箱':'李箱托住袋底，借著燈光查看折縫。','浮士德':'浮士德翻過包裝，沿底部的接縫看了一遍。','堂吉訶德':'堂吉訶德立刻接住袋子，彎腰查看底部。','良秀':'良秀接過袋子，指腹掠過封邊。','默爾索':'默爾索托穩包裝，將底部轉向光源。','鴻璐':'鴻璐把袋子翻過來，湊近看了看。','希斯克利夫':'希斯克利夫托起袋底，拍掉沾在上面的灰。','以實瑪利':'以實瑪利接住袋子，先看封口，再看底部。','羅佳':'羅佳抬起袋底，把壓在下面的標籤撥開。','辛克萊':'辛克萊伸手托住袋子，小心翻到背面。','奧提斯':'奧提斯將包裝托平，逐一查看接縫。','格里高爾':'格里高爾托住袋底，挪到亮一點的位置。'
+ '李箱':'李箱托住袋底，借著燈光查看折縫。','浮士德':'浮士德翻過包裝，沿底部的接縫看了一遍。','堂吉訶德':'堂吉訶德立刻接住袋子，彎腰查看底部。','良秀':'良秀接過袋子，指尖掠過封口。','默爾索':'默爾索托穩包裝，將底部轉向光源。','鴻璐':'鴻璐把袋子翻過來，湊近看了看。','希斯克利夫':'希斯克利夫托起袋底，拍掉沾在上面的灰。','以實瑪利':'以實瑪利接住袋子，先看封口，再看底部。','羅佳':'羅佳抬起袋底，把壓在下面的標籤撥開。','辛克萊':'辛克萊伸手托住袋子，小心翻到背面。','奧提斯':'奧提斯將包裝托平，逐一查看接縫。','格里高爾':'格里高爾托住袋底，挪到亮一點的位置。'
  };
  const SHOP_LOOK={
  '李箱':'李箱停在攤前，翻開背包裡的清單。','浮士德':'浮士德對照剩餘補給，查看攤上的標價。','堂吉訶德':'堂吉訶德湊近攤位，目光從補給移到了擺在旁邊的裝備。','良秀':'良秀掃過攤面，停在未開封的藥品旁。','默爾索':'默爾索清點背包，將需要補充的物品列出。','鴻璐':'鴻璐彎下腰，好奇地看著攤上的小物件。','希斯克利夫':'希斯克利夫翻起價牌，皺了皺眉。','以實瑪利':'以實瑪利先查看飲水與藥品的封裝。','羅佳':'羅佳已經走到攤前，拿起一件小物看了看價牌。','辛克萊':'辛克萊打開背包，重新數了一遍剩餘補給。','奧提斯':'奧提斯站在能看清通道的位置，留意攤位後方。','格里高爾':'格里高爾放下背包，揉了揉被背帶勒住的肩膀。'
@@ -350,6 +350,10 @@
   ensureExplorationState();const ex=state.exploration;
   const update=l=>{
    if(!l||l.dialogueVersion===VERSION||!(l.names||[]).length||l.kind==='revive')return false;
+   if(l.dialogueVersion===7){
+    l.dialogue=(l.dialogue||[]).map(line=>line.speaker==='良秀'&&line.text==='良秀接過袋子，指腹掠過封邊。'?{...line,text:'良秀接過袋子，指尖掠過封口。',kind:'action'}:line);
+    l.dialogueVersion=VERSION;return true;
+   }
    const ev=EXPLORATION_EVENTS.find(e=>String(l.title).includes(e.name));
    const ctx={eventId:l.eventId||ev?.id,success:l.combat?.result?.success??!['INCIDENT','ENGAGED','DEFEAT'].includes(l.stamp),abnormality:l.combat?.enemy?.name,abnormalityType:l.combat?.enemy?.type,failureReason:l.failureReason,injuries:l.injuries?.length?l.injuries:(l.combat?.allies||[]).map(a=>({name:a.name,hp:a.hp,damage:a.taken}))};
    l.dialogue=window.generateExplorationDialogue(l.names,l.kind,ctx);l.dialogueVersion=VERSION;return true;

@@ -1,5 +1,5 @@
 /* Original fan dialogue, informed by Chinese story transcripts; never concatenate analyst filler. */
-const COMMENTARY_VERSION=5;
+const COMMENTARY_VERSION=6;
 const COMMENT_CATEGORIES=['餐飲','飲料','交通','服飾','學習','日用品','訂閱','娛樂','醫療','其他','薪資','獎金','退款','零用錢','投資','禮金','其他收入'];
 const COMMENT_VOICES={
  '李箱':[
@@ -65,5 +65,5 @@ function authoredComment(entry,kind,previous){
  return {version:COMMENTARY_VERSION,kind,arayaAge,category:entry.category,amount:Number(entry.amount||0),createdAt:new Date().toISOString(),lines};
 }
 function generateSinnerComment(entry){const roll=Math.random();if(roll<.03)return authoredComment(entry,Math.random()<.15?'all':'group');if(roll<.16)return authoredComment(entry,'duo');const s=SINNERS[Math.floor(Math.random()*SINNERS.length)];return authoredComment(entry,s.name==='良秀'&&Math.random()<.82?'araya':'single',s.name)}
-function refreshSinnerComment(entry){const old=entry.comment;if(!old||old.version===COMMENTARY_VERSION)return old;if(old.kind!=='araya')return {...old,version:COMMENTARY_VERSION};const c=authoredComment(entry,['single','duo','group','all','araya'].includes(old.kind)?old.kind:'single',old.lines&&old.lines[0]&&old.lines[0].speaker);if(old.kind==='araya'&&ARAYA_AGES.some(a=>a.id===old.arayaAge)){const scene=arayaCommentScene(entry,old.arayaAge);c.lines=scene.lines;c.arayaAge=scene.age;}c.createdAt=old.createdAt||entry.date;return c}
+function refreshSinnerComment(entry){const old=entry.comment;if(!old||old.version===COMMENTARY_VERSION)return old;if(old.version===5&&old.kind==='araya')return {...old,version:COMMENTARY_VERSION,lines:(old.lines||[]).map(reviseArayaLine)};if(old.kind!=='araya')return {...old,version:COMMENTARY_VERSION};const c=authoredComment(entry,['single','duo','group','all','araya'].includes(old.kind)?old.kind:'single',old.lines&&old.lines[0]&&old.lines[0].speaker);if(old.kind==='araya'&&ARAYA_AGES.some(a=>a.id===old.arayaAge)){const scene=arayaCommentScene(entry,old.arayaAge);c.lines=scene.lines;c.arayaAge=scene.age;}c.createdAt=old.createdAt||entry.date;return c}
 function commentKindLabel(kind){return ({all:'RARE / 全員評議',group:'RARE / 多人評議',duo:'RARE / 雙人評議',araya:'SPECIAL / 良秀・阿賴耶'})[kind]||'SINGLE / 單人評議'}
