@@ -33,7 +33,7 @@
     const box=byId('entryRewardNotice');
     if(!box||!data){return}
     const levelText=data.levelUps>0?' · 升級 ×'+data.levelUps+' · 道具箱 '+safeNumber(data.itemBoxes):'';
-    box.innerHTML='<strong>記帳完成</strong>　EXP +'+safeNumber(data.xp)+'　｜　目前行動點 '+safeNumber(data.actions)+levelText;
+    box.innerHTML='<strong>記帳完成</strong>　EXP +'+safeNumber(data.xp)+'　｜　目前行動點 '+safeNumber(data.actions)+levelText+(data.dailyReward?.awarded?'<br><span>每日首次獎勵：額外行動 +1・瓶裝水 +1'+(data.dailyReward.debtPaid?'（行動已抵銷預扣欠額）':'')+'</span>':'');
     box.hidden=false;
   }
 

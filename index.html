@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="終端記錄">
 <title>RPG 化記帳工具</title>
-<link rel="stylesheet" href="styles.css?v=20261003h">
+<link rel="stylesheet" href="styles.css?v=20261003i">
 </head>
 <body>
 <script>
@@ -54,6 +54,8 @@ window.addEventListener('pageshow',function(){
       </div>
     </details>
   </div>
+
+  <div id="bookkeepingProgress" class="bookkeeping-progress wood" aria-live="polite"></div>
 
   <div class="currency-console wood panel zone zone-currency" id="currencyConsole">
     <div class="currency-compact">
@@ -415,6 +417,8 @@ window.addEventListener('pageshow',function(){
       <button type="button" data-entry-type="income">收入</button>
     </div>
 
+    <div class="bookkeeping-date-tools"><label for="edate">記帳日期</label><input id="edate" class="wood" type="date" required><button type="button" class="wood" data-bookkeeping-date="0">今天</button><button type="button" class="wood" data-bookkeeping-date="-1">昨天</button></div>
+    <details class="bookkeeping-quick-tools"><summary>常用項目／快速補記 <span aria-hidden="true">⌄</span></summary><div id="bookkeepingTemplates" class="bookkeeping-templates"></div><button type="button" class="wood" id="saveBookkeepingFavorite">★ 將目前內容存為常用</button><p>點選項目只會帶入內容；確認日期與金額後再儲存。</p></details>
     <div class="entry-primary">
       <div class="field amount-field">
         <label>金額</label>
@@ -432,9 +436,8 @@ window.addEventListener('pageshow',function(){
     </div>
 
     <details class="entry-advanced">
-      <summary>日期、付款方式、備註（選填）</summary>
+      <summary>付款方式、備註（選填）</summary>
       <div class="advanced-body form-grid">
-        <div class="field"><label>日期</label><input id="edate" class="wood" type="date" required></div>
         <div class="field"><label>付款方式</label><select id="epay" class="wood"><option>現金</option><option>轉帳</option><option>信用卡</option><option>支付寶</option><option>微信</option><option>其他</option></select></div>
         <div class="field" style="grid-column:1/-1"><label>備註</label><textarea id="enote" class="wood" placeholder="需要時再填即可"></textarea></div>
       </div>
@@ -451,36 +454,37 @@ window.addEventListener('pageshow',function(){
 
 <dialog id="fieldRevivalDialog" class="revival-dialog" aria-labelledby="fieldRevivalTitle"><div class="revival-dialog-body"><div class="archive-id">LCB // EMERGENCY REVIVAL</div><h2 id="fieldRevivalTitle"></h2><p id="fieldRevivalMessage"></p><div class="revival-dialog-actions"><button type="button" id="fieldRevivalCancel" class="wood">稍後復活</button><button type="button" id="fieldRevivalConfirm" class="wood primary">復活</button></div></div></dialog>
 <button type="button" id="backToTop" class="back-to-top wood" aria-label="回到頂端" title="回到頂端" hidden>↑<span>置頂</span></button>
-<script src="regional-content.js?v=20261003h"></script>
-<script src="regional-events.js?v=20261003h"></script>
-<script src="sinners.js?v=20261003h"></script>
-<script src="sinner-addresses.js?v=20261003h"></script>
-<script src="sinner-skills.js?v=20261003h"></script>
-<script src="area-exploration.js?v=20261003h"></script>
-<script src="enemies.js?v=20261003h"></script>
-<script src="commentary-amounts.js?v=20261003h"></script>
-<script src="araya-dialogues.js?v=20261003h"></script>
-<script src="commentary-pairs.js?v=20261003h"></script>
-<script src="dialogues.js?v=20261003h"></script>
-<script src="exploration-events.js?v=20261003h"></script>
-<script src="exploration-dialogues.js?v=20261003h"></script>
-<script src="regional-dialogues.js?v=20261003h"></script>
-<script src="compact-ui.js?v=20261003h"></script>
-<script src="field-combat.js?v=20261003h"></script>
-<script src="revival.js?v=20261003h"></script>
-<script src="app.js?v=20261003h"></script>
-<script src="item-rarity.js?v=20261003h"></script>
-<script src="equipment.js?v=20261003h"></script>
-<script src="item-economy.js?v=20261003h"></script>
-<script src="records.js?v=20261003h"></script>
-<script src="sinner-management.js?v=20261003h"></script>
-<script src="bestiary.js?v=20261003h"></script>
-<script src="exploration.js?v=20261003h"></script>
-<script src="exploration-shop.js?v=20261003h"></script>
-<script src="backpack.js?v=20261003h"></script>
-<script src="achievements.js?v=20261003h"></script>
-<script src="quests.js?v=20261003h"></script>
-<script src="statistics.js?v=20261003h"></script>
-<script src="manager-progress.js?v=20261003h"></script>
+<script src="regional-content.js?v=20261003i"></script>
+<script src="regional-events.js?v=20261003i"></script>
+<script src="sinners.js?v=20261003i"></script>
+<script src="sinner-addresses.js?v=20261003i"></script>
+<script src="sinner-skills.js?v=20261003i"></script>
+<script src="area-exploration.js?v=20261003i"></script>
+<script src="enemies.js?v=20261003i"></script>
+<script src="commentary-amounts.js?v=20261003i"></script>
+<script src="araya-dialogues.js?v=20261003i"></script>
+<script src="commentary-pairs.js?v=20261003i"></script>
+<script src="dialogues.js?v=20261003i"></script>
+<script src="exploration-events.js?v=20261003i"></script>
+<script src="exploration-dialogues.js?v=20261003i"></script>
+<script src="regional-dialogues.js?v=20261003i"></script>
+<script src="compact-ui.js?v=20261003i"></script>
+<script src="field-combat.js?v=20261003i"></script>
+<script src="revival.js?v=20261003i"></script>
+<script src="bookkeeping-habits.js?v=20261003i"></script>
+<script src="app.js?v=20261003i"></script>
+<script src="item-rarity.js?v=20261003i"></script>
+<script src="equipment.js?v=20261003i"></script>
+<script src="item-economy.js?v=20261003i"></script>
+<script src="records.js?v=20261003i"></script>
+<script src="sinner-management.js?v=20261003i"></script>
+<script src="bestiary.js?v=20261003i"></script>
+<script src="exploration.js?v=20261003i"></script>
+<script src="exploration-shop.js?v=20261003i"></script>
+<script src="backpack.js?v=20261003i"></script>
+<script src="achievements.js?v=20261003i"></script>
+<script src="quests.js?v=20261003i"></script>
+<script src="statistics.js?v=20261003i"></script>
+<script src="manager-progress.js?v=20261003i"></script>
 </body>
 </html>

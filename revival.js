@@ -1,5 +1,5 @@
 /* Revival is a separate operation: one charge per operation, including a two-person wipe. */
-function explorationActionDebt(){return Math.max(0,state.exploration.spent-state.entries.length)}
+function explorationActionDebt(){return Math.max(0,state.exploration.spent-(state.entries.length+(state.exploration.bonusActions||0)))}
 function refreshRevivalViews(){
  for(const fn of [window.renderExploration,window.renderRpg,window.forceRenderSinnerManagement])if(typeof fn==='function')fn();
 }
@@ -7,7 +7,7 @@ function reviveFieldSinners(names,automatic=false){
  ensureExplorationState();const ex=state.exploration,fallen=[...new Set(names)].filter(n=>ex.sinners[n]&&ex.sinners[n].hp<=0);
  if(!fallen.length)return null;
  const borrowed=ex.actions<=0;
- ex.spent++;ex.actions=Math.max(0,state.entries.length-ex.spent);
+ ex.spent++;ex.actions=Math.max(0,state.entries.length+(ex.bonusActions||0)-ex.spent);
  fallen.forEach(n=>ex.sinners[n].hp=Math.max(1,Math.round(ex.sinners[n].maxHp*.5)));
  const debt=explorationActionDebt(),cost=borrowed?'預扣 1 次探索行動':'消耗 1 次探索行動';
  const detail='但丁轉動時鐘，'+(automatic?'強行將兩名罪人從死亡中帶回。':'讓'+fallen.join('、')+'重新甦醒。')+cost+'，'+fallen.map(n=>n+' 恢復至 '+ex.sinners[n].hp+' / '+ex.sinners[n].maxHp+' HP').join('；')+'。'+(debt?'目前尚欠 '+debt+' 次行動；之後新增記帳取得的行動會先抵銷欠額。':'');

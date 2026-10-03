@@ -2799,3 +2799,26 @@ dialog#dlg .dialog-close:hover,dialog#dlg .dialog-close:focus-visible{background
 .combat-event.event-cover,.combat-event.event-heal{background:#e6f3eb;color:#36664b}
 .combat-event.event-hurt,.combat-event.event-down,.combat-event.event-deathEffect{background:#f9e8e2;color:#863f34}
 @media(max-width:700px){.combat-round>summary{flex-wrap:wrap;gap:4px}.combat-rounds>summary{font-size:11px}.field-heal-policy{padding:8px}}
+
+.bookkeeping-progress{padding:10px 12px;background:#eef6ef!important;border:1px solid #a9c8b1;border-radius:8px;margin:8px 0;color:#355d45}
+.habit-progress-head{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:13px}
+.habit-progress-head strong span{font-weight:500;font-size:11px}
+.habit-daily{background:#f6e9c9;color:#795720;padding:4px 7px;border-radius:5px;font-size:11px}
+.habit-daily.claimed{background:#dcebdd;color:#42634a}
+.habit-progress-summary{display:flex;gap:6px 16px;flex-wrap:wrap;margin-top:6px;font-size:11px;color:#4c6857}
+.bookkeeping-date-tools{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;align-items:center;gap:6px;margin:10px 0}
+.bookkeeping-date-tools label{font-size:12px;font-weight:700;color:#43606c}
+.bookkeeping-date-tools input{width:100%;min-width:0;padding:5px;height:34px;box-sizing:border-box}
+.bookkeeping-date-tools button{padding:5px 8px;font-size:11px;min-height:32px}
+.bookkeeping-quick-tools{margin:6px 0 10px;background:#f0f5f8;border:1px solid #c1d4dd;border-radius:6px;padding:0;min-height:0!important}
+.bookkeeping-quick-tools>summary{display:flex;justify-content:space-between;cursor:pointer;padding:8px 10px;font-size:12px;color:#416170;font-weight:800;list-style:none}
+.bookkeeping-quick-tools>summary::-webkit-details-marker{display:none}
+.bookkeeping-quick-tools p{margin:8px 10px;font-size:11px;color:#56717e;line-height:1.5}
+.bookkeeping-templates{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;padding:8px 10px}
+.habit-template{display:flex;gap:3px;min-width:0}
+.habit-template>button:first-child{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:3px;flex:1;min-width:0;padding:7px 8px;text-align:left;font-size:12px}
+.habit-template span,.habit-template small{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.habit-template small{font-size:10px;color:#58717b}
+.template-remove{background:#f4dfd9;color:#8a4237;border:1px solid #d3a196;border-radius:5px;width:26px;padding:0;cursor:pointer}
+#saveBookkeepingFavorite{margin:0 10px;padding:6px 9px;font-size:11px}
+@media(max-width:350px){.bookkeeping-date-tools{grid-template-columns:minmax(0,1fr) auto auto}.bookkeeping-date-tools label{grid-column:1/-1}.habit-progress-head{font-size:12px}}

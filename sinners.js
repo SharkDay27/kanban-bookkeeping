@@ -74,7 +74,8 @@ function ensureExplorationState(){
   }
   if(!['balanced','potionFirst','conserve'].includes(state.exploration.healPolicy))state.exploration.healPolicy='balanced';
   state.exploration.spent=Math.max(0,Number(state.exploration.spent||0));
-  state.exploration.earned=state.entries.length;
+  state.exploration.bonusActions=Math.max(0,Number(state.exploration.bonusActions||0));
+  state.exploration.earned=state.entries.length+state.exploration.bonusActions;
   state.exploration.actions=Math.max(0,state.exploration.earned-state.exploration.spent);
   state.exploration.logs=Array.isArray(state.exploration.logs)?state.exploration.logs:[];
   state.exploration.activeShop=state.exploration.activeShop||null;
@@ -111,7 +112,7 @@ function ensureExplorationState(){
   });
 }
 function grantExplorationActions(n){
-  // 行動點數由「目前記帳筆數 - 已消耗探索次數」直接推導，避免不同畫面不同步。
+  // 行動點數由「目前記帳筆數 + 額外獎勵行動 - 已消耗探索次數」直接推導，避免不同畫面不同步。
   ensureExplorationState();
   return state.exploration.actions;
 }
