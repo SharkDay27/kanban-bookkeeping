@@ -1,7 +1,7 @@
 (function(){
   const SUPPLIES={water:{name:'瓶裝水',rarity:'common',basePrice:12,desc:'依出發前的自動補給策略使用，回復 25 HP。'},potion:{name:'小型治療藥水',rarity:'uncommon',basePrice:30,desc:'依出發前的自動補給策略使用，回復 45 HP。'}};
   const GEAR_PRICES={'runner-boots':115,'field-vest':125,'survey-lens':130,'shock-baton':140,'field-kit':210};
-  const AREA_SHOPS={'zone-7':{name:'隔離線回收亭',flavor:'仍在運作的回收亭只接收封裝完好的物資，提供污染區作業工具。',mult:1.85},'zone-8':{name:'轉接艙補給庫',flavor:'交易透過密閉轉運櫃完成，供貨端要求先固定回收袋再開櫃。',mult:2.05},'zone-5':{name:'潮線回收艇',flavor:'繫在高處的回收艇販售耐壓用品，交易前請確認岸上繫索。',mult:1.5},'zone-6':{name:'黃牆補給間',flavor:'商販在門框留下自己的記號，貨架上放著導引線與備用信標。',mult:1.7},'zone-1':{name:'封鎖線雜貨攤',flavor:'撤離區留下的臨時商販，價格最接近基準。',mult:1},'zone-2':{name:'維修層零件販子',flavor:'貨物多由維修通道回收，運送成本略高。',mult:1.08},'zone-3':{name:'研究棟回收櫃',flavor:'高危區物資有額外風險成本。',mult:1.18},'zone-4':{name:'黑區行腳商',flavor:'深入黑區的物流風險最高，但裝備種類也較多。',mult:1.30}};
+  const AREA_SHOPS={'zone-7':{name:'隔離線回收亭',flavor:'隔離線旁的回收亭仍有人值守，只收包裝完好、沒有滲漏的物資。這裡也賣能帶進污染區的工具。',mult:1.85},'zone-8':{name:'轉接艙補給庫',flavor:'補給透過密閉的轉運櫃送來。開櫃前得先扣好回收袋，免得物資飄走。',mult:2.05},'zone-5':{name:'潮線回收艇',flavor:'回收艇繫在碼頭高處，艇上賣些能耐水壓的用品。登艇前，先確認岸邊的纜繩還固定著。',mult:1.5},'zone-6':{name:'黃牆補給間',flavor:'商販在門框上留了記號，方便客人找回這間補給室。貨架上放著導引線和備用信標。',mult:1.7},'zone-1':{name:'封鎖線雜貨攤',flavor:'撤離區裡還有一個臨時雜貨攤。賣的是常用物資，價格比深處的商店便宜。',mult:1},'zone-2':{name:'維修層零件販子',flavor:'攤上的零件大多是從維修通道撿回來的。因為不容易運出來，價格比商街稍高。',mult:1.08},'zone-3':{name:'研究棟回收櫃',flavor:'研究棟裡的回收櫃仍能交易。物資取得不易，價格也比外面的攤位高。',mult:1.18},'zone-4':{name:'黑區行腳商',flavor:'商人帶著貨物深入黑區，賣的裝備比初級區域其他商店多。路不好走，價格也更高。',mult:1.30}};
   window.EXPLORATION_SHOP_CATALOG=AREA_SHOPS;
   let mode='buy',stockSequence=0;
   const round=n=>Math.max(1,Math.round(n/5)*5),sid=()=>('S-'+Date.now().toString(36)+'-'+(stockSequence++).toString(36)+'-'+Math.random().toString(36).slice(2,7));
