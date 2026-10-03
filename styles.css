@@ -2779,3 +2779,23 @@ dialog#dlg .dialog-close:hover,dialog#dlg .dialog-close:focus-visible{background
 #explorationTeamPicker{scroll-margin-top:16px}
 .panel:has(#explorationTeamPicker){scroll-margin-top:16px}
 @media(max-width:700px){.sinner-dossier>summary{padding:10px 12px;min-height:56px}.sinner-dossier-status{gap:6px}.sinner-summary-hp{font-size:10px}.sinner-dossier-body{padding:10px 12px}}
+
+/* Tactics and optional per-round reports share the light archive palette. */
+.field-heal-policy{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:8px;margin-top:12px;padding:10px;background:#edf4f6;border:1px solid #c0d5de;border-radius:8px}
+.field-heal-policy label{font-size:12px;font-weight:800;color:#365d6c}
+.field-heal-policy select{width:100%;min-height:34px;padding:5px 8px}
+.field-heal-policy p{grid-column:1/-1;margin:0;font-size:12px;line-height:1.5;color:#4e6670}
+.combat-rounds{margin-top:8px;border:1px solid #b8ccd5;background:#f5f9fa;border-radius:8px;overflow:hidden}
+.combat-rounds>summary,.combat-round>summary{cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 10px;font-size:12px;font-weight:800;color:#365b6c}
+.combat-rounds summary::-webkit-details-marker{display:none}
+.combat-rounds summary:focus-visible{outline:2px solid #6593a5;outline-offset:-2px}
+.combat-rounds-body{padding:0 8px 8px;display:grid;gap:6px}
+.combat-round{border:1px solid #d1dfe5;background:#fff;border-radius:6px}
+.combat-round>summary{font-size:11px;background:#e9f1f4}
+.combat-round>summary span{font-weight:500}
+.combat-round ol{margin:0;padding:8px 10px 8px 28px;display:grid;gap:5px}
+.combat-event{font-size:12px;line-height:1.55;color:#405c67;padding:3px 5px;border-radius:4px;overflow-wrap:anywhere}
+.combat-event.event-expose,.combat-event.event-interrupt,.combat-event.event-dodge{background:#e6edf9;color:#3f5b86}
+.combat-event.event-cover,.combat-event.event-heal{background:#e6f3eb;color:#36664b}
+.combat-event.event-hurt,.combat-event.event-down,.combat-event.event-deathEffect{background:#f9e8e2;color:#863f34}
+@media(max-width:700px){.combat-round>summary{flex-wrap:wrap;gap:4px}.combat-rounds>summary{font-size:11px}.field-heal-policy{padding:8px}}

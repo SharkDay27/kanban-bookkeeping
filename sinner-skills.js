@@ -49,6 +49,22 @@ const SINNER_SKILL_EFFECTS={
   {desc:'探索戰鬥未獲勝時，額外獲得 6 EXP',when:'failure',effects:{flatXp:6}},
   {desc:'HP 低於 50%：穩定 +3',when:'lowHp',effects:{stability:3}}]
 };
+// Extend existing unlocks with visible tactical effects; no additional skill slots.
+const FIELD_TACTICAL_UPGRADES=[
+ ['李箱',0,{exposeChance:.12},'弱點辨識機率額外 +12%'],
+ ['浮士德',0,{interruptChance:.10},'每回合打斷基礎機率 10%，觀察會額外修正'],
+ ['堂吉訶德',1,{evasion:.05},'閃避機率額外 +5%'],
+ ['良秀',1,{interruptChance:.06},'每回合打斷基礎機率 6%，觀察會額外修正'],
+ ['默爾索',0,{coverReduction:.25,coverChance:.4},'HP 高於 30% 時有 40% 機率掩護搭檔，減少其 25% 傷害；自身承受減少量的一半'],
+ ['鴻璐',0,{evasion:.06},'閃避機率額外 +6%'],
+ ['希斯克利夫',1,{interruptChance:.12},'每回合打斷基礎機率 12%，觀察會額外修正'],
+ ['以實瑪利',0,{coverReduction:.15,coverChance:.3},'HP 高於 30% 時有 30% 機率掩護搭檔，減少其 15% 傷害；自身承受減少量的一半'],
+ ['羅佳',1,{coverReduction:.12,coverChance:.3},'HP 高於 30% 時有 30% 機率掩護搭檔，減少其 12% 傷害；自身承受減少量的一半'],
+ ['辛克萊',2,{evasion:.10},'低 HP 條件下閃避機率額外 +10%'],
+ ['奧提斯',0,{interruptChance:.12},'每回合打斷基礎機率 12%，觀察會額外修正'],
+ ['格里高爾',0,{coverReduction:.20,coverChance:.35},'HP 高於 30% 時有 35% 機率掩護搭檔，減少其 20% 傷害；自身承受減少量的一半']
+];
+FIELD_TACTICAL_UPGRADES.forEach(([name,index,effects,desc])=>{const skill=SINNER_SKILL_EFFECTS[name][index];Object.assign(skill.effects,effects);skill.desc+='；'+desc;});
 Object.entries(SINNER_SKILL_EFFECTS).forEach(([name,defs])=>defs.forEach((d,i)=>Object.assign(SINNER_FIELD_PROFILES[name].skills[i],d)));
 function temporalAbnormality(ab){return /時間|時序|時鐘|時間性|temporal/i.test([ab?.type,ab?.name].join(' '))}
 function sinnerSkillEnabled(name,skill,ctx={}){

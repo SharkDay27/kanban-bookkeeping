@@ -352,7 +352,7 @@ function runExploration(){
     const remainingPool=availableAbnormalities(area),id=remainingPool[Math.floor(Math.random()*remainingPool.length)],ab=ABNORMALITY_CATALOG[id];
     if(!ex.seenAbnormalities.includes(id))ex.seenAbnormalities.push(id);
     const prog=ex.abnormalityProgress[id]||{kills:0,contained:false};
-    const {maxHp,attacks,remaining,killed,injuries,rounds}=resolveAbnormalityCombat(names,{...ab,id},area);
+    const {maxHp,attacks,remaining,killed,injuries,rounds,timeline,healPolicy,stopReason}=resolveAbnormalityCombat(names,{...ab,id},area);
     resultSuccess=killed;
     if(killed){
       prog.kills++;
@@ -370,7 +370,7 @@ function runExploration(){
       return x.name+(x.damage?' 受到 '+x.damage+' 傷害，HP '+x.hp+' / '+x.maxHp:' 未受傷')+
         (x.healed.amount?'，自動使用'+x.healed.item+' +'+x.healed.amount:'')+(x.hp<=0?'【倒下】':'');
     }).join('；');
-    detail+=' '+injuryText+'。'+(area.tier==='intermediate'?' 共交戰 '+rounds+' 回合。':'');
+    detail+=' '+injuryText+'。'+' 共交戰 '+rounds+' 回合。';
     ex.abnormalityProgress[id]=prog;
     ex.encounters[id]=(ex.encounters[id]||0)+1;
     combat={
@@ -379,7 +379,7 @@ function runExploration(){
         const inj=injuries.find(function(x){return x.name===hit.name})||{damage:0,hp:0,maxHp:100,healed:{amount:0,item:''}};
         return {name:hit.name,damage:hit.damage,notes:hit.notes||[],taken:inj.damage||0,hp:inj.hp,maxHp:inj.maxHp,healed:inj.healed||{amount:0,item:''}};
       }),
-      result:{success:killed,contained:!!prog.contained,progress:Math.min(prog.kills,ab.kills),required:ab.kills}
+      timeline,healPolicy,result:{rounds,stopReason,success:killed,contained:!!prog.contained,progress:Math.min(prog.kills,ab.kills),required:ab.kills}
     };
     ctx.abnormality=ab.name;ctx.abnormalityId=id;ctx.abnormalityType=ab.type;ctx.success=resultSuccess;ctx.attacks=attacks;ctx.injuries=injuries;ctx.remaining=remaining;ctx.maxHp=maxHp;
   }else if(kind==='event'){
@@ -468,9 +468,9 @@ function renderCombatBreakdown(combat){
     return '<div class="combat-report-row ally"><div class="combat-report-label">ALLY / 我方</div><div class="combat-report-main"><strong>'+esc(x.name)+'</strong><span>造成 '+x.damage+' 傷害'+notes+taken+' · HP '+x.hp+' / '+x.maxHp+healed+'</span></div></div>';
   }).join('');
   const resultText=ordinary?(result.success?'戰鬥勝利':'隊伍停止交戰'):result.contained?'正式收容完成':result.success?'有效制壓完成':'怪異未被擊倒';
-  const progress=ordinary?'交戰 '+Number(result.rounds||1)+' 回合':'收容進度 '+Number(result.progress||0)+' / '+Number(result.required||0);
+  const progress=ordinary?'交戰 '+Number(result.rounds||1)+' 回合':'交戰 '+Number(result.rounds||1)+' 回合 · 收容進度 '+Number(result.progress||0)+' / '+Number(result.required||0);
   const resultHtml='<div class="combat-report-row outcome '+(result.success?'success':'pending')+'"><div class="combat-report-label">RESULT / 結果</div><div class="combat-report-main"><strong>'+resultText+'</strong><span>'+progress+'</span></div></div>';
-  return '<div class="combat-report">'+enemyHtml+allyHtml+resultHtml+'</div>';
+  return '<div class="combat-report">'+enemyHtml+allyHtml+resultHtml+'</div>'+renderFieldRounds(combat);
 }
 function explorationStatusClass(stamp){
   const classes={VICTORY:'victory',DEFEAT:'defeat',RESOLVED:'resolved',ENGAGED:'engaged',SUPPLY:'supply',GEAR:'gear',SHOP:'shop',CONTAINED:'contained',SUPPRESSED:'suppressed',INCIDENT:'incident',CLEAR:'clear'};
@@ -490,6 +490,11 @@ function renderExploration(){
   if($('explorationDebtNotice')){const debt=explorationActionDebt();$('explorationDebtNotice').hidden=!debt;$('explorationDebtNotice').textContent=debt?'已預扣 '+debt+' 次探索行動。之後新增記帳取得的行動會先抵銷欠額。':'';}
   if(typeof renderExplorationAreas==='function')renderExplorationAreas();
 
+  if($('fieldHealPolicy')){
+    $('fieldHealPolicy').value=fieldHealPolicy();
+    $('fieldHealPolicyHelp').textContent=FIELD_HEAL_POLICIES[fieldHealPolicy()].desc;
+    $('fieldHealPolicy').onchange=function(){state.exploration.healPolicy=this.value;saveLocal();$('fieldHealPolicyHelp').textContent=FIELD_HEAL_POLICIES[fieldHealPolicy()].desc};
+  }
   const picker=$('explorationTeamPicker');
   if(picker){
     picker.innerHTML=Object.keys(SINNER_FIELD_PROFILES).map(function(name){

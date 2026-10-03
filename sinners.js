@@ -72,6 +72,7 @@ function ensureExplorationState(){
       lastResult:null
     };
   }
+  if(!['balanced','potionFirst','conserve'].includes(state.exploration.healPolicy))state.exploration.healPolicy='balanced';
   state.exploration.spent=Math.max(0,Number(state.exploration.spent||0));
   state.exploration.earned=state.entries.length;
   state.exploration.actions=Math.max(0,state.exploration.earned-state.exploration.spent);
@@ -146,22 +147,7 @@ function teamFieldPower(names,area){
   relief+=ef.levelPenaltyRelief||0;
  });return total-area.level*2*(1-relief/names.length);
 }
-function maybeAutoHealSinner(name){
-  const data=state.exploration.sinners[name];ensurePlayerState();
-  if(data.hp<=0)return {amount:0,item:''};
-  const ratio=data.hp/data.maxHp;
-  if(ratio<=0.45&&(state.rpg.consumables.water||0)>0){
-    state.rpg.consumables.water--;
-    const before=data.hp;data.hp=Math.min(data.maxHp,data.hp+25);
-    return {amount:data.hp-before,item:'瓶裝水'};
-  }
-  if(ratio<=0.20&&(state.rpg.consumables.potion||0)>0){
-    state.rpg.consumables.potion--;
-    const before=data.hp;data.hp=Math.min(data.maxHp,data.hp+45);
-    return {amount:data.hp-before,item:'小型治療藥水'};
-  }
-  return {amount:0,item:''};
-}
+function maybeAutoHealSinner(name){return applyFieldHealing(name)}
 function reviveSinner(name){
  const result=reviveFieldSinners([name]);if(result)toast(name+' 已復活'+(result.borrowed?'（已預扣 1 行動）':''));
 }
@@ -174,8 +160,8 @@ function sinnerCombatDamage(name,ab,area){
  const raw=st.combat*2.1+st.observe*.55+lv*1.7+flat+Math.random()*6;
  return {damage:Math.max(1,Math.round(raw*(1+(ef.damageBonus||0)))),notes};
 }
-function sinnerIncomingDamage(name,ab,killed){
- const st=sinnerEffectiveStats(name,{ab}),ef=sinnerSkillEffects(name,{ab});
+function sinnerIncomingDamage(name,ab,killed,area){
+ const st=sinnerEffectiveStats(name,{ab,area}),ef=sinnerSkillEffects(name,{ab,area});
  if(Math.random()>(killed?.28:.72))return 0;
  const base=5+ab.level*2+Math.floor(Math.random()*7)-Math.floor(st.stability*.65);
  return Math.max(1,Math.round(base*(ab.difficultyMultiplier||1)*(1-Math.min(.6,ef.damageReduction||0))));
@@ -198,8 +184,8 @@ function assignFieldGear(name,gearId){
 
 const SINNER_STAT_GUIDE={
   combat:{name:'戰鬥',desc:'影響對怪異造成的基礎傷害；數值越高，直接制壓能力越強。'},
-  observe:{name:'觀察',desc:'影響事件判讀、怪異弱點辨識與部分戰鬥修正。'},
-  mobility:{name:'機動',desc:'影響探索中的移動、追擊與脫離能力，並參與隊伍探索判定。'},
+  observe:{name:'觀察',desc:'影響事件判讀、弱點辨識機率；辨識成功時隊伍本回合傷害 +15%。'},
+  mobility:{name:'機動',desc:'影響戰鬥出手順序與閃避機率，也參與隊伍探索判定。'},
   stability:{name:'穩定',desc:'影響承受怪異攻擊與異常狀況時的抗性；數值越高，通常越不容易受到重傷。'}
 };
 

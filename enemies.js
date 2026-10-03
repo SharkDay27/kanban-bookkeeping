@@ -18,28 +18,12 @@ function enemiesForArea(areaId){return ENEMY_CATALOG.filter(e=>(e.area==='any'&&
 function enemyCombat(names,area){
  const ex=state.exploration,pool=enemiesForArea(area.id),base=pool[Math.floor(Math.random()*pool.length)];
  const enemy={...base,difficultyMultiplier:area.difficultyMultiplier||1,level:base.area==='any'?Math.max(base.level,area.level):base.level};
- const maxHp=Math.round((base.hp+(enemy.level-base.level)*12)*(area.difficultyMultiplier||1));let hp=maxHp,rounds=0;
- const allies=names.map(name=>({name,damage:0,notes:[],taken:0,hp:ex.sinners[name].hp,maxHp:ex.sinners[name].maxHp,healed:{amount:0,item:''}}));
- while(hp>0&&names.some(n=>ex.sinners[n].hp>0)&&rounds<30){
-  rounds++;
-  for(const ally of allies){
-   if(ex.sinners[ally.name].hp<=0||hp<=0)continue;
-   const hit=sinnerCombatDamage(ally.name,enemy,area),damage=Math.min(hp,hit.damage);hp-=damage;ally.damage+=damage;
-   ally.notes=[...new Set(ally.notes.concat(hit.notes))];
-  }
-  // The surviving opponent retaliates after each round.
-  if(hp>0)for(const ally of allies){
-   if(ex.sinners[ally.name].hp<=0)continue;
-   const taken=sinnerIncomingDamage(ally.name,enemy,false),d=ex.sinners[ally.name];ally.taken+=taken;d.hp=Math.max(0,d.hp-taken);
-   const heal=maybeAutoHealSinner(ally.name);if(heal.amount){ally.healed.amount+=heal.amount;ally.healed.item=heal.item;}
-  }
- }
- const success=hp===0;allies.forEach(a=>a.hp=ex.sinners[a.name].hp);
+ const maxHp=Math.round((base.hp+(enemy.level-base.level)*12)*(area.difficultyMultiplier||1));const fight=resolveFieldCombat(names,enemy,area,maxHp),{remaining:hp,rounds,allies,success}=fight;
  ex.enemyProgress[enemy.id]=ex.enemyProgress[enemy.id]||{encounters:0,kills:0};
  ex.enemyProgress[enemy.id].encounters++;if(success)ex.enemyProgress[enemy.id].kills++;
  ex.encounters[enemy.id]=(ex.encounters[enemy.id]||0)+1;
  let reward='未取得戰利品';
  if(success){const qty=1+Math.floor(Math.random()*2);for(let i=0;i<qty;i++)state.rpg.inventory.push(enemy.drop);reward=enemy.drop+' ×'+qty+'（販售素材，單價 '+enemy.price+' G）';}
  return {title:(success?'敵方擊敗：':'敵方交戰：')+enemy.name,detail:'自動完成 '+rounds+' 回合交戰。'+(success?'敵方已擊敗。':'隊伍停止交戰，未取得素材。'),reward,stamp:success?'VICTORY':'DEFEAT',xp:success?22+enemy.level*2:10+enemy.level,success,enemyId:enemy.id,
-  combat:{enemy:{name:enemy.name,maxHp,remaining:hp,level:enemy.level,type:enemy.type,category:'ordinary'},allies,result:{success,rounds,drops:success?reward:''}}};
+  combat:{enemy:{name:enemy.name,maxHp,remaining:hp,level:enemy.level,type:enemy.type,category:'ordinary'},allies,timeline:fight.timeline,healPolicy:fight.healPolicy,result:{success,rounds,stopReason:fight.stopReason,drops:success?reward:''}}};
 }

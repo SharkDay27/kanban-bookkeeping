@@ -5,7 +5,7 @@ const INTERMEDIATE_AREAS=[
 ];
 const INTERMEDIATE_ABNORMALITIES={
  'A-501':{name:'返航的空船',area:'zone-5',level:12,kills:5,type:'執念型',note:'一艘無人漁船反覆駛進泊位。接住它的纜繩後，岸上的人會聽見自己的離港廣播。'},
- 'A-502':{name:'逆潮鐘',area:'zone-5',level:13,kills:5,type:'時間型',note:'鐘聲先於敲擊響起，附近浪花逐滴退回海面。兩次鐘聲之間的時間長度不一致。'},
+ 'A-502':{deathBurst:8,deathEffectLabel:'逆潮鐘殘響',name:'逆潮鐘',area:'zone-5',level:13,kills:5,type:'時間型',note:'鐘聲先於敲擊響起，附近浪花逐滴退回海面。兩次鐘聲之間的時間長度不一致。鐘體被擊破後，殘響仍會衝擊現場人員（擊倒時觸發一次殘響傷害）。'},
  'A-503':{name:'穿救生衣的人',area:'zone-5',level:13,kills:6,type:'誘引型',note:'在浪間揮手求援，衣內卻塞滿潮水。它靠近時，繫在岸上的繩索會朝水中滑去。'},
  'A-504':{name:'無聲鯨歌',area:'zone-5',level:14,kills:6,type:'聲響型',note:'水面下沒有可見個體。聽見歌聲的人會把四周的聲音誤認成來自水底。'},
  'A-505':{name:'鹽封的船長',area:'zone-5',level:15,kills:6,type:'擬人型',note:'全身覆著鹽殼，站在沉船舵前。每轉動一格船舵，附近通道便灌進一股海水。'},
@@ -40,14 +40,7 @@ const REGIONAL_SUPPORT_GEAR={
  '返程信標':{slot:'徽章',rarity:'legendary',areas:['zone-6'],desc:'全隊基礎戰鬥傷害 +10、事件與回收判定 +4；裝備後適用所有區域。',allDamage:10,eventBonus:.10,source:'無窗迴廊商店'}
 };
 function resolveAbnormalityCombat(names,ab,area){
- const multiplier=area.difficultyMultiplier||1,maxHp=Math.round((30+ab.level*12)*multiplier),ex=state.exploration;
- const enemy={...ab,difficultyMultiplier:multiplier},attacks=names.map(name=>({name,damage:0,notes:[]}));
- const injuries=names.map(name=>({name,damage:0,hp:ex.sinners[name].hp,maxHp:ex.sinners[name].maxHp,healed:{amount:0,item:''}}));
- let remaining=maxHp,rounds=0;
- do{
-  rounds++;
-  attacks.forEach(hit=>{if(ex.sinners[hit.name].hp<=0||remaining<=0)return;const roll=sinnerCombatDamage(hit.name,enemy,area);const damage=Math.min(remaining,roll.damage);remaining-=damage;hit.damage+=damage;hit.notes=[...new Set(hit.notes.concat(roll.notes))];});
-  injuries.forEach(inj=>{const data=ex.sinners[inj.name];if(data.hp<=0)return;const damage=sinnerIncomingDamage(inj.name,enemy,remaining===0);inj.damage+=damage;data.hp=Math.max(0,data.hp-damage);const heal=maybeAutoHealSinner(inj.name);inj.healed.amount+=heal.amount;if(heal.item)inj.healed.item=heal.item;inj.hp=data.hp;});
- }while(multiplier>1&&remaining>0&&names.some(n=>ex.sinners[n].hp>0)&&rounds<30);
- return {maxHp,attacks,injuries,remaining,killed:remaining===0,rounds};
+ const multiplier=area.difficultyMultiplier||1,maxHp=Math.round((30+ab.level*12)*multiplier),enemy={...ab,difficultyMultiplier:multiplier};
+ const fight=resolveFieldCombat(names,enemy,area,maxHp);
+ return {...fight,killed:fight.success,attacks:fight.allies.map(a=>({name:a.name,damage:a.damage,notes:a.notes})),injuries:fight.allies.map(a=>({name:a.name,damage:a.taken,hp:a.hp,maxHp:a.maxHp,healed:a.healed}))};
 }
