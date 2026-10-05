@@ -37,11 +37,12 @@
           return '<article class="card wood transaction-card type-'+safe(entry.type)+'" style="'+style+'"><div class="row"><div class="store">'+safe(entry.store)+'</div><div class="amt '+safe(entry.type)+'">'+(entry.type==='income'?'+ ':'')+safe(cash(entry.amount))+'</div></div>'+
             '<div class="badges"><span class="badge '+safe(entry.type)+'">'+(entry.type==='income'?'收入':'支出')+'</span><span class="badge category-badge">'+safe(entry.category||'其他')+'</span><span class="badge">'+safe(entry.payment||'未設定')+'</span></div>'+
             '<div class="items">'+safe((entry.items||[]).slice(0,3).map(function(i){return i.name}).join('、')||entry.note||'—')+'</div>'+preview+
-            '<div class="card-actions"><button type="button" class="mini-btn" data-repeat-entry="'+safe(entry.id)+'">再記一筆</button><button class="mini-btn" data-edit="'+safe(entry.id)+'">編輯</button></div></article>';
+            '<div class="card-actions"><button type="button" class="mini-btn" data-repeat-entry="'+safe(entry.id)+'">再記一筆</button><button type="button" class="mini-btn" data-edit="'+safe(entry.id)+'">編輯</button><button type="button" class="mini-btn record-delete-btn" data-delete-entry="'+safe(entry.id)+'">刪除</button></div></article>';
         }).join('')+'</section>';
     }).join('')+'</div>';
     box.querySelectorAll('[data-repeat-entry]').forEach(function(btn){btn.onclick=function(){repeatBookkeepingEntry(btn.dataset.repeatEntry)}});
     box.querySelectorAll('[data-edit]').forEach(function(btn){btn.onclick=function(){if(typeof openEdit==='function')openEdit(btn.dataset.edit)}});
+    box.querySelectorAll('[data-delete-entry]').forEach(function(btn){btn.onclick=function(){deleteEntry(btn.dataset.deleteEntry)}});
   }
   function exploreRows(){
     if(typeof ensureExplorationState==='function')ensureExplorationState();

@@ -2893,3 +2893,8 @@ dialog#dlg .dialog-close:hover,dialog#dlg .dialog-close:focus-visible{background
 :root[data-theme="light"] .sinner-management-grid .sinner-dossier,
 .sinner-management-grid,
 .sinner-management-grid *{border-radius:0!important}
+/* Transaction actions stay together, with deletion at the right edge. */
+.transaction-card .card-actions{display:flex;flex-wrap:nowrap;align-items:center;gap:7px}
+.transaction-card .card-actions .mini-btn{white-space:nowrap;flex-shrink:0}
+.transaction-card .card-actions .record-delete-btn{margin-left:auto;background:#fff0ef!important;border:1px solid #d78f8b!important;color:#a63e3b!important}
+.transaction-card .card-actions .record-delete-btn:hover{background:#fbe0de!important}

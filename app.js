@@ -1135,7 +1135,7 @@ function saveEntry(keepOpen=false){
     setTimeout(function(){try{render()}catch(e){console.error('render after save',e)}},80);
   }
 }
-function deleteEntry(){const id=$('eid').value;if(!id)return;if(confirm('確定刪除這筆記錄？')){state.entries=state.entries.filter(x=>x.id!==id);state.rpg.rewardLog='你刪除了一筆記錄。';saveLocal();$('dlg').close();render();toast('已刪除記錄')}}
+function deleteEntry(entryId){const id=typeof entryId==='string'?entryId:$('eid').value;if(!id||!state.entries.some(x=>x.id===id))return;if(confirm('確定刪除這筆記錄？')){state.entries=state.entries.filter(x=>x.id!==id);state.rpg.rewardLog='你刪除了一筆記錄。';saveLocal();if($('dlg').open&&$('eid').value===id)$('dlg').close();render();toast('已刪除記錄')}}
 function parseCSVLoose(text){const rows=[];let row=[],field='',q=false;for(let i=0;i<text.length;i++){const c=text[i],n=text[i+1];if(q){if(c==='"'&&n==='"'){field+='"';i++}else if(c==='"'){q=false}else field+=c}else{if(c==='"')q=true;else if(c===','){row.push(field);field=''}else if(c==='\n'){row.push(field);rows.push(row);row=[];field=''}else if(c!=='\r')field+=c}}if(field.length||row.length){row.push(field);rows.push(row)}if(!rows.length)return [];const head=rows[0],out=[];rows.slice(1).forEach(r=>{if(!r.some(Boolean))return;while(r.length<head.length)r.push('');if(r.length>head.length)r=[...r.slice(0,head.length-1),r.slice(head.length-1).join(',')];out.push(Object.fromEntries(head.map((k,i)=>[k,r[i]||'']))) });return out}
 function autoExpenseCategory(store,items){
  const t=(store+' '+items.join(' ')).toLowerCase(),rules=[
