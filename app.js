@@ -435,11 +435,11 @@ function runExploration(){
   names.forEach(function(n){xpBySinner[n]=sinnerExplorationXp(n,xp,{area,kind,success:resultSuccess});if(xpBySinner[n]>0){const res=awardSinnerExp(n,xpBySinner[n]);if(res.after>res.before)levelUps.push(n+' Lv.'+res.after)}});
   if(levelUps.length)reward+=(reward?'；':'')+'升級：'+levelUps.join('、');
   const dialogue=kind==='enemy'?[]:typeof generateExplorationDialogue==='function'?generateExplorationDialogue(names,kind,ctx):[];
-  ex.lastResult={at:new Date().toISOString(),areaId:area.id,area:area.name,names:names,kind:kind,title:title,detail:detail,reward:reward,stamp:stamp,xp:xp,dialogue:dialogue,combat:combat,eventId:ctx.eventId,enemyId:ctx.enemyId,dialogueVersion:9,xpBySinner:xpBySinner,injuries:ctx.injuries||[],failureReason:ctx.failureReason||''};
+  ex.lastResult={at:new Date().toISOString(),areaId:area.id,area:area.name,names:names,kind:kind,title:title,detail:detail,reward:reward,stamp:stamp,xp:xp,dialogue:dialogue,combat:combat,eventId:ctx.eventId,enemyId:ctx.enemyId,abnormalityId:ctx.abnormalityId,dialogueVersion:9,xpBySinner:xpBySinner,injuries:ctx.injuries||[],failureReason:ctx.failureReason||''};
   ex.logs=Array.isArray(ex.logs)?ex.logs:[];
   ex.logs.unshift({
     at:ex.lastResult.at,areaId:area.id,area:area.name,names:[...names],kind:kind,title:title,detail:detail,
-    reward:reward,stamp:stamp,xp:xp,dialogue:Array.isArray(dialogue)?dialogue:[],combat:combat,eventId:ctx.eventId,enemyId:ctx.enemyId,dialogueVersion:9,xpBySinner:xpBySinner,injuries:ctx.injuries||[],failureReason:ctx.failureReason||''
+    reward:reward,stamp:stamp,xp:xp,dialogue:Array.isArray(dialogue)?dialogue:[],combat:combat,eventId:ctx.eventId,enemyId:ctx.enemyId,abnormalityId:ctx.abnormalityId,dialogueVersion:9,xpBySinner:xpBySinner,injuries:ctx.injuries||[],failureReason:ctx.failureReason||''
   });
   const dailyKey=localDateKey(ex.lastResult.at),daily=ex.dailyProgress[dailyKey]||(ex.dailyProgress[dailyKey]={runs:0,suppressions:0});
   daily.runs++;if(combat?.result?.success&&kind==='abnormality')daily.suppressions++;
