@@ -1067,7 +1067,7 @@ function setupIphoneSafariInput(){
   if(dlg){
     let focusTimer;
     function revealFocusedField(){
-      const target=document.activeElement,form=dlg.querySelector('form.modal');
+      const target=document.activeElement,form=dlg.querySelector('.entry-scroll-body')||dlg.querySelector('form.modal');
       if(!dlg.open||!form||!target||!form.contains(target)||!target.matches('input:not([type="hidden"]),select,textarea'))return;
       const field=target.getBoundingClientRect(),bounds=form.getBoundingClientRect();
       const pad=20,top=bounds.top+pad,bottom=bounds.bottom-pad;
