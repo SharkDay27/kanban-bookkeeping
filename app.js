@@ -1049,7 +1049,7 @@ function renderCommentaryArchive(){
 
 function syncVisualViewport(){
   const vv=window.visualViewport;
-  const h=Math.max(320,Math.round(vv?vv.height:window.innerHeight));
+  const h=Math.max(1,Math.round(vv?vv.height:window.innerHeight));
   const top=Math.round(vv?vv.offsetTop:0);
   document.documentElement.style.setProperty('--vvh',h+'px');
   document.documentElement.style.setProperty('--vvo',top+'px');
@@ -1065,12 +1065,23 @@ function setupIphoneSafariInput(){
   window.addEventListener('orientationchange',function(){setTimeout(syncVisualViewport,180)},{passive:true});
   const dlg=$('dlg');
   if(dlg){
+    let focusTimer;
+    function revealFocusedField(){
+      const target=document.activeElement,form=dlg.querySelector('form.modal');
+      if(!dlg.open||!form||!target||!form.contains(target)||!target.matches('input:not([type="hidden"]),select,textarea'))return;
+      const field=target.getBoundingClientRect(),bounds=form.getBoundingClientRect();
+      const pad=20,top=bounds.top+pad,bottom=bounds.bottom-pad;
+      if(field.bottom>bottom)form.scrollTop+=field.bottom-bottom;
+      else if(field.top<top)form.scrollTop-=top-field.top;
+    }
     dlg.addEventListener('focusin',function(e){
       if(!e.target.matches('input,select,textarea'))return;
-      setTimeout(function(){
-        try{e.target.scrollIntoView({block:'center',behavior:'smooth'})}catch(_){}
-      },260);
+      clearTimeout(focusTimer);
+      focusTimer=setTimeout(function(){syncVisualViewport();revealFocusedField()},300);
     });
+    if(window.visualViewport)window.visualViewport.addEventListener('resize',function(){
+      clearTimeout(focusTimer);focusTimer=setTimeout(revealFocusedField,100);
+    },{passive:true});
     dlg.addEventListener('close',function(){
       document.body.classList.remove('keyboard-open');
       syncVisualViewport();
