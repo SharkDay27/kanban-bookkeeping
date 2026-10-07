@@ -20,6 +20,21 @@
     heading.addEventListener('click',function(){const open=heading.getAttribute('aria-expanded')!=='true';heading.setAttribute('aria-expanded',String(open));group.classList.toggle('is-open',open);panel.inert=!open});
     const oldConsole=document.getElementById('currencyConsole');if(oldConsole)oldConsole.hidden=true;
   }
+  const otherFunctions=document.querySelector('.other-functions');
+  if(otherFunctions){
+    const panel=otherFunctions.querySelector('.other-functions-body');
+    function syncOtherFunctions(){
+      const open=otherFunctions.open;
+      panel.hidden=!open;panel.inert=!open;
+      panel.style.setProperty('display',open?'grid':'none','important');
+      otherFunctions.querySelector('summary').setAttribute('aria-expanded',String(open));
+    }
+    otherFunctions.addEventListener('toggle',syncOtherFunctions);
+    new MutationObserver(syncOtherFunctions).observe(otherFunctions,{attributes:true,attributeFilter:['open']});
+    document.addEventListener('click',function(event){if(otherFunctions.open&&!otherFunctions.contains(event.target))otherFunctions.open=false});
+    document.addEventListener('keydown',function(event){if(event.key==='Escape'&&otherFunctions.open){otherFunctions.open=false;otherFunctions.querySelector('summary').focus()}});
+    syncOtherFunctions();
+  }
   const paths={adventure:'M3 10 12 3l9 7v10H3Z M9 20v-7h6v7',book:'M5 3h14v18H5Z M8 7h8 M8 11h8 M8 15h5',commentary:'M4 4h16v13H9l-5 4Z M8 8h8 M8 12h5',explore:'m12 3 9 9-9 9-9-9Z m4 5-3 7-7 3 3-7Z'};
   document.querySelectorAll('.bottom button').forEach(function(button){
     const label=button.querySelector('span');

@@ -43,3 +43,7 @@ body[data-current-tab]:not([data-current-tab="adventure"]) .wrap>.money-overview
  dialog#dlg .foot{position:static!important;inset:auto!important;display:grid!important;grid-template-columns:minmax(0,1fr)!important;margin:12px -16px -16px!important;padding:12px 16px calc(12px + env(safe-area-inset-bottom))!important;min-height:0!important}
  body.keyboard-open .bottom,body.keyboard-open .back-to-top{display:none!important}
 }
+/* Closed details must override the action-menu layout rule. */
+.actions.compact-entry-actions .other-functions:not([open])>.other-functions-body{display:none!important;visibility:hidden!important;pointer-events:none!important}
+.actions.compact-entry-actions .other-functions[open]>.other-functions-body{display:grid!important;visibility:visible!important;pointer-events:auto!important}
+.actions.compact-entry-actions:has(.other-functions[open]){z-index:65!important}
