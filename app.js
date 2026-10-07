@@ -497,19 +497,23 @@ function renderExploration(){
     $('fieldHealPolicyHelp').textContent=FIELD_HEAL_POLICIES[fieldHealPolicy()].desc;
     $('fieldHealPolicy').onchange=function(){state.exploration.healPolicy=this.value;saveLocal();$('fieldHealPolicyHelp').textContent=FIELD_HEAL_POLICIES[fieldHealPolicy()].desc};
   }
+  const selectionStatus=$('explorationSelectionStatus');
+  if(selectionStatus)selectionStatus.textContent='已選 '+ex.selected.length+' / 2 人'+(ex.selected.length?' · '+ex.selected.join('＋'):' · 請點選罪人');
   const picker=$('explorationTeamPicker');
   if(picker){
     picker.innerHTML=Object.keys(SINNER_FIELD_PROFILES).map(function(name){
       const on=ex.selected.includes(name),data=ex.sinners[name],lv=sinnerLevel(data),profile=SINNER_FIELD_PROFILES[name],down=data.hp<=0;
       const color=(typeof sinnerColorForSpeaker==='function'?sinnerColorForSpeaker(name):'#d7d2c7');
-      return '<button type="button" class="team-sinner wood '+(on?'active ':'')+(down?'down':'')+'" data-team-sinner="'+esc(name)+'" '+(down?'disabled':'')+'>'+
+      return '<button type="button" class="team-sinner wood '+(on?'active ':'')+(down?'down':'')+'" data-team-sinner="'+esc(name)+'" aria-pressed="'+on+'" '+(down?'disabled':'')+'>'+
         '<div class="team-sinner-head"><strong style="color:'+color+'">'+esc(name)+'</strong><span>Lv.'+lv+'</span></div>'+
-        '<div class="team-sinner-meta">'+esc(profile.specialty)+' · HP '+data.hp+'/'+data.maxHp+(down?' · DOWN':'')+'</div></button>';
+        (on?'<span class="team-selected-marker">✓ 已選 '+(ex.selected.indexOf(name)+1)+'</span>':'')+'<div class="team-sinner-meta">'+esc(profile.specialty)+' · HP '+data.hp+'/'+data.maxHp+(down?' · DOWN':'')+'</div></button>';
     }).join('');
     picker.querySelectorAll('[data-team-sinner]').forEach(function(btn){btn.onclick=function(){
-      const n=btn.dataset.teamSinner,idx=ex.selected.indexOf(n);
-      if(idx>=0)ex.selected.splice(idx,1);
-      else{if(ex.selected.length>=2)ex.selected.shift();ex.selected.push(n)}
+      ensureExplorationState();
+      const current=state.exploration,n=btn.dataset.teamSinner,idx=current.selected.indexOf(n);
+      if(current.sinners[n].hp<=0)return;
+      if(idx>=0)current.selected.splice(idx,1);
+      else{if(current.selected.length>=2)current.selected.shift();current.selected.push(n)}
       saveLocal();renderExploration();
     }});
   }

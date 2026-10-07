@@ -80,3 +80,10 @@ body[data-current-tab]:not([data-current-tab="adventure"]) .wrap>.money-overview
  dialog#dlg .foot:has(#saveAgain[style*="none"]) #save{grid-column:2!important}
 }
 @media(max-width:700px){dialog#dlg form.modal>.entry-scroll-body{flex:1 1 0!important;flex-shrink:1!important;min-height:0!important}dialog#dlg .entry-primary{gap:6px!important}dialog#dlg .bookkeeping-date-tools,dialog#dlg .bookkeeping-quick-tools{margin-bottom:6px!important}dialog#dlg .quick-hint{display:none!important}dialog#dlg .entry-advanced{margin-top:6px!important}}
+/* Focus stays inside the input instead of spilling past the scroll container. */
+input:focus,select:focus,textarea:focus{outline:none!important;outline-offset:0!important;border-color:#777!important;box-shadow:inset 0 0 0 1px #777!important}
+dialog#dlg input:focus,dialog#dlg select:focus,dialog#dlg textarea:focus{outline:none!important;outline-offset:0!important;box-shadow:inset 0 0 0 1px #777!important;border-color:#777!important}
+.team-selection-status{font-size:12px;color:#333;background:#f3f3f3;padding:10px 12px;border:1px solid #ddd;margin:10px 0;border-radius:5px;line-height:1.6}
+#explorationTeamPicker .team-sinner.active{background:#eee!important;border:2px solid #444!important;padding:11px!important}
+.team-selected-marker{display:inline-flex;align-self:flex-start;background:#333;color:#fff;padding:2px 6px;border-radius:3px;font-size:10px;font-weight:500;line-height:1.5}
+#explorationTeamPicker .team-sinner[aria-pressed="false"]{background:#fff!important}
