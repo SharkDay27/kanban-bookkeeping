@@ -1,5 +1,5 @@
 (function(){
-  const COLORS=['#6f8d76','#9b5156','#71849d','#9b8154','#786788','#4f8990','#9a6e7f','#7c845a'];
+  const COLORS=['#252525','#666666','#909090','#b4b4b4','#414141','#797979','#a4a4a4','#cdcdcd'];
   function e(v){return typeof esc==='function'?esc(v):String(v==null?'':v)}
   function cash(v){return typeof money==='function'?money(v):String(v)}
   function group(rows){
@@ -9,7 +9,7 @@
   function pie(pieId,legendId,data){
     const p=document.getElementById(pieId),l=document.getElementById(legendId);if(!p||!l)return;
     const total=data.reduce(function(s,x){return s+x[1]},0);
-    if(!total){p.style.background='#24262b';l.innerHTML='<div class="stats-module-empty">目前沒有資料。</div>';return}
+    if(!total){p.style.background='#ededed';l.innerHTML='<div class="stats-module-empty">目前沒有資料。</div>';return}
     let acc=0,parts=[];
     data.forEach(function(row,i){const start=acc/total*360;acc+=row[1];parts.push(COLORS[i%COLORS.length]+' '+start+'deg '+(acc/total*360)+'deg')});
     p.style.background='conic-gradient('+parts.join(',')+')';
