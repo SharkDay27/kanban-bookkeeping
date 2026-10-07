@@ -104,6 +104,23 @@ function ensureExplorationState(){
   state.exploration.fieldGear=Array.isArray(state.exploration.fieldGear)?state.exploration.fieldGear:[];
   state.exploration.abnormalityProgress=state.exploration.abnormalityProgress||{};
   state.exploration.seenAbnormalities=Array.isArray(state.exploration.seenAbnormalities)?state.exploration.seenAbnormalities:[];
+  // Recover observation flags from saved evidence, including unsuccessful encounters.
+  // Never infer suppression counts from logs or reveal unrelated catalog entries.
+  const ex=state.exploration,seen=new Set(ex.seenAbnormalities);
+  Object.entries(ex.encounters).forEach(([id,count])=>{if(Number(count)>0)seen.add(id)});
+  Object.entries(ex.abnormalityProgress).forEach(([id,p])=>{if(p&&(p.contained||Number(p.kills)>0))seen.add(id)});
+  if(typeof ABNORMALITY_CATALOG!=='undefined'){
+    [...ex.logs,ex.lastResult].filter(Boolean).forEach(log=>{
+      if(log.kind!=='abnormality')return;
+      const id=log.abnormalityId||Object.keys(ABNORMALITY_CATALOG).find(id=>{
+        const name=ABNORMALITY_CATALOG[id].name;
+        return log.combat?.enemy?.name===name||log.title==='怪異制壓：'+name||log.title==='怪異交戰：'+name;
+      });
+      if(id&&ABNORMALITY_CATALOG[id])seen.add(id);
+    });
+  }
+  // Keep the array identity: combat helpers normalize state while exploration runs.
+  ex.seenAbnormalities.splice(0,ex.seenAbnormalities.length,...seen);
   state.exploration.sinners=state.exploration.sinners||{};
   Object.keys(SINNER_FIELD_PROFILES).forEach(function(name){
     const old=state.exploration.sinners[name]||{};
