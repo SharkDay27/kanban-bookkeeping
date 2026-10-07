@@ -7,10 +7,18 @@
   const daily=document.getElementById('todayExpense');
   if(daily)daily.closest('.stat').classList.add('daily-stat');
   const notice=document.querySelector('.zone-privacy');
-  if(notice){
-    const details=document.createElement('details');details.className='privacy-collapse';
-    const heading=document.createElement('summary');heading.textContent='資料保存與備份說明';
-    notice.before(details);details.append(heading,notice);
+  const currency=document.getElementById('currencySelect');
+  if(notice&&currency){
+    const group=document.createElement('div');group.className='utility-strip';
+    const row=document.createElement('div');row.className='utility-strip-row';
+    const heading=document.createElement('button');heading.type='button';heading.className='privacy-toggle';
+    heading.innerHTML='<span>資料保存說明</span><span class="privacy-chevron" aria-hidden="true">⌄</span>';
+    heading.setAttribute('aria-expanded','false');heading.setAttribute('aria-controls','privacyPanel');
+    const panel=document.createElement('div');panel.id='privacyPanel';panel.className='privacy-panel';panel.inert=true;
+    const inner=document.createElement('div');inner.className='privacy-panel-inner';
+    notice.before(group);group.append(row,panel);row.append(heading,currency);panel.append(inner);inner.append(notice);
+    heading.addEventListener('click',function(){const open=heading.getAttribute('aria-expanded')!=='true';heading.setAttribute('aria-expanded',String(open));group.classList.toggle('is-open',open);panel.inert=!open});
+    const oldConsole=document.getElementById('currencyConsole');if(oldConsole)oldConsole.hidden=true;
   }
   const paths={adventure:'M3 10 12 3l9 7v10H3Z M9 20v-7h6v7',book:'M5 3h14v18H5Z M8 7h8 M8 11h8 M8 15h5',commentary:'M4 4h16v13H9l-5 4Z M8 8h8 M8 12h5',explore:'m12 3 9 9-9 9-9-9Z m4 5-3 7-7 3 3-7Z'};
   document.querySelectorAll('.bottom button').forEach(function(button){
