@@ -92,6 +92,11 @@
     if(names.size!==1)return null;
     const sinner=[...names][0];return {...THEMES[sinner],sinner};
   }
+  function charredEdge(v,phase){
+    const hash=n=>{const x=Math.sin(n*127.1+phase*311.7)*43758.5453;return x-Math.floor(x)};
+    const noise=scale=>{const t=v/scale,n=Math.floor(t),f=t-n;return hash(n)*(1-f)+hash(n+1)*f};
+    return 3+noise(91)*15+noise(23)*7+noise(3)*3;
+  }
   function paintPaper(ctx,W,H,P,theme,entry){
     ctx.save();const kind=theme.surface;
     let seed=Array.from(String(entry.id||'paper')).reduce((v,c)=>(Math.imul(v,31)+c.charCodeAt(0))>>>0,7123);
@@ -132,12 +137,26 @@
       ctx=paperContext;ctx.save();ctx.filter='blur(2px)';ctx.drawImage(relief,0,0);ctx.restore();
     }
     if(kind==='burnt'){
-      // Thick, irregular carbon rim, fading through umber to untouched paper.
-      for(const side of [0,W]){
-        for(let y=0;y<H;y++){const outer=12+7*Math.sin(y*.017)+5*Math.cos(y*.061),depth=outer+25+7*Math.sin(y*.037);const shade=ctx.createLinearGradient(side,0,side===0?depth:W-depth,0);shade.addColorStop(0,'rgba(12,10,8,.98)');shade.addColorStop(.3,'rgba(31,22,15,.94)');shade.addColorStop(.6,'rgba(121,66,27,.6)');shade.addColorStop(1,'rgba(152,96,42,0)');ctx.fillStyle=shade;ctx.fillRect(side===0?0:W-depth,y,depth,1)}
+      // Narrow charcoal crust with a mottled heat stain and brittle, chipped rim.
+      function burnBand(v,phase,vertical,far){
+        const edge=charredEdge(v,phase),width=13+9*Math.sin(v*.013+phase)+8*Math.sin(v*.041+phase*.7);
+        const depth=edge+Math.max(9,width),start=far?(vertical?W:H):0;
+        const gradient=vertical?ctx.createLinearGradient(start,0,far?W-depth:depth,0):ctx.createLinearGradient(0,start,0,far?H-depth:depth);
+        gradient.addColorStop(0,'#100e0c');gradient.addColorStop(Math.min(.65,(edge+3)/depth),'#1d1712');
+        gradient.addColorStop(Math.min(.81,(edge+7)/depth),'rgba(85,43,17,.94)');gradient.addColorStop(.88,'rgba(167,104,42,.42)');gradient.addColorStop(1,'rgba(193,151,83,0)');
+        ctx.fillStyle=gradient;
+        if(vertical)ctx.fillRect(far?W-depth:0,v,depth,1);else ctx.fillRect(v,far?H-depth:0,1,depth);
       }
-      for(const bottom of [false,true])for(let x=0;x<W;x++){const depth=26+9*Math.sin(x*.025)+6*Math.cos(x*.053);const shade=ctx.createLinearGradient(0,bottom?H:0,0,bottom?H-depth:depth);shade.addColorStop(0,'rgba(13,10,8,.98)');shade.addColorStop(.32,'rgba(40,24,13,.9)');shade.addColorStop(.68,'rgba(133,75,26,.55)');shade.addColorStop(1,'rgba(142,85,30,0)');ctx.fillStyle=shade;ctx.fillRect(x,bottom?H-depth:0,1,depth)}
-      for(const [x,y] of [[16,22],[W-18,34],[W-14,H-20],[20,H-30]]){const shade=ctx.createRadialGradient(x,y,4,x,y,70);shade.addColorStop(0,'rgba(20,13,8,.9)');shade.addColorStop(.5,'rgba(94,50,18,.5)');shade.addColorStop(1,'rgba(131,78,28,0)');ctx.fillStyle=shade;ctx.fillRect(x-70,y-70,140,140)}
+      for(let y=0;y<H;y++){burnBand(y,0,true,false);burnBand(y,1,true,true)}
+      for(let x=0;x<W;x++){burnBand(x,2,false,false);burnBand(x,3,false,true)}
+      // Carbon flecks and short branching fractures stay outside the text area.
+      for(let n=0;n<(W+H)*.9;n++){
+        const side=n%4,vertical=side<2,far=side===1||side===3,v=random()*(vertical?H:W),phase=side,
+          d=charredEdge(v,phase)+random()*11,x=vertical?(far?W-d:d):v,y=vertical?v:(far?H-d:d);
+        ctx.fillStyle=random()>.35?'rgba(9,7,5,.55)':'rgba(206,183,145,.3)';
+        ctx.fillRect(x,y,.5+random()*1.7,.5+random()*2);
+        if(n%11===0){ctx.strokeStyle='rgba(5,4,3,.7)';ctx.lineWidth=.55;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+(vertical?4:2),y+(vertical?2:4));ctx.lineTo(x+(vertical?7:0),y+(vertical?0:7));ctx.stroke()}
+      }
     }
     if(kind==='typewriter'){ctx.strokeStyle='rgba(80,70,55,.045)';for(let y=20;y<H;y+=3){ctx.beginPath();ctx.moveTo(10,y);ctx.lineTo(W-10,y);ctx.stroke()}}
     ctx.restore();
@@ -201,8 +220,8 @@
       // Neutral thermal paper, with restrained grain; no fake stains or UI cards.
       ctx.beginPath();
       if(theme&&['burnt','crumpled'].includes(theme.surface)){
-        const edge=(v,phase)=>3+Math.abs(5*Math.sin(v*.031+phase)+4*Math.cos(v*.067+phase));ctx.moveTo(edge(0,0),edge(0,2));
-        for(let x=0;x<=W;x+=8)ctx.lineTo(x,edge(x,2));for(let y=0;y<=H;y+=8)ctx.lineTo(W-edge(y,1),y);for(let x=W;x>=0;x-=8)ctx.lineTo(x,H-edge(x,3));for(let y=H;y>=0;y-=8)ctx.lineTo(edge(y,0),y);
+        const edge=theme.surface==='burnt'?charredEdge:(v,phase)=>3+Math.abs(5*Math.sin(v*.031+phase)+4*Math.cos(v*.067+phase));ctx.moveTo(edge(0,0),edge(0,2));
+        for(let x=0;x<=W;x+=2)ctx.lineTo(x,edge(x,2));for(let y=0;y<=H;y+=2)ctx.lineTo(W-edge(y,1),y);for(let x=W;x>=0;x-=2)ctx.lineTo(x,H-edge(x,3));for(let y=H;y>=0;y-=2)ctx.lineTo(edge(y,0),y);
       }else{ctx.moveTo(0,8);for(let x=0;x<W;x+=16){ctx.lineTo(x+8,2);ctx.lineTo(x+16,8)}ctx.lineTo(W,H-8);for(let x=W;x>0;x-=16){ctx.lineTo(x-8,H-2);ctx.lineTo(x-16,H-8)}}ctx.closePath();ctx.fillStyle=theme?theme.paper:'#fafaf7';ctx.fill();ctx.save();ctx.clip();
       let seed=91431;for(let j=0;j<W*H/140;j++){seed=(Math.imul(seed,1664525)+1013904223)>>>0;const x=seed%W;seed=(Math.imul(seed,1664525)+1013904223)>>>0;ctx.fillStyle='rgba(40,40,35,0.028)';ctx.fillRect(x,seed%H,1,1)}
       if(theme&&theme.surface)paintPaper(ctx,W,H,P,theme,entry);
