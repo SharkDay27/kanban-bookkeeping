@@ -27,7 +27,7 @@
       '<footer class="ledger-footer"><span>收入 '+incomeCount+' 筆 · 支出 '+(rows.length-incomeCount)+' 筆</span><span>本日結餘 <strong class="'+(net<0?'ledger-expense':'ledger-income')+'">'+(net>0?'+ ':'')+safe(money(net))+'</strong></span></footer>';
   }
   const extras=document.createElement('div');extras.className='ledger-extras';
-  extras.innerHTML='<details class="ledger-calendar-panel" open><summary>月曆收支總覽</summary><div class="ledger-month-controls"><button type="button" id="ledgerMonthPrev" aria-label="上個月">‹</button><input type="month" id="ledgerMonth" aria-label="收支總覽月份"><button type="button" id="ledgerMonthNext" aria-label="下個月">›</button></div><p class="ledger-help">每日支出與結餘；點選日期查看日記帳。</p><div id="ledgerMonthTotals"></div><div class="ledger-weekdays">'+['日','一','二','三','四','五','六'].map(d=>'<span>'+d+'</span>').join('')+'</div><div id="ledgerCalendar" class="ledger-calendar"></div></details><div class="ledger-search"><label for="ledgerSearch">搜尋所有記帳記錄</label><input type="search" id="ledgerSearch" placeholder="店家、備註、分類、付款方式或金額"><div id="ledgerSearchResults" aria-live="polite"></div></div>';
+  extras.innerHTML='<details class="ledger-calendar-panel" open><summary>月曆收支總覽</summary><div class="ledger-month-controls"><button type="button" id="ledgerMonthPrev" aria-label="上個月">‹</button><input type="month" id="ledgerMonth" aria-label="收支總覽月份"><button type="button" id="ledgerMonthNext" aria-label="下個月">›</button></div><p class="ledger-help">每日支出與截至當日的帳上結餘；點選日期查看日記帳。</p><div id="ledgerMonthTotals"></div><div class="ledger-weekdays">'+['日','一','二','三','四','五','六'].map(d=>'<span>'+d+'</span>').join('')+'</div><div id="ledgerCalendar" class="ledger-calendar"></div></details><div class="ledger-search"><label for="ledgerSearch">搜尋所有記帳記錄</label><input type="search" id="ledgerSearch" placeholder="店家、備註、分類、付款方式或金額"><div id="ledgerSearchResults" aria-live="polite"></div></div>';
   el('dailyLedgerPage').before(extras);
   el('calendar').append(extras.querySelector('.ledger-calendar-panel'));
   const backButton=document.createElement('button');backButton.type='button';backButton.id='ledgerBackCalendar';backButton.textContent='‹ 返回月曆收支總覽';backButton.hidden=true;
@@ -46,11 +46,16 @@
     const [year,month]=calendarMonth.split('-').map(Number),start=new Date(year,month-1,1,12),days=new Date(year,month,0,12).getDate(),totals={};
     let income=0,expense=0;
     state.entries.filter(x=>String(x.date).startsWith(calendarMonth+'-')).forEach(x=>{const t=totals[x.date]||(totals[x.date]={income:0,expense:0});t[x.type==='income'?'income':'expense']+=Number(x.amount)||0;if(x.type==='income')income+=Number(x.amount)||0;else expense+=Number(x.amount)||0});
-    el('ledgerMonthTotals').innerHTML='<div class="ledger-month-totals"><span>收入 <strong class="ledger-income">'+safe(money(income))+'</strong></span><span>支出 <strong class="ledger-expense">'+safe(money(expense))+'</strong></span><span>結餘 <strong class="'+(income<expense?'ledger-expense':'ledger-income')+'">'+safe(money(income-expense))+'</strong></span></div>';
+    let balance=Number(state.profile.initialAmount)||0;
+    state.entries.filter(x=>day(String(x.date))&&x.date<calendarMonth+'-01').forEach(x=>{balance+=(x.type==='income'?1:-1)*(Number(x.amount)||0)});
+    const monthEndBalance=balance+income-expense;
+    el('ledgerMonthTotals').innerHTML='<div class="ledger-month-totals"><span>收入 <strong class="ledger-income">'+safe(money(income))+'</strong></span><span>支出 <strong class="ledger-expense">'+safe(money(expense))+'</strong></span><span>月底帳上結餘 <strong class="'+(monthEndBalance<0?'ledger-expense':'ledger-income')+'">'+safe(money(monthEndBalance))+'</strong></span></div>';
     let cells='<span class="ledger-calendar-blank"></span>'.repeat(start.getDay());
     for(let d=1;d<=days;d++){
-      const key=calendarMonth+'-'+String(d).padStart(2,'0'),t=totals[key],net=t?t.income-t.expense:0;
-      cells+='<button type="button" class="ledger-calendar-day '+(key===selectedDate?'selected':'')+' '+(key===today()?'today':'')+'" data-ledger-day="'+key+'" aria-label="'+key+(t?'，支出 '+safe(money(t.expense))+'，結餘 '+safe(money(net)):'，尚無記錄')+'"><span>'+d+'</span>'+(t?'<small class="ledger-expense"><span>支出</span><b>'+safe(t.expense.toLocaleString(currentCurrency().locale,{maximumFractionDigits:currentCurrency().digits}))+'</b></small><small class="'+(net<0?'ledger-expense':'ledger-income')+'"><span>結餘</span><b>'+safe(net.toLocaleString(currentCurrency().locale,{maximumFractionDigits:currentCurrency().digits}))+'</b></small>':'<small class="ledger-no-record">—</small>')+'</button>';
+      const key=calendarMonth+'-'+String(d).padStart(2,'0'),t=totals[key]||{income:0,expense:0};
+      balance+=t.income-t.expense;
+      const net=balance;
+      cells+='<button type="button" class="ledger-calendar-day '+(key===selectedDate?'selected':'')+' '+(key===today()?'today':'')+'" data-ledger-day="'+key+'" aria-label="'+key+'，支出 '+safe(money(t.expense))+'，帳上結餘 '+safe(money(net))+'"><span>'+d+'</span>'+'<small class="ledger-expense"><span>支出</span><b>'+safe(t.expense.toLocaleString(currentCurrency().locale,{maximumFractionDigits:currentCurrency().digits}))+'</b></small><small class="'+(net<0?'ledger-expense':'ledger-income')+'"><span>帳上結餘</span><b>'+safe(net.toLocaleString(currentCurrency().locale,{maximumFractionDigits:currentCurrency().digits}))+'</b></small></button>';
     }
     el('ledgerCalendar').innerHTML=cells;
     renderSearch();
