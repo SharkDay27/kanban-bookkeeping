@@ -73,16 +73,16 @@
   }
   // Personality-inspired graphic treatments, never replacement dialogue.
   const THEMES={
-    '李箱':{name:'留白詩稿',paper:'#f8f8f3',ink:'#34383a',family:'serif',pad:58,gap:28,dash:[2,7],header:'觀測手札',mark:'01 / OBSERVATION',border:false},
-    '浮士德':{name:'分析紀錄',paper:'#fafafa',ink:'#303238',family:'mono',pad:46,gap:16,dash:[9,3],header:'分析紀錄',mark:'02 / ANALYSIS',border:true},
-    '堂吉訶德':{name:'騎士委託單',paper:'#fcfaf1',ink:'#494235',family:'serif',pad:48,gap:20,dash:[6,3],header:'騎士行動紀錄',mark:'03 / QUEST',border:true},
-    '良秀':{name:'銳線短箋',paper:'#faf8f5',ink:'#3d2929',family:'serif',pad:60,gap:32,dash:[],header:'評議短箋',mark:'04 / R.',border:false},
-    '默爾索':{name:'制式作業單',paper:'#f9fafb',ink:'#28323b',family:'mono',pad:42,gap:14,dash:[],header:'作業紀錄單',mark:'05 / REPORT',border:true},
+    '李箱':{surface:'manuscript',name:'手稿筆記',paper:'#f8f8f3',ink:'#34383a',family:'serif',pad:58,gap:28,dash:[2,7],header:'觀測手札',mark:'01 / OBSERVATION',border:false},
+    '浮士德':{surface:'laboratory',name:'實驗紀錄',paper:'#fafafa',ink:'#303238',family:'mono',pad:46,gap:16,dash:[9,3],header:'分析紀錄',mark:'02 / ANALYSIS',border:true},
+    '堂吉訶德':{surface:'handmade',name:'貼紙手札',paper:'#fcfaf1',ink:'#494235',family:'serif',pad:48,gap:20,dash:[6,3],header:'騎士行動紀錄',mark:'03 / QUEST',border:true},
+    '良秀':{surface:'burnt',name:'焦痕短箋',paper:'#faf8f5',ink:'#3d2929',family:'serif',pad:60,gap:32,dash:[],header:'評議短箋',mark:'04 / R.',border:false},
+    '默爾索':{surface:'typewriter',name:'打字機單據',paper:'#f9fafb',ink:'#28323b',family:'mono',pad:42,gap:14,dash:[],header:'作業紀錄單',mark:'05 / REPORT',border:true},
     '鴻璐':{name:'雅緻便箋',paper:'#f7faf7',ink:'#29433f',family:'serif',pad:58,gap:26,dash:[1,5],header:'隨筆留存',mark:'06 / MEMO',border:false},
-    '希斯克利夫':{name:'粗印票根',paper:'#f8f5f0',ink:'#3f3336',family:'mono',pad:42,gap:18,dash:[15,5],header:'現場記錄',mark:'07 / FIELD',border:true,weight:600},
-    '以實瑪利':{name:'航路紀錄',paper:'#faf8f2',ink:'#3f3b32',family:'mono',pad:46,gap:20,dash:[10,4,2,4],header:'航路記錄單',mark:'08 / LOG',border:true},
+    '希斯克利夫':{surface:'crumpled',name:'揉皺票根',paper:'#f8f5f0',ink:'#3f3336',family:'mono',pad:42,gap:18,dash:[15,5],header:'現場記錄',mark:'07 / FIELD',border:true,weight:600},
+    '以實瑪利':{surface:'nautical',name:'航海圖與羅盤',paper:'#faf8f2',ink:'#3f3b32',family:'mono',pad:46,gap:20,dash:[10,4,2,4],header:'航路記錄單',mark:'08 / LOG',border:true},
     '羅佳':{name:'生活小票',paper:'#fcf7f3',ink:'#4a3335',family:'sans',pad:48,gap:24,dash:[4,5],header:'今日小記',mark:'09 / DAILY',border:false},
-    '辛克萊':{name:'筆記頁',paper:'#f8faf4',ink:'#344034',family:'serif',pad:54,gap:24,dash:[2,4],header:'個人筆記',mark:'11 / NOTES',border:false},
+    '辛克萊':{surface:'student',name:'學生筆記本',paper:'#f8faf4',ink:'#344034',family:'serif',pad:54,gap:24,dash:[2,4],header:'個人筆記',mark:'11 / NOTES',border:false},
     '奧提斯':{name:'戰術報告',paper:'#f9f9f2',ink:'#3b4030',family:'mono',pad:42,gap:16,dash:[12,3],header:'行動評議報告',mark:'12 / BRIEFING',border:true,weight:600},
     '格里高爾':{name:'日常留存單',paper:'#f8f6f0',ink:'#423c32',family:'sans',pad:50,gap:22,dash:[7,5],header:'日常記錄單',mark:'13 / RECORD',border:false}
   };
@@ -92,10 +92,64 @@
     if(names.size!==1)return null;
     const sinner=[...names][0];return {...THEMES[sinner],sinner};
   }
+  function paintPaper(ctx,W,H,P,theme,entry){
+    ctx.save();const kind=theme.surface;
+    let seed=Array.from(String(entry.id||'paper')).reduce((v,c)=>(Math.imul(v,31)+c.charCodeAt(0))>>>0,7123);
+    const random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};
+    if(['manuscript','student','handmade'].includes(kind)){
+      ctx.strokeStyle=kind==='student'?'rgba(66,105,154,.13)':'rgba(100,95,72,.08)';ctx.lineWidth=1;
+      for(let y=80;y<H-30;y+=kind==='student'?38:46){ctx.beginPath();ctx.moveTo(20,y);ctx.lineTo(W-20,y);ctx.stroke()}
+      if(kind==='student'){ctx.strokeStyle='rgba(170,71,65,.2)';ctx.beginPath();ctx.moveTo(29,28);ctx.lineTo(29,H-28);ctx.stroke();}
+      ctx.strokeStyle='rgba(60,62,55,.13)';
+      for(let y=380;y<H-80;y+=210){ctx.beginPath();ctx.moveTo(W-P+13,y);ctx.bezierCurveTo(W-P+32,y-12,W-P+5,y+25,W-P+22,y+29);ctx.stroke()}
+    }
+    if(kind==='laboratory'){
+      ctx.strokeStyle='rgba(64,91,110,.07)';ctx.lineWidth=1;
+      for(let x=16;x<W;x+=24){ctx.beginPath();ctx.moveTo(x,18);ctx.lineTo(x,H-18);ctx.stroke()}
+      for(let y=18;y<H;y+=24){ctx.beginPath();ctx.moveTo(14,y);ctx.lineTo(W-14,y);ctx.stroke()}
+    }
+    if(kind==='nautical'){
+      ctx.strokeStyle='rgba(114,97,64,.12)';ctx.lineWidth=1;
+      for(let x=10;x<W;x+=90){ctx.beginPath();ctx.moveTo(x,18);ctx.lineTo(x,H-18);ctx.stroke()}
+      for(let y=18;y<H;y+=90){ctx.beginPath();ctx.moveTo(14,y);ctx.lineTo(W-14,y);ctx.stroke()}
+      for(let n=0;n<5;n++){const x=random()*W,y=random()*H;ctx.beginPath();ctx.moveTo(x-90,y);ctx.bezierCurveTo(x-70,y-50,x+40,y-30,x+65,y+15);ctx.bezierCurveTo(x+50,y+55,x-40,y+30,x-90,y);ctx.stroke()}
+      ctx.setLineDash([3,7]);ctx.beginPath();ctx.moveTo(30,H-170);ctx.bezierCurveTo(200,H-270,420,H-90,W-25,H-190);ctx.stroke();ctx.setLineDash([]);
+    }
+    if(kind==='crumpled'){
+      for(let n=0;n<12;n++){const x=random()*W,y=random()*H,endX=random()*W,endY=random()*H;ctx.lineWidth=2+random()*4;ctx.strokeStyle='rgba(60,51,42,.045)';ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(endX,endY);ctx.stroke();ctx.lineWidth=1;ctx.strokeStyle='rgba(255,255,255,.5)';ctx.beginPath();ctx.moveTo(x+2,y+1);ctx.lineTo(endX+2,endY+1);ctx.stroke()}
+      const shade=ctx.createLinearGradient(0,0,W,0);shade.addColorStop(0,'rgba(90,76,55,.13)');shade.addColorStop(.04,'rgba(90,76,55,0)');shade.addColorStop(.94,'rgba(90,76,55,0)');shade.addColorStop(1,'rgba(90,76,55,.11)');ctx.fillStyle=shade;ctx.fillRect(0,0,W,H);
+    }
+    if(kind==='burnt'){
+      for(const side of [0,W]){const shade=ctx.createLinearGradient(side,0,side===0?38:W-38,0);shade.addColorStop(0,'rgba(35,23,16,.9)');shade.addColorStop(.3,'rgba(105,64,29,.45)');shade.addColorStop(1,'rgba(130,81,36,0)');ctx.fillStyle=shade;ctx.fillRect(side===0?0:W-38,0,38,H)}
+      for(let y=8;y<H;y+=12){ctx.fillStyle='rgba(37,24,17,.6)';const w=3+random()*9;ctx.fillRect(0,y,w,8+random()*12);ctx.fillRect(W-w,y,w,8+random()*12)}
+      for(const y of [20,H-22]){const shade=ctx.createRadialGradient(W-36,y,2,W-36,y,58);shade.addColorStop(0,'rgba(45,24,12,.6)');shade.addColorStop(1,'rgba(120,70,22,0)');ctx.fillStyle=shade;ctx.fillRect(W-94,y-60,94,120)}
+    }
+    if(kind==='typewriter'){ctx.strokeStyle='rgba(80,70,55,.045)';for(let y=20;y<H;y+=3){ctx.beginPath();ctx.moveTo(10,y);ctx.lineTo(W-10,y);ctx.stroke()}}
+    ctx.restore();
+  }
+  function paintEmblem(ctx,W,P,y,theme){
+    ctx.save();ctx.translate(W/2,y+36);ctx.strokeStyle=theme.ink;ctx.fillStyle=theme.ink;ctx.lineWidth=1;ctx.font='16px "KaiTi", serif';ctx.textAlign='center';ctx.textBaseline='middle';
+    const kind=theme.surface;
+    if(kind==='nautical'){
+      ctx.beginPath();ctx.arc(0,0,29,0,Math.PI*2);ctx.arc(0,0,22,0,Math.PI*2);ctx.stroke();
+      for(let n=0;n<8;n++){ctx.save();ctx.rotate(n*Math.PI/4);ctx.beginPath();ctx.moveTo(0,-27);ctx.lineTo(5,0);ctx.lineTo(0,13);ctx.lineTo(-5,0);ctx.closePath();ctx.stroke();ctx.restore()}ctx.font='12px monospace';ctx.fillText('N',0,-36);ctx.fillText('S',0,36);ctx.fillText('W',-38,0);ctx.fillText('E',38,0);
+    }else if(kind==='laboratory'){
+      ctx.strokeRect(-70,-24,140,48);ctx.beginPath();ctx.moveTo(-52,-17);ctx.lineTo(-52,3);ctx.lineTo(-65,18);ctx.lineTo(-35,18);ctx.lineTo(-47,3);ctx.lineTo(-47,-17);ctx.moveTo(-60,10);ctx.lineTo(-40,10);ctx.stroke();ctx.font='14px monospace';ctx.fillText('LAB / 02',15,-7);ctx.fillText('OBSERVATION',15,11);
+    }else if(kind==='handmade'){
+      ctx.save();ctx.rotate(-.12);ctx.fillStyle='#eae0b2';ctx.fillRect(-73,-24,62,46);ctx.strokeStyle='#837648';ctx.strokeRect(-73,-24,62,46);ctx.fillStyle='#6e633c';ctx.font='26px serif';ctx.fillText('★',-42,-1);ctx.restore();ctx.save();ctx.rotate(.11);ctx.fillStyle='#e2e8d6';ctx.fillRect(12,-20,63,40);ctx.strokeStyle='#7c8764';ctx.strokeRect(12,-20,63,40);ctx.fillStyle='#525f3b';ctx.font='16px "KaiTi",serif';ctx.fillText('冒險',43,0);ctx.restore();ctx.fillStyle='rgba(230,214,172,.6)';ctx.fillRect(-64,-28,43,10);
+    }else if(kind==='student'){
+      ctx.fillText('重點筆記',0,-10);ctx.beginPath();ctx.moveTo(-60,8);ctx.lineTo(62,5);ctx.moveTo(73,-16);ctx.lineTo(73,21);ctx.lineTo(65,13);ctx.moveTo(73,21);ctx.lineTo(81,13);ctx.stroke();ctx.font='13px "KaiTi",serif';ctx.fillText('日期・金額・分類',0,26);
+    }else if(kind==='manuscript'){
+      ctx.save();ctx.rotate(-.05);ctx.fillText('觀察 ／ 隨記',0,-5);ctx.beginPath();ctx.moveTo(-70,12);ctx.bezierCurveTo(-20,8,20,20,72,12);ctx.stroke();ctx.restore();
+    }else if(kind==='typewriter'){ctx.font='20px "Courier New",monospace';ctx.fillText('----- REPORT -----',0,0)}
+    else if(kind==='burnt'){ctx.beginPath();ctx.moveTo(-67,17);ctx.lineTo(63,-16);ctx.stroke()}
+    else if(kind==='crumpled'){ctx.strokeStyle='rgba(80,65,50,.35)';ctx.beginPath();ctx.moveTo(-85,-17);ctx.lineTo(2,20);ctx.lineTo(82,-10);ctx.stroke()}
+    ctx.restore();
+  }
   function render(entry,chosen,details){
     const theme=themeFor(entry,chosen);
-    const fonts={serif:'"Noto Serif TC", "Songti TC", "PMingLiU", serif',sans:'"Noto Sans TC", "PingFang TC", sans-serif'};
-    const W=640,P=theme?theme.pad:46,max=11800,font=theme&&fonts[theme.family]?fonts[theme.family]:'"SFMono-Regular", Consolas, "Noto Sans Mono CJK TC", monospace';
+    const fonts={hand:'"Kaiti TC", "KaiTi", "BiauKai", serif',serif:'"Noto Serif TC", "Songti TC", "PMingLiU", serif',sans:'"Noto Sans TC", "PingFang TC", sans-serif'};
+    const W=640,P=theme?theme.pad:46,max=11800,font=theme&&['manuscript','handmade','student'].includes(theme.surface)?fonts.hand:theme&&fonts[theme.family]?fonts[theme.family]:'"SFMono-Regular", Consolas, "Noto Sans Mono CJK TC", monospace';
     const measure=document.createElement('canvas').getContext('2d');
     let commands=[];
     const text=(value,size=24,align='left',gap=0)=>{
@@ -107,7 +161,7 @@
       if(gap)commands.push({h:gap});
     };
     const rule=()=>commands.push({rule:true,h:28});
-    text('LCB  記帳手札',30,'center');text(theme?theme.header:'罪 人 評 議 收 據',24,'center',12);if(theme){commands.push({stamp:theme.mark,h:44});text(theme.sinner+' / '+theme.name,22,'center',12)}rule();
+    text('LCB  記帳手札',30,'center');text(theme?theme.header:'罪 人 評 議 收 據',24,'center',12);if(theme){if(theme.surface)commands.push({decoration:theme.surface,h:84});commands.push({stamp:theme.mark,h:44});text(theme.sinner+' / '+theme.name,22,'center',12)}rule();
     text('日期  '+entry.date,22);
     const id=String(entry.id||'').replace(/[^a-zA-Z0-9]/g,'').slice(-12).toUpperCase();text('編號  '+(id||'LOCAL'),20);
     if(details){
@@ -128,8 +182,9 @@
       // Neutral thermal paper, with restrained grain; no fake stains or UI cards.
       ctx.beginPath();ctx.moveTo(0,8);for(let x=0;x<W;x+=16){ctx.lineTo(x+8,2);ctx.lineTo(x+16,8)}ctx.lineTo(W,H-8);for(let x=W;x>0;x-=16){ctx.lineTo(x-8,H-2);ctx.lineTo(x-16,H-8)}ctx.closePath();ctx.fillStyle=theme?theme.paper:'#fafaf7';ctx.fill();ctx.save();ctx.clip();
       let seed=91431;for(let j=0;j<W*H/140;j++){seed=(Math.imul(seed,1664525)+1013904223)>>>0;const x=seed%W;seed=(Math.imul(seed,1664525)+1013904223)>>>0;ctx.fillStyle='rgba(40,40,35,0.028)';ctx.fillRect(x,seed%H,1,1)}
+      if(theme&&theme.surface)paintPaper(ctx,W,H,P,theme,entry);
       let y=42;ctx.textBaseline='top';
-      for(const c of part){if(c.stamp){ctx.strokeStyle=theme.ink;ctx.fillStyle=theme.ink;ctx.font='18px '+font;ctx.textAlign='center';if(theme.border)ctx.strokeRect(P,y,W-2*P,30);ctx.fillText(c.stamp,W/2,y+5)}else if(c.rule){ctx.strokeStyle=theme?theme.ink:'#555';ctx.lineWidth=theme&&theme.weight?2:1;ctx.setLineDash(theme?theme.dash:[7,5]);ctx.beginPath();ctx.moveTo(P,y+10);ctx.lineTo(W-P,y+10);ctx.stroke();ctx.setLineDash([])}else if(c.text){ctx.font=(theme&&theme.weight?theme.weight+' ':'')+c.size+'px '+font;ctx.fillStyle=theme?theme.ink:'#292927';ctx.textAlign=c.align;ctx.fillText(c.text,c.align==='center'?W/2:c.align==='right'?W-P:P,y)}y+=c.h}
+      for(const c of part){if(c.decoration){paintEmblem(ctx,W,P,y,theme)}else if(c.stamp){ctx.strokeStyle=theme.ink;ctx.fillStyle=theme.ink;ctx.font='18px '+font;ctx.textAlign='center';if(theme.border)ctx.strokeRect(P,y,W-2*P,30);ctx.fillText(c.stamp,W/2,y+5)}else if(c.rule){ctx.strokeStyle=theme?theme.ink:'#555';ctx.lineWidth=theme&&theme.weight?2:1;ctx.setLineDash(theme?theme.dash:[7,5]);ctx.beginPath();ctx.moveTo(P,y+10);ctx.lineTo(W-P,y+10);ctx.stroke();ctx.setLineDash([])}else if(c.text){ctx.font=(theme&&theme.weight?theme.weight+' ':'')+c.size+'px '+font;ctx.fillStyle=theme?theme.ink:'#292927';ctx.textAlign=c.align;if(theme&&theme.surface==='typewriter'){ctx.globalAlpha=.82;ctx.fillText(c.text,c.align==='center'?W/2:c.align==='right'?W-P:P,y+.6);ctx.globalAlpha=1}ctx.fillText(c.text,c.align==='center'?W/2:c.align==='right'?W-P:P,y)}y+=c.h}
       if(parts.length>1){ctx.font='18px '+font;ctx.textAlign='center';ctx.fillText((index+1)+' / '+parts.length,W/2,y+8)}
       ctx.restore();return canvas;
     });
