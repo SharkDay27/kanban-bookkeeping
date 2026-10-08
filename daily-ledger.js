@@ -27,8 +27,10 @@
       '<footer class="ledger-footer"><span>收入 '+incomeCount+' 筆 · 支出 '+(rows.length-incomeCount)+' 筆</span><span>本日結餘 <strong class="'+(net<0?'ledger-expense':'ledger-income')+'">'+(net>0?'+ ':'')+safe(money(net))+'</strong></span></footer>';
   }
   const extras=document.createElement('div');extras.className='ledger-extras';
-  extras.innerHTML='<details class="ledger-calendar-panel" open><summary>月曆收支總覽</summary><div class="ledger-month-controls"><button type="button" id="ledgerMonthPrev" aria-label="上個月">‹</button><input type="month" id="ledgerMonth" aria-label="收支總覽月份"><button type="button" id="ledgerMonthNext" aria-label="下個月">›</button></div><p class="ledger-help">每日支出與結餘；點選日期查看日記帳。</p><div id="ledgerMonthTotals"></div><div class="ledger-weekdays">'+['日','一','二','三','四','五','六'].map(d=>'<span>'+d+'</span>').join('')+'</div><div id="ledgerCalendar" class="ledger-calendar"></div></details><details class="ledger-favorites-panel" open><summary>常用記帳項目</summary><p class="ledger-help">點選帶入當日記帳；確認後再儲存。可在新增記錄中存為常用。</p><div id="ledgerFavorites" class="ledger-favorites"></div><button type="button" id="ledgerNewFavorite">新增常用項目</button></details><div class="ledger-search"><label for="ledgerSearch">搜尋所有記帳記錄</label><input type="search" id="ledgerSearch" placeholder="店家、備註、分類、付款方式或金額"><div id="ledgerSearchResults" aria-live="polite"></div></div>';
+  extras.innerHTML='<details class="ledger-calendar-panel" open><summary>月曆收支總覽</summary><div class="ledger-month-controls"><button type="button" id="ledgerMonthPrev" aria-label="上個月">‹</button><input type="month" id="ledgerMonth" aria-label="收支總覽月份"><button type="button" id="ledgerMonthNext" aria-label="下個月">›</button></div><p class="ledger-help">每日支出與結餘；點選日期查看日記帳。</p><div id="ledgerMonthTotals"></div><div class="ledger-weekdays">'+['日','一','二','三','四','五','六'].map(d=>'<span>'+d+'</span>').join('')+'</div><div id="ledgerCalendar" class="ledger-calendar"></div></details><details class="ledger-favorites-panel" open><summary>常用記帳項目</summary><p class="ledger-help">點選帶入今天的記帳；確認後再儲存。可在新增記錄中存為常用。</p><div id="ledgerFavorites" class="ledger-favorites"></div><button type="button" id="ledgerNewFavorite">新增常用項目</button></details><div class="ledger-search"><label for="ledgerSearch">搜尋所有記帳記錄</label><input type="search" id="ledgerSearch" placeholder="店家、備註、分類、付款方式或金額"><div id="ledgerSearchResults" aria-live="polite"></div></div>';
   el('dailyLedgerPage').before(extras);
+  el('calendar').append(extras.querySelector('.ledger-calendar-panel'));
+  el('settings').append(extras.querySelector('.ledger-favorites-panel'));
   const note=document.createElement('div');note.className='ledger-daily-note';
   note.innerHTML='<label for="ledgerDailyNote">每日一句備註</label><textarea id="ledgerDailyNote" rows="2" maxlength="300" placeholder="今天有什麼值得記下的？"></textarea><span class="ledger-help" id="ledgerNoteStatus">自動儲存</span>';
   el('dailyLedgerPage').after(note);
@@ -63,13 +65,13 @@
   el('ledgerMonth').onchange=e=>{if(day(e.target.value+'-01'))calendarMonth=e.target.value;renderExtras()};
   el('ledgerSearch').oninput=renderSearch;
   el('ledgerDailyNote').oninput=e=>{state.profile.dailyNotes=state.profile.dailyNotes||{};if(e.target.value)state.profile.dailyNotes[selectedDate]=e.target.value;else delete state.profile.dailyNotes[selectedDate];saveLocal();el('ledgerNoteStatus').textContent='已儲存'};
-  el('ledgerNewFavorite').onclick=()=>{openEdit('','expense');el('edate').value=selectedDate;document.querySelector('#dlg .bookkeeping-quick-tools').open=true};
+  el('ledgerNewFavorite').onclick=()=>{openEdit('','expense');el('edate').value=today();document.querySelector('#dlg .bookkeeping-quick-tools').open=true};
   const originalSaveFavorite=saveBookkeepingFavorite;saveBookkeepingFavorite=function(){originalSaveFavorite();renderExtras()};el('saveBookkeepingFavorite').onclick=saveBookkeepingFavorite;
   document.addEventListener('click',e=>{
     const button=e.target.closest('[data-ledger-day],[data-ledger-edit],[data-ledger-search-edit],[data-ledger-favorite],[data-ledger-remove-favorite]');if(!button)return;
-    if(button.dataset.ledgerDay)chooseDate(button.dataset.ledgerDay);
+    if(button.dataset.ledgerDay){chooseDate(button.dataset.ledgerDay);setTab('journal');el('journal').scrollIntoView({block:'start'})}
     else if(button.dataset.ledgerEdit||button.dataset.ledgerSearchEdit){const id=button.dataset.ledgerEdit||button.dataset.ledgerSearchEdit,entry=state.entries.find(x=>x.id===id);if(entry){chooseDate(entry.date);openEdit(id)}}
-    else if(button.dataset.ledgerFavorite!==undefined){const t=bookkeepingHabitState().favorites[Number(button.dataset.ledgerFavorite)];if(t){openEdit('',t.type);el('edate').value=selectedDate;fillBookkeepingTemplate(t)}}
+    else if(button.dataset.ledgerFavorite!==undefined){const t=bookkeepingHabitState().favorites[Number(button.dataset.ledgerFavorite)];if(t){openEdit('',t.type);el('edate').value=today();fillBookkeepingTemplate(t)}}
     else {const h=bookkeepingHabitState();h.favorites.splice(Number(button.dataset.ledgerRemoveFavorite),1);saveLocal();renderExtras();renderBookkeepingTemplates()}
   });
   document.addEventListener('keydown',e=>{if(e.target.matches('[data-ledger-edit]')&&['Enter',' '].includes(e.key)){e.preventDefault();e.target.click()}});
@@ -81,8 +83,8 @@
   el('dailyLedgerNext').onclick=()=>moveDate(1);
   el('dailyLedgerToday').onclick=()=>{chooseDate(today())};
   el('dailyLedgerDate').addEventListener('change',e=>{chooseDate(e.target.value)});
-  TAB_LABELS.journal='日記帳';
-  const originalSetTab=setTab;setTab=function(id){originalSetTab(id);if(id==='journal')renderLedger()};
+  TAB_LABELS.journal='日記帳';TAB_LABELS.calendar='月曆收支總覽';
+  const originalSetTab=setTab;setTab=function(id){originalSetTab(id);if(['journal','calendar','settings'].includes(id))renderLedger()};
   const originalRender=render;render=function(){originalRender();renderLedger()};
   window.forceRenderDailyLedger=renderLedger;
   window.addEventListener('pageshow',renderLedger);
