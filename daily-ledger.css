@@ -9,3 +9,5 @@
 
 #journal .ledger-extras{display:block}#calendar .ledger-calendar-panel{margin-top:16px}#calendar .ledger-calendar-panel>summary{display:none}#calendar .ledger-calendar-day{min-height:108px;padding:10px!important}#calendar .ledger-calendar-day small{font-size:13px}#calendar .ledger-calendar-day small span{font-size:10px}#settings .ledger-favorites-panel{margin-top:16px}#settings .ledger-favorites{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
 @media(max-width:600px){#calendar .ledger-calendar-day{min-height:90px;padding:5px 2px!important}#calendar .ledger-calendar-day small,#calendar .ledger-calendar-day small b{font-size:9px}#calendar .ledger-calendar-day small span{font-size:8px}#settings .ledger-favorites{grid-template-columns:minmax(0,1fr)}}
+
+#ledgerBackCalendar{margin-bottom:12px}#ledgerBackCalendar[hidden]{display:none!important}
