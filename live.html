@@ -12,6 +12,7 @@
 <title>記帳手札</title>
 <link rel="stylesheet" href="styles.css?v=20261007g">
 <link rel="stylesheet" href="minimal-ui.css?v=20261007g">
+<link rel="stylesheet" href="daily-ledger.css?v=20261008b">
 </head>
 <body>
 <script>
@@ -101,6 +102,7 @@ window.addEventListener('pageshow',function(){
   <div class="tabs zone zone-tabs collapsed" id="mainMenuTabs" aria-label="主功能頁籤" aria-hidden="true">
     <button class="wood active" data-tab="adventure">終端</button>
     <button class="wood" data-tab="book">記錄</button>
+    <button class="wood" data-tab="journal">日記帳</button>
     <button class="wood" data-tab="quests">任務</button>
     <button class="wood" data-tab="explore">探索</button>
     <button class="wood" data-tab="sinners">罪人管理</button>
@@ -166,6 +168,18 @@ window.addEventListener('pageshow',function(){
     </details>
   </section>
 
+  <section id="journal" class="section">
+    <div class="ledger-toolbar">
+      <div class="ledger-heading"><h2>日記帳</h2><p>把一天的收支，整理在同一頁。</p></div>
+      <div class="ledger-date-controls">
+        <button type="button" id="dailyLedgerPrev" aria-label="前一天">‹</button>
+        <input type="date" id="dailyLedgerDate" aria-label="日記帳日期">
+        <button type="button" id="dailyLedgerNext" aria-label="後一天">›</button>
+        <button type="button" id="dailyLedgerToday">今天</button>
+      </div>
+    </div>
+    <div class="ledger-page" id="dailyLedgerPage"></div>
+  </section>
   <section id="book" class="section">
     <div class="wood panel record-console">
       <div class="archive-header">
@@ -495,5 +509,6 @@ window.addEventListener('pageshow',function(){
 <script src="statistics.js?v=20261007g"></script>
 <script src="manager-progress.js?v=20261007g"></script>
 <script src="minimal-ui.js?v=20261007g"></script>
+<script src="daily-ledger.js?v=20261008b"></script>
 </body>
 </html>
