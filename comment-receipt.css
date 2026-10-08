@@ -1,0 +1,33 @@
+.receipt-card-action{display:flex;justify-content:flex-end;margin-top:10px;padding-top:8px;border-top:1px solid #eee}
+.receipt-card-action button{font-size:12px;min-height:36px;padding:7px 12px;background:#fff;border:1px solid #ddd;border-radius:6px;color:#333;box-shadow:none}
+dialog#receiptDialog{width:min(460px,calc(100vw - 20px))!important;max-width:460px!important;height:auto!important;max-height:min(90dvh,calc(var(--vvh,100dvh) - 20px))!important;padding:0!important;overflow:hidden!important;border:1px solid #dedede!important;border-radius:12px!important;background:#fff!important;color:#202020!important;box-sizing:border-box!important}
+#receiptDialog::backdrop{background:rgba(0,0,0,.4)}
+#receiptDialog .receipt-shell{display:flex;flex-direction:column;max-height:min(90dvh,calc(var(--vvh,100dvh) - 20px));min-height:0}
+#receiptDialog .receipt-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #eee;gap:8px;flex:none}
+#receiptDialog h2{font-size:17px;line-height:1.3;margin:0;font-weight:600}
+#receiptDialog p{font-size:12px;line-height:1.6;margin:5px 0;color:#777}
+#receiptDialog button{min-height:42px;border:1px solid #ddd;border-radius:6px;background:#fff;color:#222;padding:8px 12px;box-shadow:none;font-size:13px}
+#receiptDialog [data-receipt-close]{font-size:22px;min-width:42px;padding:4px;flex:none}
+#receiptDialog .receipt-scroll{overflow:auto;overscroll-behavior:contain;min-height:0;padding:12px;flex:1}
+#receiptDialog .receipt-options{font-size:13px;line-height:1.5}
+#receiptDialog label{display:flex;align-items:center;gap:8px;min-height:44px;color:#333}
+#receiptDialog input[type=checkbox]{appearance:auto;width:18px!important;height:18px!important;min-height:18px!important;margin:0;flex:none;accent-color:#222}
+#receiptDialog details{border-top:1px solid #eee;margin-top:6px}
+#receiptDialog summary{cursor:pointer;padding:12px 0;min-height:44px;box-sizing:border-box}
+#receiptDialog .receipt-line-picker{max-height:200px;overflow:auto;overscroll-behavior:contain}
+#receiptDialog .receipt-line-picker label{align-items:flex-start;padding:9px 0;border-top:1px solid #eee}
+#receiptDialog .receipt-line-picker label>span{min-width:0;overflow-wrap:anywhere}
+#receiptDialog .receipt-line-picker b{display:block;font-size:12px;font-weight:600}
+#receiptDialog .receipt-line-picker span span{font-size:12px;color:#666;display:block;white-space:pre-wrap}
+#receiptDialog .receipt-selection{display:flex;gap:8px;margin:8px 0}
+#receiptDialog .receipt-preview{display:flex;flex-direction:column;gap:16px;align-items:center;background:#ebebeb;padding:18px 12px;min-height:40px}
+#receiptDialog .receipt-preview:empty{display:none}
+#receiptDialog .receipt-preview img{width:100%;max-width:320px;height:auto;display:block;filter:drop-shadow(0 2px 3px rgba(0,0,0,.12));user-select:auto;-webkit-touch-callout:default}
+#receiptDialog .receipt-footer{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px 12px calc(12px + env(safe-area-inset-bottom));border-top:1px solid #eee;background:#fff;flex:none}
+#receiptDialog .receipt-footer .primary{background:#222;color:#fff;border-color:#222}
+#receiptDialog button:disabled{opacity:.4;cursor:default}
+#receiptDialog :focus-visible{outline:2px solid #888;outline-offset:-2px}
+.comment-dialog-actions{flex-wrap:wrap}
+#receiptDialog input[type=checkbox]{padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important}
+#receiptDialog .receipt-footer .primary{background:#222!important;color:#fff!important;border-color:#222!important}
+#receiptDialog .receipt-preview a{font-size:12px;color:#555;text-decoration:underline;padding:6px}
