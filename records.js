@@ -18,7 +18,8 @@
     return (state.entries||[]).filter(function(x){
       return (!m||String(x.date||'').startsWith(m))&&(!t||x.type===t)&&(!c||x.category===c)&&
         (!q||[x.store,x.note,x.invoice,x.category].concat((x.items||[]).map(function(i){return i.name})).join(' ').toLowerCase().includes(q));
-    }).sort(function(x,y){return String(y.date||'').localeCompare(String(x.date||''))||Number(y.amount||0)-Number(x.amount||0)});
+    // Stable date sort preserves newest-first insertion order within each day.
+    }).sort(function(x,y){return String(y.date||'').localeCompare(String(x.date||''))});
   }
   function renderBookkeeping(){
     const box=el('board');if(!box)return;
