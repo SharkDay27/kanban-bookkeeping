@@ -250,6 +250,23 @@
     else if(kind==='crumpled'){ctx.font='13px monospace';ctx.fillText('FIELD COPY',0,0)}
     ctx.restore();
   }
+  function foldPrintedInk(ink,paper,colour){
+    const W=ink.width,H=ink.height,map=document.createElement('canvas');map.width=160;map.height=Math.ceil(H/4);
+    const mc=map.getContext('2d',{willReadFrequently:true});mc.drawImage(paper,0,0,map.width,map.height);
+    const pixels=mc.getImageData(0,0,map.width,map.height).data,mw=map.width,mh=map.height;
+    const sampleLight=(x,y)=>{const i=(Math.max(0,Math.min(mh-1,y))*mw+Math.max(0,Math.min(mw-1,x)))*4;return (pixels[i]*.2126+pixels[i+1]*.7152+pixels[i+2]*.0722)/255};
+    const light=(x,y)=>{x=Math.max(0,Math.min(mw-1,x));y=Math.max(0,Math.min(mh-1,y));const a=Math.floor(x),b=Math.floor(y),fx=x-a,fy=y-b;return sampleLight(a,b)*(1-fx)*(1-fy)+sampleLight(Math.min(mw-1,a+1),b)*fx*(1-fy)+sampleLight(a,Math.min(mh-1,b+1))*(1-fx)*fy+sampleLight(Math.min(mw-1,a+1),Math.min(mh-1,b+1))*fx*fy};
+    const ic=ink.getContext('2d',{willReadFrequently:true}),source=ic.getImageData(0,0,W,H).data,out=ic.createImageData(W,H),rgb=colour.match(/[a-f0-9]{2}/gi).map(x=>parseInt(x,16));
+    for(let y=0;y<H;y++)for(let x=0;x<W;x++){
+      const mx=x*mw/W,my=y*mh/H,l=light(mx,my),gx=light(mx+2,my)-light(mx-2,my),gy=light(mx,my+2)-light(mx,my-2);
+      // Keep the physical deformation subtle: at most 2 px sideways and 3 px vertically.
+      const dx=Math.max(-2,Math.min(2,-gx*9+(l-.88)*4)),dy=Math.max(-3,Math.min(3,-gy*11+(l-.88)*7));
+      const sx=Math.max(0,Math.min(W-1,x+dx)),sy=Math.max(0,Math.min(H-1,y+dy)),x0=Math.floor(sx),y0=Math.floor(sy),fx=sx-x0,fy=sy-y0,x1=Math.min(W-1,x0+1),y1=Math.min(H-1,y0+1);
+      const alpha=source[(y0*W+x0)*4+3]*(1-fx)*(1-fy)+source[(y0*W+x1)*4+3]*fx*(1-fy)+source[(y1*W+x0)*4+3]*(1-fx)*fy+source[(y1*W+x1)*4+3]*fx*fy;
+      if(alpha){const i=(y*W+x)*4,shade=.82+.2*l;out.data[i]=rgb[0]*shade;out.data[i+1]=rgb[1]*shade;out.data[i+2]=rgb[2]*shade;out.data[i+3]=alpha}
+    }
+    ic.putImageData(out,0,0);return ink;
+  }
   function render(entry,chosen,details){
     const theme=themeFor(entry,chosen);
     const fonts={hand:'"Kaiti TC", "KaiTi", "BiauKai", serif',serif:'"Noto Serif TC", "Songti TC", "PMingLiU", serif',sans:'"Noto Sans TC", "PingFang TC", sans-serif'};
@@ -282,7 +299,7 @@
     for(const command of commands){if(height+command.h>max){parts.push(part);part=[];height=84}part.push(command);height+=command.h}if(part.length)parts.push(part);
     return parts.map((part,index)=>{
       const H=84+part.reduce((s,x)=>s+x.h,0)+(parts.length>1?36:0)+(theme?.surface==='crumpled'?80:0);
-      const canvas=document.createElement('canvas');canvas.width=W;canvas.height=H;const ctx=canvas.getContext('2d');
+      const canvas=document.createElement('canvas');canvas.width=W;canvas.height=H;let ctx=canvas.getContext('2d');const paperContext=ctx;
       // Neutral thermal paper, with restrained grain; no fake stains or UI cards.
       const photoPaper=theme?.surface==='crumpled'&&crumpledPaper.complete&&crumpledPaper.naturalWidth;
       if(photoPaper){
@@ -305,9 +322,11 @@
       }
       let seed=91431;if(!photoPaper)for(let j=0;j<W*H/140;j++){seed=(Math.imul(seed,1664525)+1013904223)>>>0;const x=seed%W;seed=(Math.imul(seed,1664525)+1013904223)>>>0;ctx.fillStyle='rgba(40,40,35,0.028)';ctx.fillRect(x,seed%H,1,1)}
       if(theme&&theme.surface)paintPaper(ctx,W,H,P,theme,entry);
+      let ink;if(photoPaper){ink=document.createElement('canvas');ink.width=W;ink.height=H;ctx=ink.getContext('2d')}
       let y=photoPaper?82:42;ctx.textBaseline='top';
       for(const c of part){if(c.decoration){paintEmblem(ctx,W,P,y,theme)}else if(c.stamp){ctx.strokeStyle=theme.ink;ctx.fillStyle=theme.ink;ctx.font='18px '+font;ctx.textAlign='center';if(theme.border)ctx.strokeRect(P,y,W-2*P,30);ctx.fillText(c.stamp,W/2,y+5)}else if(c.rule){ctx.strokeStyle=theme?theme.ink:'#555';ctx.lineWidth=theme&&theme.weight?2:1;ctx.setLineDash(theme?theme.dash:[7,5]);ctx.beginPath();ctx.moveTo(P,y+10);ctx.lineTo(W-P,y+10);ctx.stroke();ctx.setLineDash([])}else if(c.text){ctx.font=(theme&&theme.weight?theme.weight+' ':'')+c.size+'px '+font;ctx.fillStyle=theme?theme.ink:'#292927';ctx.textAlign=c.align;if(theme&&theme.surface==='typewriter'){ctx.globalAlpha=.82;ctx.fillText(c.text,c.align==='center'?W/2:c.align==='right'?W-P:P,y+.6);ctx.globalAlpha=1}ctx.fillText(c.text,c.align==='center'?W/2:c.align==='right'?W-P:P,y)}y+=c.h}
       if(parts.length>1){ctx.font='18px '+font;ctx.textAlign='center';ctx.fillText((index+1)+' / '+parts.length,W/2,y+8)}
+      if(photoPaper){paperContext.drawImage(foldPrintedInk(ink,canvas,theme.ink),0,0);ctx=paperContext}
       ctx.restore();return canvas;
     });
   }
