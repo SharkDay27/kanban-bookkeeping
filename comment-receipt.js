@@ -114,11 +114,32 @@
       for(let y=18;y<H;y+=24){ctx.beginPath();ctx.moveTo(14,y);ctx.lineTo(W-14,y);ctx.stroke()}
     }
     if(kind==='nautical'){
-      ctx.strokeStyle='rgba(114,97,64,.12)';ctx.lineWidth=1;
-      for(let x=10;x<W;x+=90){ctx.beginPath();ctx.moveTo(x,18);ctx.lineTo(x,H-18);ctx.stroke()}
-      for(let y=18;y<H;y+=90){ctx.beginPath();ctx.moveTo(14,y);ctx.lineTo(W-14,y);ctx.stroke()}
-      for(let n=0;n<5;n++){const x=random()*W,y=random()*H;ctx.beginPath();ctx.moveTo(x-90,y);ctx.bezierCurveTo(x-70,y-50,x+40,y-30,x+65,y+15);ctx.bezierCurveTo(x+50,y+55,x-40,y+30,x-90,y);ctx.stroke()}
-      ctx.setLineDash([3,7]);ctx.beginPath();ctx.moveTo(30,H-170);ctx.bezierCurveTo(200,H-270,420,H-90,W-25,H-190);ctx.stroke();ctx.setLineDash([]);
+      // A restrained, fictional nautical chart behind the receipt text.
+      ctx.strokeStyle='rgba(80,115,126,.10)';ctx.lineWidth=.7;
+      for(let x=28;x<W;x+=88){ctx.beginPath();ctx.moveTo(x,18);ctx.lineTo(x,H-18);ctx.stroke()}
+      for(let y=30;y<H;y+=88){ctx.beginPath();ctx.moveTo(14,y);ctx.lineTo(W-14,y);ctx.stroke()}
+      const chartSeed=random()*Math.PI*2;
+      function coast(cx,cy,rx,ry,phase,scale){
+        const points=[];
+        for(let n=0;n<72;n++){const angle=n*Math.PI/36,r=1+.17*Math.sin(angle*3+phase)+.09*Math.sin(angle*7-phase)+.055*Math.cos(angle*13+phase);points.push({x:cx+Math.cos(angle)*rx*r*scale,y:cy+Math.sin(angle)*ry*r*scale})}
+        ctx.beginPath();const last=points[points.length-1],first=points[0];ctx.moveTo((last.x+first.x)/2,(last.y+first.y)/2);
+        for(let n=0;n<points.length;n++){const p=points[n],q=points[(n+1)%points.length];ctx.quadraticCurveTo(p.x,p.y,(p.x+q.x)/2,(p.y+q.y)/2)}ctx.closePath();
+      }
+      const islands=[[-10,H*.26,133,178,chartSeed],[W+22,H*.66,160,225,chartSeed+2],[W*.75,H*.17,55,92,chartSeed+1],[W*.23,H*.83,42,65,chartSeed+3],[W*.8,H*.88,26,42,chartSeed+4]];
+      for(const island of islands){
+        ctx.strokeStyle='rgba(93,125,132,.11)';ctx.lineWidth=.8;
+        for(const scale of [1.12,1.23,1.35]){coast(...island,scale);ctx.stroke()}
+        coast(...island,1);ctx.fillStyle='rgba(157,142,101,.095)';ctx.fill();ctx.strokeStyle='rgba(92,106,90,.25)';ctx.lineWidth=1.15;ctx.stroke();
+        coast(...island,.82);ctx.strokeStyle='rgba(118,114,85,.10)';ctx.lineWidth=.7;ctx.stroke();
+      }
+      // Rhumb lines, depth soundings, and a dotted course give the chart its maritime detail.
+      const ox=75,oy=H*.64;ctx.strokeStyle='rgba(122,104,65,.065)';ctx.lineWidth=.6;
+      for(let n=0;n<16;n++){const angle=n*Math.PI/8;ctx.beginPath();ctx.moveTo(ox,oy);ctx.lineTo(ox+Math.cos(angle)*H,oy+Math.sin(angle)*H);ctx.stroke()}
+      ctx.fillStyle='rgba(69,104,116,.20)';ctx.font='italic 11px Georgia, serif';ctx.textAlign='center';
+      for(let n=0;n<30;n++){const x=25+random()*(W-50),y=160+random()*(H-200);ctx.fillText(String(12+Math.floor(random()*88)),x,y)}
+      ctx.font='italic 16px Georgia, serif';ctx.fillStyle='rgba(69,104,116,.16)';ctx.fillText('N O R T H   S E A',W*.5,H*.42);
+      ctx.strokeStyle='rgba(133,83,62,.19)';ctx.lineWidth=1;ctx.setLineDash([3,6]);ctx.beginPath();ctx.moveTo(65,H*.9);ctx.bezierCurveTo(W*.7,H*.82,W*.22,H*.56,W*.68,H*.3);ctx.stroke();ctx.setLineDash([]);
+      for(const [x,y] of [[65,H*.9],[W*.68,H*.3]]){ctx.beginPath();ctx.arc(x,y,3,0,Math.PI*2);ctx.stroke()}
     }
     if(kind==='crumpled'||kind==='burnt'){
       // Shade the folds on a separate layer, then soften the paper relief once.
