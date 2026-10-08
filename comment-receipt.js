@@ -7,6 +7,9 @@
   const burntPaper=new Image();
   const burntPaperReady=new Promise(resolve=>{burntPaper.onload=()=>resolve(true);burntPaper.onerror=()=>resolve(false)});
   burntPaper.src='receipt-burnt-paper.svg?v=20261009p1';
+  const nauticalPaper=new Image();
+  const nauticalPaperReady=new Promise(resolve=>{nauticalPaper.onload=()=>resolve(true);nauticalPaper.onerror=()=>resolve(false)});
+  nauticalPaper.src='receipt-nautical-paper.svg?v=20261009p1';
   const dialog=document.createElement('dialog');
   dialog.id='receiptDialog';dialog.setAttribute('aria-labelledby','receiptTitle');
   dialog.innerHTML='<div class="receipt-shell"><header class="receipt-header"><div><h2 id="receiptTitle">製作評議收據</h2><p>評議收據 · PNG 圖片</p></div><button type="button" data-receipt-close aria-label="關閉收據預覽">×</button></header><div class="receipt-scroll"><div class="receipt-options"><label><input type="checkbox" id="receiptDetails" checked>包含記帳明細</label><details><summary>選擇要印出的評議 <span id="receiptCount"></span></summary><div class="receipt-line-picker" id="receiptLinePicker"></div><div class="receipt-selection"><button type="button" data-receipt-all>全選</button><button type="button" data-receipt-none>清空</button></div></details></div><p id="receiptStatus" role="status" aria-live="polite"></p><div id="receiptPreview" class="receipt-preview"></div><p class="receipt-help">圖片由本機產生。iPhone 可用「分享／儲存」選擇儲存影像；長篇評議會自動分張。</p></div><footer class="receipt-footer"><button type="button" id="receiptShare">分享／儲存</button><button type="button" class="primary" id="receiptDownload">下載 PNG</button></footer></div>';
@@ -66,8 +69,10 @@
     el('receiptStatus').textContent='正在排印…';
     try{
       await document.fonts.ready;
+      if(run!==generation)return;
       if(themeFor(current,selected)?.surface==='crumpled')await crumpledPaperReady;
       if(themeFor(current,selected)?.surface==='burnt')await burntPaperReady;
+      if(themeFor(current,selected)?.surface==='nautical')await nauticalPaperReady;
       if(run!==generation)return;
       const canvases=render(current,selected,el('receiptDetails').checked);
       for(const canvas of canvases){
@@ -89,7 +94,7 @@
     '默爾索':{surface:'typewriter',name:'打字機單據',paper:'#f9fafb',ink:'#28323b',family:'mono',pad:42,gap:14,dash:[],header:'作業紀錄單',mark:'05 / REPORT',border:true},
     '鴻璐':{name:'雅緻便箋',paper:'#f7faf7',ink:'#29433f',family:'serif',pad:58,gap:26,dash:[1,5],header:'隨筆留存',mark:'06 / MEMO',border:false},
     '希斯克利夫':{surface:'crumpled',name:'揉皺票根',paper:'#f8f5f0',ink:'#3f3336',family:'mono',pad:68,gap:18,dash:[15,5],header:'現場記錄',mark:'07 / FIELD',border:true,weight:600},
-    '以實瑪利':{surface:'nautical',name:'航海圖與羅盤',paper:'#faf8f2',ink:'#3f3b32',family:'mono',pad:46,gap:20,dash:[10,4,2,4],header:'航路記錄單',mark:'08 / LOG',border:true},
+    '以實瑪利':{surface:'nautical',name:'航海圖與羅盤',paper:'#fafbfc',ink:'#34383b',family:'mono',pad:46,gap:20,dash:[10,4,2,4],header:'航海記帳收據',mark:'08 / LOG',border:true},
     '羅佳':{name:'生活小票',paper:'#fcf7f3',ink:'#4a3335',family:'sans',pad:48,gap:24,dash:[4,5],header:'今日小記',mark:'09 / DAILY',border:false},
     '辛克萊':{surface:'student',name:'學生筆記本',paper:'#f8faf4',ink:'#344034',family:'serif',pad:54,gap:24,dash:[2,4],header:'個人筆記',mark:'11 / NOTES',border:false},
     '奧提斯':{surface:'operations',name:'作戰紀錄',paper:'#f9f9f2',ink:'#3b4030',family:'mono',pad:42,gap:16,dash:[12,3],header:'作戰紀錄',mark:'12 / OPERATIONS',border:true,weight:600},
@@ -107,6 +112,7 @@
     return 3+noise(91)*15+noise(23)*7+noise(3)*3;
   }
   function paintPaper(ctx,W,H,P,theme,entry){
+    if(theme.surface==='nautical'&&nauticalPaper.complete&&nauticalPaper.naturalWidth){ctx.save();ctx.globalAlpha=.78;ctx.drawImage(nauticalPaper,0,0,W,H);ctx.restore();return}
     if(theme.surface==='crumpled'&&crumpledPaper.complete&&crumpledPaper.naturalWidth)return;
     if(theme.surface==='burnt'&&burntPaper.complete&&burntPaper.naturalWidth)return;
     ctx.save();const kind=theme.surface;
