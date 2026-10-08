@@ -12,7 +12,7 @@
 <title>記帳手札</title>
 <link rel="stylesheet" href="styles.css?v=20261007g">
 <link rel="stylesheet" href="minimal-ui.css?v=20261007g">
-<link rel="stylesheet" href="daily-ledger.css?v=20261008c">
+<link rel="stylesheet" href="daily-ledger.css?v=20261008d">
 </head>
 <body>
 <script>
@@ -103,6 +103,7 @@ window.addEventListener('pageshow',function(){
     <button class="wood active" data-tab="adventure">終端</button>
     <button class="wood" data-tab="book">記錄</button>
     <button class="wood" data-tab="journal">日記帳</button>
+    <button class="wood" data-tab="calendar">月曆收支總覽</button>
     <button class="wood" data-tab="quests">任務</button>
     <button class="wood" data-tab="explore">探索</button>
     <button class="wood" data-tab="sinners">罪人管理</button>
@@ -168,6 +169,9 @@ window.addEventListener('pageshow',function(){
     </details>
   </section>
 
+  <section id="calendar" class="section">
+    <div class="ledger-heading"><h2>月曆收支總覽</h2><p>按月份回顧收支，點選日期查看日記帳。</p></div>
+  </section>
   <section id="journal" class="section">
     <div class="ledger-toolbar">
       <div class="ledger-heading"><h2>日記帳</h2><p>把一天的收支，整理在同一頁。</p></div>
@@ -509,6 +513,6 @@ window.addEventListener('pageshow',function(){
 <script src="statistics.js?v=20261007g"></script>
 <script src="manager-progress.js?v=20261007g"></script>
 <script src="minimal-ui.js?v=20261007g"></script>
-<script src="daily-ledger.js?v=20261008c"></script>
+<script src="daily-ledger.js?v=20261008d"></script>
 </body>
 </html>
