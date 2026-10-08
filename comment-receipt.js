@@ -1,6 +1,9 @@
 /* Local PNG renderer: no uploads or third-party image dependencies. */
 (function(){
   'use strict';
+  const crumpledPaper=new Image();
+  const crumpledPaperReady=new Promise(resolve=>{crumpledPaper.onload=()=>resolve(true);crumpledPaper.onerror=()=>resolve(false)});
+  crumpledPaper.src='receipt-crumpled-paper.svg?v=20261008p1';
   const dialog=document.createElement('dialog');
   dialog.id='receiptDialog';dialog.setAttribute('aria-labelledby','receiptTitle');
   dialog.innerHTML='<div class="receipt-shell"><header class="receipt-header"><div><h2 id="receiptTitle">製作評議收據</h2><p>熱感紙樣式 · PNG 圖片</p></div><button type="button" data-receipt-close aria-label="關閉收據預覽">×</button></header><div class="receipt-scroll"><div class="receipt-options"><label><input type="checkbox" id="receiptDetails" checked>包含記帳明細</label><details><summary>選擇要印出的評議 <span id="receiptCount"></span></summary><div class="receipt-line-picker" id="receiptLinePicker"></div><div class="receipt-selection"><button type="button" data-receipt-all>全選</button><button type="button" data-receipt-none>清空</button></div></details></div><p id="receiptStatus" role="status" aria-live="polite"></p><div id="receiptPreview" class="receipt-preview"></div><p class="receipt-help">圖片由本機產生。iPhone 可用「分享／儲存」選擇儲存影像；長篇評議會自動分張。</p></div><footer class="receipt-footer"><button type="button" id="receiptShare">分享／儲存</button><button type="button" class="primary" id="receiptDownload">下載 PNG</button></footer></div>';
@@ -59,7 +62,9 @@
     if(!count){el('receiptStatus').textContent='請至少選擇一段評議。';return}
     el('receiptStatus').textContent='正在排印…';
     try{
-      await document.fonts.ready;if(run!==generation)return;
+      await document.fonts.ready;
+      if(themeFor(current,selected)?.surface==='crumpled')await crumpledPaperReady;
+      if(run!==generation)return;
       const canvases=render(current,selected,el('receiptDetails').checked);
       for(const canvas of canvases){
         const blob=await new Promise((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(Error('PNG 產生失敗')),'image/png'));
@@ -79,7 +84,7 @@
     '良秀':{surface:'burnt',name:'焦痕短箋',paper:'#faf8f5',ink:'#3d2929',family:'serif',pad:60,gap:32,dash:[],header:'評議短箋',mark:'04 / R.',border:false},
     '默爾索':{surface:'typewriter',name:'打字機單據',paper:'#f9fafb',ink:'#28323b',family:'mono',pad:42,gap:14,dash:[],header:'作業紀錄單',mark:'05 / REPORT',border:true},
     '鴻璐':{name:'雅緻便箋',paper:'#f7faf7',ink:'#29433f',family:'serif',pad:58,gap:26,dash:[1,5],header:'隨筆留存',mark:'06 / MEMO',border:false},
-    '希斯克利夫':{surface:'crumpled',name:'揉皺票根',paper:'#f8f5f0',ink:'#3f3336',family:'mono',pad:42,gap:18,dash:[15,5],header:'現場記錄',mark:'07 / FIELD',border:true,weight:600},
+    '希斯克利夫':{surface:'crumpled',name:'揉皺票根',paper:'#f8f5f0',ink:'#3f3336',family:'mono',pad:68,gap:18,dash:[15,5],header:'現場記錄',mark:'07 / FIELD',border:true,weight:600},
     '以實瑪利':{surface:'nautical',name:'航海圖與羅盤',paper:'#faf8f2',ink:'#3f3b32',family:'mono',pad:46,gap:20,dash:[10,4,2,4],header:'航路記錄單',mark:'08 / LOG',border:true},
     '羅佳':{name:'生活小票',paper:'#fcf7f3',ink:'#4a3335',family:'sans',pad:48,gap:24,dash:[4,5],header:'今日小記',mark:'09 / DAILY',border:false},
     '辛克萊':{surface:'student',name:'學生筆記本',paper:'#f8faf4',ink:'#344034',family:'serif',pad:54,gap:24,dash:[2,4],header:'個人筆記',mark:'11 / NOTES',border:false},
@@ -98,6 +103,7 @@
     return 3+noise(91)*15+noise(23)*7+noise(3)*3;
   }
   function paintPaper(ctx,W,H,P,theme,entry){
+    if(theme.surface==='crumpled'&&crumpledPaper.complete&&crumpledPaper.naturalWidth)return;
     ctx.save();const kind=theme.surface;
     let seed=Array.from(String(entry.id||'paper')).reduce((v,c)=>(Math.imul(v,31)+c.charCodeAt(0))>>>0,7123);
     const random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};
@@ -241,13 +247,13 @@
       ctx.save();ctx.rotate(-.05);ctx.fillText('觀察 ／ 隨記',0,-5);ctx.beginPath();ctx.moveTo(-70,12);ctx.bezierCurveTo(-20,8,20,20,72,12);ctx.stroke();ctx.restore();
     }else if(kind==='typewriter'){ctx.font='20px "Courier New",monospace';ctx.fillText('----- REPORT -----',0,0)}
     else if(kind==='burnt'){ctx.beginPath();ctx.moveTo(-67,17);ctx.lineTo(63,-16);ctx.stroke()}
-    else if(kind==='crumpled'){ctx.strokeStyle='rgba(80,65,50,.35)';ctx.beginPath();ctx.moveTo(-85,-17);ctx.lineTo(2,20);ctx.lineTo(82,-10);ctx.stroke()}
+    else if(kind==='crumpled'){ctx.font='13px monospace';ctx.fillText('FIELD COPY',0,0)}
     ctx.restore();
   }
   function render(entry,chosen,details){
     const theme=themeFor(entry,chosen);
     const fonts={hand:'"Kaiti TC", "KaiTi", "BiauKai", serif',serif:'"Noto Serif TC", "Songti TC", "PMingLiU", serif',sans:'"Noto Sans TC", "PingFang TC", sans-serif'};
-    const W=640,P=theme?theme.pad:46,max=11800,font=theme&&['manuscript','handmade','student'].includes(theme.surface)?fonts.hand:theme&&fonts[theme.family]?fonts[theme.family]:'"SFMono-Regular", Consolas, "Noto Sans Mono CJK TC", monospace';
+    const W=640,P=theme?theme.pad:46,max=theme?.surface==='crumpled'?11720:11800,font=theme&&['manuscript','handmade','student'].includes(theme.surface)?fonts.hand:theme&&fonts[theme.family]?fonts[theme.family]:'"SFMono-Regular", Consolas, "Noto Sans Mono CJK TC", monospace';
     const measure=document.createElement('canvas').getContext('2d');
     let commands=[];
     const text=(value,size=24,align='left',gap=0)=>{
@@ -275,9 +281,13 @@
     const parts=[];let part=[],height=84;
     for(const command of commands){if(height+command.h>max){parts.push(part);part=[];height=84}part.push(command);height+=command.h}if(part.length)parts.push(part);
     return parts.map((part,index)=>{
-      const H=84+part.reduce((s,x)=>s+x.h,0)+(parts.length>1?36:0);
+      const H=84+part.reduce((s,x)=>s+x.h,0)+(parts.length>1?36:0)+(theme?.surface==='crumpled'?80:0);
       const canvas=document.createElement('canvas');canvas.width=W;canvas.height=H;const ctx=canvas.getContext('2d');
       // Neutral thermal paper, with restrained grain; no fake stains or UI cards.
+      const photoPaper=theme?.surface==='crumpled'&&crumpledPaper.complete&&crumpledPaper.naturalWidth;
+      if(photoPaper){
+        ctx.drawImage(crumpledPaper,40,50,944,1440,0,0,W,H);ctx.save();
+      }else{
       ctx.beginPath();
       if(theme&&['burnt','crumpled'].includes(theme.surface)){
         const edge=theme.surface==='burnt'?charredEdge:(v,phase)=>3+Math.abs(5*Math.sin(v*.031+phase)+4*Math.cos(v*.067+phase));
@@ -292,9 +302,10 @@
         for(let y=H-corner;y>=corner;y-=2)ctx.lineTo(edge(y,0),y);
         ctx.quadraticCurveTo(edge(corner,0),edge(corner,2),corner,edge(corner,2));
       }else{ctx.moveTo(0,8);for(let x=0;x<W;x+=16){ctx.lineTo(x+8,2);ctx.lineTo(x+16,8)}ctx.lineTo(W,H-8);for(let x=W;x>0;x-=16){ctx.lineTo(x-8,H-2);ctx.lineTo(x-16,H-8)}}ctx.closePath();ctx.fillStyle=theme?theme.paper:'#fafaf7';ctx.fill();ctx.save();ctx.clip();
-      let seed=91431;for(let j=0;j<W*H/140;j++){seed=(Math.imul(seed,1664525)+1013904223)>>>0;const x=seed%W;seed=(Math.imul(seed,1664525)+1013904223)>>>0;ctx.fillStyle='rgba(40,40,35,0.028)';ctx.fillRect(x,seed%H,1,1)}
+      }
+      let seed=91431;if(!photoPaper)for(let j=0;j<W*H/140;j++){seed=(Math.imul(seed,1664525)+1013904223)>>>0;const x=seed%W;seed=(Math.imul(seed,1664525)+1013904223)>>>0;ctx.fillStyle='rgba(40,40,35,0.028)';ctx.fillRect(x,seed%H,1,1)}
       if(theme&&theme.surface)paintPaper(ctx,W,H,P,theme,entry);
-      let y=42;ctx.textBaseline='top';
+      let y=photoPaper?82:42;ctx.textBaseline='top';
       for(const c of part){if(c.decoration){paintEmblem(ctx,W,P,y,theme)}else if(c.stamp){ctx.strokeStyle=theme.ink;ctx.fillStyle=theme.ink;ctx.font='18px '+font;ctx.textAlign='center';if(theme.border)ctx.strokeRect(P,y,W-2*P,30);ctx.fillText(c.stamp,W/2,y+5)}else if(c.rule){ctx.strokeStyle=theme?theme.ink:'#555';ctx.lineWidth=theme&&theme.weight?2:1;ctx.setLineDash(theme?theme.dash:[7,5]);ctx.beginPath();ctx.moveTo(P,y+10);ctx.lineTo(W-P,y+10);ctx.stroke();ctx.setLineDash([])}else if(c.text){ctx.font=(theme&&theme.weight?theme.weight+' ':'')+c.size+'px '+font;ctx.fillStyle=theme?theme.ink:'#292927';ctx.textAlign=c.align;if(theme&&theme.surface==='typewriter'){ctx.globalAlpha=.82;ctx.fillText(c.text,c.align==='center'?W/2:c.align==='right'?W-P:P,y+.6);ctx.globalAlpha=1}ctx.fillText(c.text,c.align==='center'?W/2:c.align==='right'?W-P:P,y)}y+=c.h}
       if(parts.length>1){ctx.font='18px '+font;ctx.textAlign='center';ctx.fillText((index+1)+' / '+parts.length,W/2,y+8)}
       ctx.restore();return canvas;
