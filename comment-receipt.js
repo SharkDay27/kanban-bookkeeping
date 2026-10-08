@@ -142,29 +142,30 @@
       for(const [x,y] of [[65,H*.9],[W*.68,H*.3]]){ctx.beginPath();ctx.arc(x,y,3,0,Math.PI*2);ctx.stroke()}
     }
     if(kind==='crumpled'){
-      // A continuous paper height field: neighboring facets share folds and cast relief shadows.
-      const w=320,h=Math.ceil(H/2),heights=new Float32Array(w*h),cell=26,cols=Math.ceil(w/cell),rows=Math.ceil(h/cell),mesh=[];
-      for(let r=0;r<=rows;r++){const line=[];for(let c=0;c<=cols;c++)line.push({x:c*cell+(c&&c<cols?(random()-.5)*cell*.6:0),y:r*cell+(r&&r<rows?(random()-.5)*cell*.6:0),z:(random()-.5)*19});mesh.push(line)}
-      function triangle(a,b,c){
-        const det=(b.y-c.y)*(a.x-c.x)+(c.x-b.x)*(a.y-c.y);
-        for(let y=Math.max(0,Math.floor(Math.min(a.y,b.y,c.y)));y<=Math.min(h-1,Math.ceil(Math.max(a.y,b.y,c.y)));y++)
-          for(let x=Math.max(0,Math.floor(Math.min(a.x,b.x,c.x)));x<=Math.min(w-1,Math.ceil(Math.max(a.x,b.x,c.x)));x++){
-            const u=((b.y-c.y)*(x-c.x)+(c.x-b.x)*(y-c.y))/det,v=((c.y-a.y)*(x-c.x)+(a.x-c.x)*(y-c.y))/det;
-            if(u>=0&&v>=0&&u+v<=1)heights[y*w+x]=u*a.z+v*b.z+(1-u-v)*c.z+5*Math.sin(Math.PI*u)*Math.sin(Math.PI*v)*Math.sin(Math.PI*(1-u-v));
-          }
-      }
-      for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){const a=mesh[r][c],b=mesh[r][c+1],d=mesh[r+1][c],e=mesh[r+1][c+1];if(random()>.5){triangle(a,b,e);triangle(a,d,e)}else{triangle(a,b,d);triangle(b,d,e)}}
-      // Round the ridges as real paper bends instead of leaving hard polygon planes.
-      const softened=new Float32Array(w*h),kernel=[1,4,6,4,1];
-      for(let pass=0;pass<2;pass++){
-        for(let y=0;y<h;y++)for(let x=0;x<w;x++){let value=0;for(let k=-2;k<=2;k++)value+=heights[y*w+Math.max(0,Math.min(w-1,x+k))]*kernel[k+2];softened[y*w+x]=value/16}heights.set(softened);
-        for(let y=0;y<h;y++)for(let x=0;x<w;x++){let value=0;for(let k=-2;k<=2;k++)value+=heights[Math.max(0,Math.min(h-1,y+k))*w+x]*kernel[k+2];softened[y*w+x]=value/16}heights.set(softened);
+      // Independent, uneven bends in a continuous paper surface, with quiet flat areas.
+      const w=320,h=Math.ceil(H/2),heights=new Float32Array(w*h);
+      const phase=random()*6.28;
+      for(let y=0;y<h;y++)for(let x=0;x<w;x++)heights[y*w+x]=3.1*Math.sin(x*.028+y*.017+phase)+1.4*Math.sin(x*.013-y*.039+phase*2);
+      const count=Math.ceil(H/48);
+      for(let n=0;n<count;n++){
+        const x=random()*w,y=random()*h,angle=random()*Math.PI*2,length=18+random()*74,
+          bend=(random()-.5)*24,width=.8+random()*5.8,amplitude=(random()>.25?1:-1)*(1.8+random()*3.4),
+          dx=Math.cos(angle),dy=Math.sin(angle),points=[];
+        for(let k=0;k<=6;k++){const t=k/6,curve=Math.sin(t*Math.PI)*bend;points.push({x:x+dx*length*t-dy*curve,y:y+dy*length*t+dx*curve})}
+        const minX=Math.max(0,Math.floor(Math.min(...points.map(p=>p.x))-width*4)),maxX=Math.min(w-1,Math.ceil(Math.max(...points.map(p=>p.x))+width*4)),
+          minY=Math.max(0,Math.floor(Math.min(...points.map(p=>p.y))-width*4)),maxY=Math.min(h-1,Math.ceil(Math.max(...points.map(p=>p.y))+width*4));
+        for(let py=minY;py<=maxY;py++)for(let px=minX;px<=maxX;px++){
+          let distance=Infinity,progress=0;
+          for(let k=0;k<6;k++){const a=points[k],b=points[k+1],vx=b.x-a.x,vy=b.y-a.y,t=Math.max(0,Math.min(1,((px-a.x)*vx+(py-a.y)*vy)/(vx*vx+vy*vy))),d=Math.hypot(px-a.x-vx*t,py-a.y-vy*t);if(d<distance){distance=d;progress=(k+t)/6}}
+          const taper=Math.pow(Math.sin(progress*Math.PI),.65),localWidth=width*(.6+.7*Math.sin(progress*Math.PI));
+          heights[py*w+px]+=amplitude*taper*Math.exp(-distance*distance/(2*localWidth*localWidth));
+        }
       }
       const relief=document.createElement('canvas');relief.width=w;relief.height=h;const rc=relief.getContext('2d'),pixels=rc.createImageData(w,h);
       for(let y=0;y<h;y++)for(let x=0;x<w;x++){
         const i=y*w+x,left=heights[y*w+Math.max(0,x-1)],right=heights[y*w+Math.min(w-1,x+1)],up=heights[Math.max(0,y-1)*w+x],down=heights[Math.min(h-1,y+1)*w+x];
-        const slope=(right-left)*.6+(down-up)*.85,crease=left+right+up+down-4*heights[i];
-        const light=Math.max(-27,Math.min(9,-slope*22- Math.abs(crease)*12))+(random()-.5)*1.5;
+        const slope=(right-left)*.65+(down-up)*.8;
+        const light=Math.max(-28,Math.min(8,-slope*15))+(random()-.5)*1.2;
         pixels.data[i*4]=246+light;pixels.data[i*4+1]=244+light;pixels.data[i*4+2]=239+light;pixels.data[i*4+3]=255;
       }
       rc.putImageData(pixels,0,0);ctx.drawImage(relief,0,0,W,H);
