@@ -220,8 +220,17 @@
       // Neutral thermal paper, with restrained grain; no fake stains or UI cards.
       ctx.beginPath();
       if(theme&&['burnt','crumpled'].includes(theme.surface)){
-        const edge=theme.surface==='burnt'?charredEdge:(v,phase)=>3+Math.abs(5*Math.sin(v*.031+phase)+4*Math.cos(v*.067+phase));ctx.moveTo(edge(0,0),edge(0,2));
-        for(let x=0;x<=W;x+=2)ctx.lineTo(x,edge(x,2));for(let y=0;y<=H;y+=2)ctx.lineTo(W-edge(y,1),y);for(let x=W;x>=0;x-=2)ctx.lineTo(x,H-edge(x,3));for(let y=H;y>=0;y-=2)ctx.lineTo(edge(y,0),y);
+        const edge=theme.surface==='burnt'?charredEdge:(v,phase)=>3+Math.abs(5*Math.sin(v*.031+phase)+4*Math.cos(v*.067+phase));
+        // Join adjacent edges inside the paper; never cross paths at a corner.
+        const corner=28;ctx.moveTo(corner,edge(corner,2));
+        for(let x=corner;x<=W-corner;x+=2)ctx.lineTo(x,edge(x,2));
+        ctx.quadraticCurveTo(W-edge(corner,1),edge(W-corner,2),W-edge(corner,1),corner);
+        for(let y=corner;y<=H-corner;y+=2)ctx.lineTo(W-edge(y,1),y);
+        ctx.quadraticCurveTo(W-edge(H-corner,1),H-edge(W-corner,3),W-corner,H-edge(W-corner,3));
+        for(let x=W-corner;x>=corner;x-=2)ctx.lineTo(x,H-edge(x,3));
+        ctx.quadraticCurveTo(edge(H-corner,0),H-edge(corner,3),edge(H-corner,0),H-corner);
+        for(let y=H-corner;y>=corner;y-=2)ctx.lineTo(edge(y,0),y);
+        ctx.quadraticCurveTo(edge(corner,0),edge(corner,2),corner,edge(corner,2));
       }else{ctx.moveTo(0,8);for(let x=0;x<W;x+=16){ctx.lineTo(x+8,2);ctx.lineTo(x+16,8)}ctx.lineTo(W,H-8);for(let x=W;x>0;x-=16){ctx.lineTo(x-8,H-2);ctx.lineTo(x-16,H-8)}}ctx.closePath();ctx.fillStyle=theme?theme.paper:'#fafaf7';ctx.fill();ctx.save();ctx.clip();
       let seed=91431;for(let j=0;j<W*H/140;j++){seed=(Math.imul(seed,1664525)+1013904223)>>>0;const x=seed%W;seed=(Math.imul(seed,1664525)+1013904223)>>>0;ctx.fillStyle='rgba(40,40,35,0.028)';ctx.fillRect(x,seed%H,1,1)}
       if(theme&&theme.surface)paintPaper(ctx,W,H,P,theme,entry);
