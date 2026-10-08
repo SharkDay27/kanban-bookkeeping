@@ -1112,14 +1112,21 @@ function saveEntry(keepOpen=false){
   const id=$('eid').value,old=state.entries.find(function(x){return x.id===id}),type=$('etype').value;
   const obj={...(old||{}),id:id||('manual-'+crypto.randomUUID()),type:type,date:$('edate').value,amount:Number($('eamt').value||0),store:$('estore').value.trim()||'未命名紀錄',category:$('ecat').value,payment:$('epay').value,note:$('enote').value.trim(),source:old&&old.source?old.source:(type==='income'?'手動收入':'手動支出'),items:old&&old.items?old.items:[]};
   let freshComment=null;
+  const beforeEntries=state.entries.slice();
+  let commentFailed=false;
   if(id){
-    if(old?.comment&&(old.category!==obj.category||old.amount!==obj.amount||old.type!==obj.type)){obj.comment=authoredComment(obj,old.comment.kind,old.comment.lines?.[0]?.speaker);obj.comment.createdAt=old.comment.createdAt||obj.date;}
+    if(old?.comment&&(old.category!==obj.category||old.amount!==obj.amount||old.type!==obj.type)){try{obj.comment=authoredComment(obj,old.comment.kind,old.comment.lines?.[0]?.speaker);obj.comment.createdAt=old.comment.createdAt||obj.date}catch(e){commentFailed=true;console.warn('comment refresh',e)}}
     state.entries=state.entries.map(function(x){return x.id===id?obj:x});
     state.rpg.rewardLog='已編輯記錄：'+obj.store+'\n編輯不會額外獲得 EXP。';
     toast('已更新記錄');
   }else{
-    obj.comment=generateSinnerComment(obj);freshComment=obj.comment;
     state.entries.unshift(obj);
+  }
+  // Persist the financial record before optional commentary, rewards or UI work.
+  try{saveLocal()}catch(e){state.entries=beforeEntries;console.error('save financial record',e);toast('儲存失敗，請確認瀏覽器儲存空間後再試一次');return}
+  if(!id){
+    try{obj.comment=generateSinnerComment(obj);freshComment=obj.comment}catch(e){commentFailed=true;console.warn('generate commentary',e)}
+    try{
     const xpResult=grantXp(XP_PER_ENTRY,(type==='income'?'新增收入':'新增支出')+'：'+obj.store);
     grantExplorationActions(1);
     ensureExplorationState();
@@ -1133,11 +1140,16 @@ function saveEntry(keepOpen=false){
       gold:Number(state.rpg.gold||0),
       at:Date.now()
     };
+    }catch(e){console.warn('bookkeeping rewards',e)}
   }
   state.profile.lastPayment=obj.payment;
-  checkQuests();checkAchievements();saveLocal();
-  if(!id&&typeof window.forceRenderManagerProgress==='function')window.forceRenderManagerProgress();
-  if(!id&&typeof window.showBookkeepingReward==='function')window.showBookkeepingReward(window.lastBookkeepingReward);
+  try{checkQuests();checkAchievements()}catch(e){console.warn('bookkeeping achievements',e)}
+  try{saveLocal()}catch(e){console.warn('save optional bookkeeping effects',e)}
+  $('month').value=obj.date.slice(0,7);$('typeFilter').value='';$('cat').value='';$('search').value='';
+  if(typeof window.setRecordMode==='function')window.setRecordMode('bookkeeping');
+  if(commentFailed)toast('收支記錄已儲存，評議暫時未能產生');
+  if(!id&&typeof window.forceRenderManagerProgress==='function'){try{window.forceRenderManagerProgress()}catch(e){console.warn('manager reward UI',e)}}
+  if(!id&&typeof window.showBookkeepingReward==='function'){try{window.showBookkeepingReward(window.lastBookkeepingReward)}catch(e){console.warn('bookkeeping reward UI',e)}}
 
   if(keepOpen&&!id){
     const keepType=obj.type;
