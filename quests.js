@@ -38,7 +38,7 @@
   }
   function card(q,p,claim){
     const done=p>=q.goal,pct=Math.min(100,Math.round(p/q.goal*100));
-    return '<article class="quest wood panel '+(claim?'claimed':done?'ready':'')+'"><div class="quest-category">'+q.cat+'</div><div class="row"><div class="quest-name">'+(claim?'✓ ':'◇ ')+q.name+'</div><div class="quest-reward">'+rewardText(q.reward)+'</div></div>'+
+    return '<article class="quest wood panel '+(claim?'claimed':done?'ready':'')+'"><div class="quest-category">'+q.cat+'</div><div class="quest-heading"><span class="quest-number" aria-hidden="true"></span><div class="quest-name">'+(claim?'✓ ':'◇ ')+q.name+'</div><div class="quest-reward">'+rewardText(q.reward)+'</div></div>'+
       '<div class="quest-desc">'+q.desc+'</div><div class="quest-progress"><div style="width:'+pct+'%"></div></div><div class="quest-desc">'+Math.min(p,q.goal)+' / '+q.goal+(claim?' · 已領取':'')+'</div></article>';
   }
   function render(){
