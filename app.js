@@ -243,9 +243,34 @@ function renderCurrencySelector(){
  const c=currentCurrency();
  if($('currencySelect'))$('currencySelect').value=c.code;
 }
+// crypto.randomUUID 只在 https / localhost 可用；用區網 http 開啟時改用 getRandomValues。
+function makeEntryId(prefix){
+  let id='';
+  for(let attempt=0;attempt<5;attempt++){
+    try{if(window.crypto&&typeof crypto.randomUUID==='function'){id=prefix+crypto.randomUUID()}}catch(e){id=''}
+    if(!id){
+      let r='';
+      try{const a=new Uint32Array(4);crypto.getRandomValues(a);r=Array.from(a,function(n){return n.toString(16).padStart(8,'0')}).join('')}
+      catch(e){r=Math.random().toString(16).slice(2)+Math.random().toString(16).slice(2)}
+      id=prefix+Date.now().toString(36)+'-'+r;
+    }
+    if(!state.entries.some(function(x){return x.id===id}))return id;
+    id='';
+  }
+  return prefix+Date.now().toString(36)+'-'+state.entries.length;
+}
 function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
 function toast(msg){const text=localizeText(msg);if(typeof window.bookkeepingToast==='function'){window.bookkeepingToast(text);return}const t=$('toast');t.textContent=text;t.style.display='block';clearTimeout(toast._t);toast._t=setTimeout(()=>t.style.display='none',4000)}
-function saveLocal(){localStorage.setItem(KEY,JSON.stringify(state))}
+// 讀取失敗時的狀態；用 var 且不給初始值，避免在 load() 設定後被重設。
+var STORAGE_LOAD_PROBLEM;
+function saveLocal(){
+  if(STORAGE_LOAD_PROBLEM&&!STORAGE_LOAD_PROBLEM.backupKey){
+    // 原始資料沒能另存時，絕不覆蓋它。
+    if(!saveLocal._warned){saveLocal._warned=true;setTimeout(function(){toast('原始資料尚未備份，已暫停自動儲存；請先下載原始資料檔')},0)}
+    return false;
+  }
+  localStorage.setItem(KEY,JSON.stringify(state));return true;
+}
 function defaultState(){return {entries:[],profile:{initialAmount:0,name:'但丁',currency:'TWD',language:'zh-Hant'},rpg:{xp:0,gold:0,itemBoxes:0,chests:{wood:0,silver:0,gold:0},inventory:[],equipped:[],consumables:{water:3,potion:0},player:{hp:100,maxHp:100,lastCombat:'尚無受擊紀錄。'},lastContainment:null,achievements:[],achievementBadges:[],monthlyBosses:{},rewardLog:'開始記錄來啟動管理流程。',streakMilestones:[]},exploration:null,daily:{}}}
 function normalizeEntry(x){return {...x,type:x.type||'expense',category:CATEGORY_MIGRATION[x.category]||x.category||'其他',amount:Number(x.amount||0),date:x.date||today(),payment:x.payment||'現金',store:x.store||'未命名紀錄',items:Array.isArray(x.items)?x.items:[],note:x.note||''}}
 function migrate(old){const s=defaultState();
@@ -280,7 +305,38 @@ function migrate(old){const s=defaultState();
   s.daily=old.daily||{};
   return s;
 }
-function load(){try{const raw=localStorage.getItem(KEY);if(raw)return migrate(JSON.parse(raw));for(const k of OLD_KEYS){const o=localStorage.getItem(k);if(o){const s=migrate(JSON.parse(o));localStorage.setItem(KEY,JSON.stringify(s));return s}}return defaultState()}catch(e){return defaultState()}}
+function load(){
+  let raw=null;
+  try{raw=localStorage.getItem(KEY)}catch(e){console.warn('localStorage unavailable',e);return defaultState()}
+  if(raw){
+    try{return migrate(JSON.parse(raw))}
+    catch(e){console.error('無法讀取本機資料',e);return handleCorruptStorage(raw,e)}
+  }
+  for(const k of OLD_KEYS){
+    let o=null;try{o=localStorage.getItem(k)}catch(e){}
+    if(!o)continue;
+    try{const s=migrate(JSON.parse(o));try{localStorage.setItem(KEY,JSON.stringify(s))}catch(e){console.warn('migrate old data',e)}return s}
+    catch(e){console.warn('略過無法讀取的舊版資料',k,e)}
+  }
+  return defaultState();
+}
+// 資料損毀時：先把原始內容另存成另一個 key，再以空白資料啟動，避免下次存檔把它蓋掉。
+function handleCorruptStorage(raw,error){
+  const prefix=KEY+'-corrupt-';let backupKey=null;
+  try{
+    for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith(prefix)&&localStorage.getItem(k)===raw){backupKey=k;break}}
+    if(!backupKey){const k=prefix+Date.now();localStorage.setItem(k,raw);if(localStorage.getItem(k)===raw)backupKey=k}
+  }catch(e){console.error('無法另存損毀的原始資料',e)}
+  STORAGE_LOAD_PROBLEM={raw:raw,backupKey:backupKey,message:String(error&&error.message||error),notified:false};
+  return defaultState();
+}
+function notifyStorageLoadProblem(){
+  const p=STORAGE_LOAD_PROBLEM;if(!p||p.notified)return;p.notified=true;
+  const where=p.backupKey?'原始內容已另存在這台裝置的瀏覽器中（'+p.backupKey+'），不會被覆蓋。':'原始內容無法另存（儲存空間可能已滿），為避免覆蓋，已暫停自動儲存。';
+  if(confirm('⚠ 讀取本機記帳資料失敗，目前先以空白資料開啟。\n\n'+where+'\n\n按「確定」立即下載原始資料檔（建議保留，以便日後修復）。')){
+    download('終端記錄_讀取失敗原始資料_'+today()+'.json',p.raw,'application/json');
+  }
+}
 function allCategories(){return [...new Set([...EXPENSE_CATS,...INCOME_CATS,...state.entries.map(x=>x.category).filter(Boolean)])]}
 function updateCategoryOptions(type){const list=(type==='income'?INCOME_CATS:EXPENSE_CATS).concat(state.entries.filter(x=>x.type===type).map(x=>x.category));const uniq=[...new Set(list)];$('ecat').innerHTML=uniq.map(c=>`<option>${c}</option>`).join('')}
 function refreshFilters(){const cats=allCategories();const prev=$('cat').value;$('cat').innerHTML='<option value="">所有分類</option>'+cats.map(c=>`<option>${c}</option>`).join('');$('cat').value=prev;updateCategoryOptions($('etype').value)}
@@ -1110,7 +1166,7 @@ function openEdit(id,presetType){const entry=id?state.entries.find(x=>x.id===id)
 function saveEntry(keepOpen=false){
   if(!$('edate').value){toast('請選擇日期');return}if(!(Number($('eamt').value)>0)){toast('請輸入大於 0 的金額');$('eamt').focus();return}
   const id=$('eid').value,old=state.entries.find(function(x){return x.id===id}),type=$('etype').value;
-  const obj={...(old||{}),id:id||('manual-'+crypto.randomUUID()),type:type,date:$('edate').value,amount:Number($('eamt').value||0),store:$('estore').value.trim()||'未命名紀錄',category:$('ecat').value,payment:$('epay').value,note:$('enote').value.trim(),source:old&&old.source?old.source:(type==='income'?'手動收入':'手動支出'),items:old&&old.items?old.items:[]};
+  const obj={...(old||{}),id:id||makeEntryId('manual-'),type:type,date:$('edate').value,amount:Number($('eamt').value||0),store:$('estore').value.trim()||'未命名紀錄',category:$('ecat').value,payment:$('epay').value,note:$('enote').value.trim(),source:old&&old.source?old.source:(type==='income'?'手動收入':'手動支出'),items:old&&old.items?old.items:[]};
   let freshComment=null;
   const beforeEntries=state.entries.slice();
   let commentFailed=false;
@@ -1123,7 +1179,7 @@ function saveEntry(keepOpen=false){
     state.entries.unshift(obj);
   }
   // Persist the financial record before optional commentary, rewards or UI work.
-  try{saveLocal()}catch(e){state.entries=beforeEntries;console.error('save financial record',e);toast('儲存失敗，請確認瀏覽器儲存空間後再試一次');return}
+  try{if(saveLocal()===false)throw new Error('storage write paused')}catch(e){state.entries=beforeEntries;console.error('save financial record',e);toast('儲存失敗，請確認瀏覽器儲存空間後再試一次');return}
   if(!id){
     try{obj.comment=generateSinnerComment(obj);freshComment=obj.comment}catch(e){commentFailed=true;console.warn('generate commentary',e)}
     try{
@@ -1173,12 +1229,56 @@ function autoExpenseCategory(store,items){
   ['餐飲',['餐盒','便當','早餐','午餐','晚餐','飯','麵','餐廳','雞腿','壽司','鍋']]
  ];for(const [cat,kws] of rules){if(kws.some(k=>t.includes(k)))return cat}return '其他';
 }
-async function importCsvFiles(ev){const files=[...ev.target.files];if(!files.length)return;let added=0,updated=0;for(const file of files){const text=(await file.text()).replace(/^\ufeff/,'');const rows=parseCSVLoose(text);const groups={};rows.forEach(r=>{const inv=(r['發票號碼']||'').trim(),d=(r['發票日期']||'').trim();if(inv&&/^\d{8}$/.test(d))(groups[inv]??=[]).push(r)});for(const [inv,rs] of Object.entries(groups)){const d=rs[0]['發票日期'],date=`${d.slice(0,4)}-${d.slice(4,6)}-${d.slice(6,8)}`,store=(rs[0]['賣方名稱']||'未命名店家').trim(),items=rs.map(r=>({name:(r['消費明細_品名']||'未提供品名').trim(),amount:Number(r['消費明細_金額']||r['發票金額']||0)})),amount=items.reduce((s,i)=>s+i.amount,0),id='inv-'+inv,old=state.entries.find(x=>x.id===id),obj={id,type:'expense',date,invoice:inv,store,amount,category:old?.category||autoExpenseCategory(store,items.map(i=>i.name)),payment:old?.payment||'未設定',note:old?.note||'',items,source:'電子發票',comment:old?.comment||null};if(old){state.entries=state.entries.map(x=>x.id===id?obj:x);updated++}else{obj.comment=generateSinnerComment(obj);state.entries.push(obj);added++}}}
-if(added){grantXp(added*XP_PER_ENTRY,`匯入發票完成，共新增 ${added} 筆`);grantExplorationActions(added);awardDailyBookkeeping()}else state.rpg.rewardLog=`匯入完成，沒有新增資料。更新了 ${updated} 筆資料。`;checkQuests();saveLocal();render();toast(`匯入完成：新增 ${added} 筆，更新 ${updated} 筆`);ev.target.value=''}
+function csvAmount(v){const n=Number(String(v??'').replace(/[,\s$＄元]/g,''));return Number.isFinite(n)?n:0}
+function isVoidInvoiceRow(r){return /作廢|註銷/.test(String(r['發票狀態']||r['狀態']||''))}
+async function importCsvFiles(ev){
+  const input=ev.target,files=[...(input.files||[])];if(!files.length)return;
+  let added=0,updated=0,voided=0,removed=0;const failed=[],unrecognized=[];
+  const beforeEntries=state.entries.slice();
+  try{
+    for(const file of files){
+      let rows;
+      try{rows=parseCSVLoose((await file.text()).replace(/^﻿/,''))}catch(e){console.warn('read csv',file.name,e);failed.push(file.name);continue}
+      const groups={};
+      rows.forEach(r=>{const inv=(r['發票號碼']||'').trim(),d=(r['發票日期']||'').trim();if(inv&&/^\d{8}$/.test(d))(groups[inv]??=[]).push(r)});
+      if(!Object.keys(groups).length){unrecognized.push(file.name);continue}
+      for(const [inv,rs] of Object.entries(groups)){
+        try{
+          const id='inv-'+inv,old=state.entries.find(x=>x.id===id);
+          // 作廢／註銷的發票不算支出；之前匯入過的就移除。
+          if(rs.some(isVoidInvoiceRow)){voided++;if(old&&old.source==='電子發票'){state.entries=state.entries.filter(x=>x.id!==id);removed++}continue}
+          const d=rs[0]['發票日期'],date=`${d.slice(0,4)}-${d.slice(4,6)}-${d.slice(6,8)}`,store=(rs[0]['賣方名稱']||'未命名店家').trim();
+          // 有明細金額就加總明細；沒有明細金額時只用一次發票總額，避免多行品項重複計算。
+          const hasDetail=rs.some(r=>String(r['消費明細_金額']??'').trim()!=='');
+          const invoiceTotal=csvAmount(rs[0]['發票金額']);
+          const items=rs.map(r=>({name:(r['消費明細_品名']||'未提供品名').trim(),amount:hasDetail?csvAmount(r['消費明細_金額']):0}));
+          if(!hasDetail&&items.length===1)items[0].amount=invoiceTotal;
+          const amount=hasDetail?items.reduce((s,i)=>s+i.amount,0):invoiceTotal;
+          const obj={id,type:'expense',date,invoice:inv,store,amount,category:old?.category||autoExpenseCategory(store,items.map(i=>i.name)),payment:old?.payment||'未設定',note:old?.note||'',items,source:'電子發票',comment:old?.comment||null};
+          if(old){state.entries=state.entries.map(x=>x.id===id?obj:x);updated++}
+          else{try{obj.comment=generateSinnerComment(obj)}catch(e){console.warn('generate commentary',e)}state.entries.push(obj);added++}
+        }catch(e){console.warn('import invoice',inv,e);if(!failed.includes(file.name))failed.push(file.name)}
+      }
+    }
+    try{
+      if(added){grantXp(added*XP_PER_ENTRY,`匯入發票完成，共新增 ${added} 筆`);grantExplorationActions(added);awardDailyBookkeeping()}
+      else state.rpg.rewardLog=`匯入完成，沒有新增資料。更新了 ${updated} 筆資料。`;
+      checkQuests();
+    }catch(e){console.warn('import rewards',e)}
+    try{if(saveLocal()===false)throw new Error('storage write paused')}catch(e){state.entries=beforeEntries;console.error('save import',e);toast('匯入失敗：無法儲存，請確認瀏覽器儲存空間後再試一次');return}
+  }finally{input.value=''}
+  try{render()}catch(e){console.error('render after import',e)}
+  const parts=[`新增 ${added} 筆`,`更新 ${updated} 筆`];
+  if(voided)parts.push(`略過作廢 ${voided} 張`+(removed?`（移除先前匯入 ${removed} 筆）`:''));
+  let msg='匯入完成：'+parts.join('，');
+  if(unrecognized.length)msg+=`；格式不符，未匯入：${unrecognized.join('、')}`;
+  if(failed.length)msg+=`；部分內容讀取失敗：${failed.join('、')}`;
+  toast(msg);
+}
 function download(name,content,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([content],{type}));a.download=name;a.click()}
 function backupJson(){download('終端記錄備份.json',JSON.stringify(state,null,2),'application/json')}
-async function restoreJson(ev){const file=ev.target.files?.[0];if(!file)return;try{const parsed=JSON.parse(await file.text());if(!parsed||(!Array.isArray(parsed.entries)&&!Array.isArray(parsed)))throw new Error();if(confirm('確定用這份備份覆蓋目前資料？')){state=migrate(parsed);saveLocal();render();toast('已還原備份')}}catch(e){alert('無法還原：這不是有效的備份 JSON。')}ev.target.value=''}
-function clearLocalData(){if(confirm('確定清除這台裝置上的所有記錄與 RPG 進度？此動作無法復原。')){state=defaultState();saveLocal();render();toast('已清除本機資料')}}
+async function restoreJson(ev){const file=ev.target.files?.[0];if(!file)return;try{const parsed=JSON.parse(await file.text());if(!parsed||(!Array.isArray(parsed.entries)&&!Array.isArray(parsed)))throw new Error();if(confirm('確定用這份備份覆蓋目前資料？')){state=migrate(parsed);STORAGE_LOAD_PROBLEM=null;saveLocal();render();toast('已還原備份')}}catch(e){alert('無法還原：這不是有效的備份 JSON。')}ev.target.value=''}
+function clearLocalData(){if(confirm('確定清除這台裝置上的所有記錄與 RPG 進度？此動作無法復原。')){state=defaultState();STORAGE_LOAD_PROBLEM=null;saveLocal();render();toast('已清除本機資料')}}
 function exportCsv(){const rows=filtered();const head=['日期','類型','店家/用途/來源','金額','分類','付款方式','發票號碼','備註','來源'];const body=rows.map(x=>[x.date,x.type==='income'?'收入':'支出',x.store,x.amount,x.category,x.payment,x.invoice||'',x.note||'',x.source||'']);const q=v=>/[",\n]/.test(String(v??''))?`"${String(v).replaceAll('"','""')}"`:String(v??'');const text='\ufeff'+[head,...body].map(r=>r.map(q).join(',')).join('\n');download('終端記錄匯出.csv',text,'text/csv;charset=utf-8')}
 
 const CHART_COLORS=['#b52d2d','#d2cec4','#797b83','#8b7046','#59675d','#715a65','#8f6b6b','#555860','#aaa69c','#6f6251'];
@@ -1275,4 +1375,4 @@ if($('mainMenuToggle'))$('mainMenuToggle').onclick=toggleMainMenu;
 document.querySelectorAll('[data-language]').forEach(function(btn){btn.onclick=function(){setLanguage(btn.dataset.language)}});if($('currencySelect'))$('currencySelect').addEventListener('change',function(){setCurrency(this.value)});
 $('etype').addEventListener('change',syncEntryTypeUI);document.querySelectorAll('[data-entry-type]').forEach(b=>b.onclick=()=>{$('etype').value=b.dataset.entryType;syncEntryTypeUI()});$('dlg').addEventListener('click',e=>{if(e.target===$('dlg'))$('dlg').close()});$('ecat').addEventListener('change',renderQuickCats);
 $('save').onclick=()=>saveEntry(false);$('saveAgain').onclick=()=>saveEntry(true);$('closeDlg').onclick=()=>$('dlg').close();$('closeCommentDlg').onclick=()=>$('commentDlg').close();$('commentViewTime').onclick=()=>setCommentaryView('time');$('commentViewSinner').onclick=()=>setCommentaryView('sinner');$('goCommentArchive').onclick=()=>{$('commentDlg').close();setTab('commentary')};$('del').onclick=deleteEntry;$('csv').addEventListener('change',importCsvFiles);$('export').onclick=exportCsv;$('backup').onclick=backupJson;$('restore').addEventListener('change',restoreJson);$('clear').onclick=clearLocalData;$('saveSettings').onclick=saveSettings;if($('exploreBtn'))$('exploreBtn').onclick=runExploration;$('addExpense').onclick=()=>openEdit('', 'expense');$('addIncome').onclick=()=>openEdit('', 'income');$('fab').onclick=()=>openEdit('', 'expense');$('bottomAdd').onclick=()=>openEdit('', 'expense');['month','typeFilter','cat','search'].forEach(id=>$(id).addEventListener('input',render));if($('openItemBox'))$('openItemBox').onclick=openItemBox;document.querySelectorAll('.tabs button').forEach(btn=>btn.onclick=()=>setTab(btn.dataset.tab));document.querySelectorAll('[data-goto]').forEach(btn=>btn.onclick=()=>setTab(btn.dataset.goto));if(!$('month').value){$('month').value=today().slice(0,7)}mountIcons();render();bindBookkeepingTools();setupIphoneSafariInput();setupLanguageObserver();
-
+setTimeout(notifyStorageLoadProblem,300);
