@@ -1,82 +1,153 @@
 /* Every listed skill is declarative and consumed by combat, events, loot or EXP. */
-const SINNER_SKILL_EFFECTS={
- '李箱':[
-  {desc:'觀察 +1',effects:{observe:1}},
-  {desc:'事件判定 +4',effects:{eventPower:4}},
-  {desc:'HIGH／EXTREME 區域：觀察額外 +2',when:'highRisk',effects:{observe:2}}],
- '浮士德':[
-  {desc:'事件判定 +4',effects:{eventPower:4}},
-  {desc:'探索戰鬥未獲勝時，額外獲得 6 EXP',when:'failure',effects:{flatXp:6}},
-  {desc:'隊伍裝備回收權重 +2（基準 5）',effects:{gearWeight:2}}],
- '堂吉訶德':[
-  {desc:'戰鬥傷害 +14%',effects:{damageBonus:.14}},
-  {desc:'機動 +2',effects:{mobility:2}},
-  {desc:'HP 低於 50%：戰鬥傷害額外 +18%',when:'lowHp',effects:{damageBonus:.18}}],
- '良秀':[
-  {desc:'戰鬥傷害 +22%',effects:{damageBonus:.22}},
-  {desc:'Lv.5 以上敵方：傷害 +12%；時間性怪異：觀察 +2',effects:{highLevelDamage:.12,temporalObserve:2}},
-  {desc:'戰鬥勝利時，自身 EXP +15%',when:'kill',effects:{xpBonus:.15}}],
- '默爾索':[
-  {desc:'穩定 +2',effects:{stability:2}},
-  {desc:'事件判定 +4',effects:{eventPower:4}},
-  {desc:'受到的戰鬥傷害 -15%',effects:{damageReduction:.15}}],
- '鴻璐':[
-  {desc:'隊伍隨機事件權重 +4（基準 24）',effects:{eventWeight:4}},
-  {desc:'自身分攤的區域等級判定懲罰 -50%',effects:{levelPenaltyRelief:.5}},
-  {desc:'隊伍補給發現權重 +4（基準 18）',effects:{supplyWeight:4}}],
- '希斯克利夫':[
-  {desc:'戰鬥傷害 +25%',effects:{damageBonus:.25}},
-  {desc:'基礎戰鬥傷害 +3',effects:{flatDamage:3}},
-  {desc:'HIGH／EXTREME 區域：戰鬥傷害額外 +12%',when:'highRisk',effects:{damageBonus:.12}}],
- '以實瑪利':[
-  {desc:'戰鬥與觀察各 +1',effects:{combat:1,observe:1}},
-  {desc:'隊伍補給發現權重 +4（基準 18）',effects:{supplyWeight:4}},
-  {desc:'再次遭遇已交戰的敵方時，傷害 +15%',when:'repeat',effects:{damageBonus:.15}}],
- '羅佳':[
-  {desc:'隊伍補給發現權重 +4（基準 18）',effects:{supplyWeight:4}},
-  {desc:'補給發現時，隊伍有 25% 機率額外取得一份補給',effects:{extraLootChance:.25}},
-  {desc:'HIGH／EXTREME 區域戰鬥勝利時，自身 EXP +20%',when:'highRiskSuccess',effects:{xpBonus:.20}}],
- '辛克萊':[
-  {desc:'自身探索戰鬥 EXP +10%',effects:{xpBonus:.10}},
-  {desc:'自身等級低於區域建議等級時，戰鬥 EXP 額外 +15%',when:'underLevel',effects:{xpBonus:.15}},
-  {desc:'HP 低於 50%：戰鬥 +2',when:'lowHp',effects:{combat:2}}],
- '奧提斯':[
-  {desc:'雙人隊伍事件判定 +4',effects:{teamPower:4}},
-  {desc:'事件判定增加搭檔四項能力差距總和的 30%',effects:{disparityBonus:.30}},
-  {desc:'HIGH／EXTREME 區域：事件判定額外 +6',when:'highRisk',effects:{eventPower:6}}],
- '格里高爾':[
-  {desc:'受到的戰鬥傷害 -15%',effects:{damageReduction:.15}},
-  {desc:'探索戰鬥未獲勝時，額外獲得 6 EXP',when:'failure',effects:{flatXp:6}},
-  {desc:'HP 低於 50%：穩定 +3',when:'lowHp',effects:{stability:3}}]
+const SINNER_SKILL_EFFECTS = {
+  李箱: [
+    { desc: '觀察 +1', effects: { observe: 1 } },
+    { desc: '事件判定 +4', effects: { eventPower: 4 } },
+    { desc: 'HIGH／EXTREME 區域：觀察額外 +2', when: 'highRisk', effects: { observe: 2 } }
+  ],
+  浮士德: [
+    { desc: '事件判定 +4', effects: { eventPower: 4 } },
+    { desc: '探索戰鬥未獲勝時，額外獲得 6 EXP', when: 'failure', effects: { flatXp: 6 } },
+    { desc: '隊伍裝備回收權重 +2（基準 5）', effects: { gearWeight: 2 } }
+  ],
+  堂吉訶德: [
+    { desc: '戰鬥傷害 +14%', effects: { damageBonus: 0.14 } },
+    { desc: '機動 +2', effects: { mobility: 2 } },
+    { desc: 'HP 低於 50%：戰鬥傷害額外 +18%', when: 'lowHp', effects: { damageBonus: 0.18 } }
+  ],
+  良秀: [
+    { desc: '戰鬥傷害 +22%', effects: { damageBonus: 0.22 } },
+    { desc: 'Lv.5 以上敵方：傷害 +12%；時間性怪異：觀察 +2', effects: { highLevelDamage: 0.12, temporalObserve: 2 } },
+    { desc: '戰鬥勝利時，自身 EXP +15%', when: 'kill', effects: { xpBonus: 0.15 } }
+  ],
+  默爾索: [
+    { desc: '穩定 +2', effects: { stability: 2 } },
+    { desc: '事件判定 +4', effects: { eventPower: 4 } },
+    { desc: '受到的戰鬥傷害 -15%', effects: { damageReduction: 0.15 } }
+  ],
+  鴻璐: [
+    { desc: '隊伍隨機事件權重 +4（基準 24）', effects: { eventWeight: 4 } },
+    { desc: '自身分攤的區域等級判定懲罰 -50%', effects: { levelPenaltyRelief: 0.5 } },
+    { desc: '隊伍補給發現權重 +4（基準 18）', effects: { supplyWeight: 4 } }
+  ],
+  希斯克利夫: [
+    { desc: '戰鬥傷害 +25%', effects: { damageBonus: 0.25 } },
+    { desc: '基礎戰鬥傷害 +3', effects: { flatDamage: 3 } },
+    { desc: 'HIGH／EXTREME 區域：戰鬥傷害額外 +12%', when: 'highRisk', effects: { damageBonus: 0.12 } }
+  ],
+  以實瑪利: [
+    { desc: '戰鬥與觀察各 +1', effects: { combat: 1, observe: 1 } },
+    { desc: '隊伍補給發現權重 +4（基準 18）', effects: { supplyWeight: 4 } },
+    { desc: '再次遭遇已交戰的敵方時，傷害 +15%', when: 'repeat', effects: { damageBonus: 0.15 } }
+  ],
+  羅佳: [
+    { desc: '隊伍補給發現權重 +4（基準 18）', effects: { supplyWeight: 4 } },
+    { desc: '補給發現時，隊伍有 25% 機率額外取得一份補給', effects: { extraLootChance: 0.25 } },
+    { desc: 'HIGH／EXTREME 區域戰鬥勝利時，自身 EXP +20%', when: 'highRiskSuccess', effects: { xpBonus: 0.2 } }
+  ],
+  辛克萊: [
+    { desc: '自身探索戰鬥 EXP +10%', effects: { xpBonus: 0.1 } },
+    { desc: '自身等級低於區域建議等級時，戰鬥 EXP 額外 +15%', when: 'underLevel', effects: { xpBonus: 0.15 } },
+    { desc: 'HP 低於 50%：戰鬥 +2', when: 'lowHp', effects: { combat: 2 } }
+  ],
+  奧提斯: [
+    { desc: '雙人隊伍事件判定 +4', effects: { teamPower: 4 } },
+    { desc: '事件判定增加搭檔四項能力差距總和的 30%', effects: { disparityBonus: 0.3 } },
+    { desc: 'HIGH／EXTREME 區域：事件判定額外 +6', when: 'highRisk', effects: { eventPower: 6 } }
+  ],
+  格里高爾: [
+    { desc: '受到的戰鬥傷害 -15%', effects: { damageReduction: 0.15 } },
+    { desc: '探索戰鬥未獲勝時，額外獲得 6 EXP', when: 'failure', effects: { flatXp: 6 } },
+    { desc: 'HP 低於 50%：穩定 +3', when: 'lowHp', effects: { stability: 3 } }
+  ]
 };
 // Extend existing unlocks with visible tactical effects; no additional skill slots.
-const FIELD_TACTICAL_UPGRADES=[
- ['李箱',0,{exposeChance:.12},'弱點辨識機率額外 +12%'],
- ['浮士德',0,{interruptChance:.10},'每回合打斷基礎機率 10%，觀察會額外修正'],
- ['堂吉訶德',1,{evasion:.05},'閃避機率額外 +5%'],
- ['良秀',1,{interruptChance:.06},'每回合打斷基礎機率 6%，觀察會額外修正'],
- ['默爾索',0,{coverReduction:.25,coverChance:.4},'HP 高於 30% 時有 40% 機率掩護搭檔，減少其 25% 傷害；自身承受減少量的一半'],
- ['鴻璐',0,{evasion:.06},'閃避機率額外 +6%'],
- ['希斯克利夫',1,{interruptChance:.12},'每回合打斷基礎機率 12%，觀察會額外修正'],
- ['以實瑪利',0,{coverReduction:.15,coverChance:.3},'HP 高於 30% 時有 30% 機率掩護搭檔，減少其 15% 傷害；自身承受減少量的一半'],
- ['羅佳',1,{coverReduction:.12,coverChance:.3},'HP 高於 30% 時有 30% 機率掩護搭檔，減少其 12% 傷害；自身承受減少量的一半'],
- ['辛克萊',2,{evasion:.10},'低 HP 條件下閃避機率額外 +10%'],
- ['奧提斯',0,{interruptChance:.12},'每回合打斷基礎機率 12%，觀察會額外修正'],
- ['格里高爾',0,{coverReduction:.20,coverChance:.35},'HP 高於 30% 時有 35% 機率掩護搭檔，減少其 20% 傷害；自身承受減少量的一半']
+const FIELD_TACTICAL_UPGRADES = [
+  ['李箱', 0, { exposeChance: 0.12 }, '弱點辨識機率額外 +12%'],
+  ['浮士德', 0, { interruptChance: 0.1 }, '每回合打斷基礎機率 10%，觀察會額外修正'],
+  ['堂吉訶德', 1, { evasion: 0.05 }, '閃避機率額外 +5%'],
+  ['良秀', 1, { interruptChance: 0.06 }, '每回合打斷基礎機率 6%，觀察會額外修正'],
+  [
+    '默爾索',
+    0,
+    { coverReduction: 0.25, coverChance: 0.4 },
+    'HP 高於 30% 時有 40% 機率掩護搭檔，減少其 25% 傷害；自身承受減少量的一半'
+  ],
+  ['鴻璐', 0, { evasion: 0.06 }, '閃避機率額外 +6%'],
+  ['希斯克利夫', 1, { interruptChance: 0.12 }, '每回合打斷基礎機率 12%，觀察會額外修正'],
+  [
+    '以實瑪利',
+    0,
+    { coverReduction: 0.15, coverChance: 0.3 },
+    'HP 高於 30% 時有 30% 機率掩護搭檔，減少其 15% 傷害；自身承受減少量的一半'
+  ],
+  [
+    '羅佳',
+    1,
+    { coverReduction: 0.12, coverChance: 0.3 },
+    'HP 高於 30% 時有 30% 機率掩護搭檔，減少其 12% 傷害；自身承受減少量的一半'
+  ],
+  ['辛克萊', 2, { evasion: 0.1 }, '低 HP 條件下閃避機率額外 +10%'],
+  ['奧提斯', 0, { interruptChance: 0.12 }, '每回合打斷基礎機率 12%，觀察會額外修正'],
+  [
+    '格里高爾',
+    0,
+    { coverReduction: 0.2, coverChance: 0.35 },
+    'HP 高於 30% 時有 35% 機率掩護搭檔，減少其 20% 傷害；自身承受減少量的一半'
+  ]
 ];
-FIELD_TACTICAL_UPGRADES.forEach(([name,index,effects,desc])=>{const skill=SINNER_SKILL_EFFECTS[name][index];Object.assign(skill.effects,effects);skill.desc+='；'+desc;});
-Object.entries(SINNER_SKILL_EFFECTS).forEach(([name,defs])=>defs.forEach((d,i)=>Object.assign(SINNER_FIELD_PROFILES[name].skills[i],d)));
-function temporalAbnormality(ab){return /時間|時序|時鐘|時間性|temporal/i.test([ab?.type,ab?.name].join(' '))}
-function sinnerSkillEnabled(name,skill,ctx={}){
- const data=state.exploration.sinners[name],lv=sinnerLevel(data),area=ctx.area||EXPLORATION_AREAS.find(a=>a.id===state.exploration.areaId)||{},highRisk=['HIGH','EXTREME'].includes(area.risk);
- const conditions={highRisk,lowHp:data.hp/data.maxHp<.5,failure:ctx.success===false,kill:['abnormality','enemy'].includes(ctx.kind)&&ctx.success===true,repeat:!!(ctx.ab&&state.exploration.encounters?.[ctx.ab.id]>0),underLevel:lv<area.level,highRiskSuccess:highRisk&&ctx.success===true};
- return lv>=skill.lv&&(!skill.when||!!conditions[skill.when]);
+FIELD_TACTICAL_UPGRADES.forEach(([name, index, effects, desc]) => {
+  const skill = SINNER_SKILL_EFFECTS[name][index];
+  Object.assign(skill.effects, effects);
+  skill.desc += '；' + desc;
+});
+Object.entries(SINNER_SKILL_EFFECTS).forEach(([name, defs]) =>
+  defs.forEach((d, i) => Object.assign(SINNER_FIELD_PROFILES[name].skills[i], d))
+);
+function temporalAbnormality(ab) {
+  return /時間|時序|時鐘|時間性|temporal/i.test([ab?.type, ab?.name].join(' '));
 }
-function sinnerSkillEffects(name,ctx={}){
- const out={};SINNER_FIELD_PROFILES[name].skills.forEach(s=>{if(!sinnerSkillEnabled(name,s,ctx))return;Object.entries(s.effects).forEach(([k,v])=>out[k]=(out[k]||0)+v)});
- if(ctx.ab){if(ctx.ab.level>=5)out.damageBonus=(out.damageBonus||0)+(out.highLevelDamage||0);if(temporalAbnormality(ctx.ab))out.observe=(out.observe||0)+(out.temporalObserve||0)}
- return out;
+function sinnerSkillEnabled(name, skill, ctx = {}) {
+  const data = state.exploration.sinners[name],
+    lv = sinnerLevel(data),
+    area = ctx.area || EXPLORATION_AREAS.find(a => a.id === state.exploration.areaId) || {},
+    highRisk = ['HIGH', 'EXTREME'].includes(area.risk);
+  const conditions = {
+    highRisk,
+    lowHp: data.hp / data.maxHp < 0.5,
+    failure: ctx.success === false,
+    kill: ['abnormality', 'enemy'].includes(ctx.kind) && ctx.success === true,
+    repeat: !!(ctx.ab && state.exploration.encounters?.[ctx.ab.id] > 0),
+    underLevel: lv < area.level,
+    highRiskSuccess: highRisk && ctx.success === true
+  };
+  return lv >= skill.lv && (!skill.when || !!conditions[skill.when]);
 }
-function explorationSkillWeights(names,area){const weights={enemy:20,abnormality:30,event:24,supply:18,gear:5,shop:14,quiet:5};names.forEach(n=>{const e=sinnerSkillEffects(n,{area});weights.event+=e.eventWeight||0;weights.supply+=e.supplyWeight||0;weights.gear+=e.gearWeight||0});return weights}
-function sinnerExplorationXp(name,base,ctx={}){if(!['enemy','abnormality'].includes(ctx.kind)||!(Number(base)>0))return 0;const e=sinnerSkillEffects(name,ctx);return Math.max(1,Math.round(base*(1+(e.xpBonus||0))+(e.flatXp||0)))}
-window.SINNER_SKILL_EFFECTS=SINNER_SKILL_EFFECTS;
+function sinnerSkillEffects(name, ctx = {}) {
+  const out = {};
+  SINNER_FIELD_PROFILES[name].skills.forEach(s => {
+    if (!sinnerSkillEnabled(name, s, ctx)) return;
+    Object.entries(s.effects).forEach(([k, v]) => (out[k] = (out[k] || 0) + v));
+  });
+  if (ctx.ab) {
+    if (ctx.ab.level >= 5) out.damageBonus = (out.damageBonus || 0) + (out.highLevelDamage || 0);
+    if (temporalAbnormality(ctx.ab)) out.observe = (out.observe || 0) + (out.temporalObserve || 0);
+  }
+  return out;
+}
+function explorationSkillWeights(names, area) {
+  const weights = { enemy: 20, abnormality: 30, event: 24, supply: 18, gear: 5, shop: 14, quiet: 5 };
+  names.forEach(n => {
+    const e = sinnerSkillEffects(n, { area });
+    weights.event += e.eventWeight || 0;
+    weights.supply += e.supplyWeight || 0;
+    weights.gear += e.gearWeight || 0;
+  });
+  return weights;
+}
+function sinnerExplorationXp(name, base, ctx = {}) {
+  if (!['enemy', 'abnormality'].includes(ctx.kind) || !(Number(base) > 0)) return 0;
+  const e = sinnerSkillEffects(name, ctx);
+  return Math.max(1, Math.round(base * (1 + (e.xpBonus || 0)) + (e.flatXp || 0)));
+}
+window.SINNER_SKILL_EFFECTS = SINNER_SKILL_EFFECTS;

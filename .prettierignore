@@ -1,0 +1,18 @@
+# 對話、劇情、怪物與地區內容是資料表，保持一行一筆方便對照，不自動排版。
+araya-dialogues.js
+commentary-amounts.js
+commentary-pairs.js
+dialogues.js
+enemies.js
+exploration-dialogues.js
+exploration-events.js
+frontier-content.js
+frontier-dialogues.js
+regional-content.js
+regional-dialogues.js
+regional-events.js
+sinner-addresses.js
+sinners.js
+styles.css
+index.html
+live.html
