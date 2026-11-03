@@ -1,0 +1,14 @@
+{
+  "name": "kanban-bookkeeping",
+  "private": true,
+  "description": "記帳手札：純前端、資料只存在瀏覽器的記帳工具，附 RPG 養成。",
+  "scripts": {
+    "start": "npx -y http-server@14.1.1 -c-1 -p 8080 .",
+    "test": "node tests/smoke.test.js",
+    "format": "npx -y prettier@3.3.3 --write \"*.js\" \"*.css\" \"tests/*.js\" \"scripts/*.js\"",
+    "bump": "node scripts/bump-version.js"
+  },
+  "devDependencies": {
+    "playwright": "1.63.0"
+  }
+}
