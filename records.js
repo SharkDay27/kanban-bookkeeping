@@ -35,9 +35,9 @@
         items.map(function(entry){
           const style=typeof categoryStyle==='function'?categoryStyle(entry.category||'其他'):'';
           const preview=entry.comment&&entry.comment.lines&&entry.comment.lines.length?'<div class="entry-comment-preview"><b>'+safe(entry.comment.lines[0].speaker)+'</b>：'+safe(entry.comment.lines[0].text)+'</div>':'';
-          return '<article class="card wood transaction-card type-'+safe(entry.type)+'" style="'+style+'"><div class="row"><div class="store">'+safe(entry.store)+'</div><div class="amt '+safe(entry.type)+'">'+(entry.type==='income'?'+ ':'')+safe(cash(entry.amount))+'</div></div>'+
+          return '<article class="card wood transaction-card type-'+safe(entry.type)+'" style="'+style+'"><div class="row"><div class="store" data-user-text>'+safe(entry.store)+'</div><div class="amt '+safe(entry.type)+'">'+(entry.type==='income'?'+ ':'')+safe(cash(entry.amount))+'</div></div>'+
             '<div class="badges"><span class="badge '+safe(entry.type)+'">'+(entry.type==='income'?'收入':'支出')+'</span><span class="badge category-badge">'+safe(entry.category||'其他')+'</span><span class="badge">'+safe(entry.payment||'未設定')+'</span></div>'+
-            '<div class="items">'+safe((entry.items||[]).slice(0,3).map(function(i){return i.name}).join('、')||entry.note||'—')+'</div>'+preview+
+            '<div class="items" data-user-text>'+safe((entry.items||[]).slice(0,3).map(function(i){return i.name}).join('、')||entry.note||'—')+'</div>'+preview+
             '<div class="card-actions"><button type="button" class="mini-btn" data-repeat-entry="'+safe(entry.id)+'">再記一筆</button><button type="button" class="mini-btn" data-edit="'+safe(entry.id)+'">編輯</button><button type="button" class="mini-btn record-delete-btn" data-delete-entry="'+safe(entry.id)+'">刪除</button></div></article>';
         }).join('')+'</section>';
     }).join('')+'</div>';

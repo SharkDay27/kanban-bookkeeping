@@ -22,7 +22,7 @@
       '<h3 class="ledger-list-title">今日明細</h3><div class="ledger-column-head"><span>項目</span><span>分類・付款</span><span>金額</span></div><ul class="ledger-list">'+
       (rows.length?rows.map(x=>{
         const incoming=x.type==='income',note=String(x.note||'').trim();
-        return '<li class="ledger-row" role="button" tabindex="0" data-ledger-edit="'+safe(x.id)+'" aria-label="編輯 '+safe(x.store||'記錄')+'"><div class="ledger-item"><strong>'+safe(x.store||'未命名紀錄')+'</strong>'+(note?'<p>'+safe(note)+'</p>':'')+'</div><div class="ledger-meta">'+safe(x.category||'其他')+'・'+safe(x.payment||'未設定')+'</div><strong class="ledger-amount '+(incoming?'ledger-income':'ledger-expense')+'">'+(incoming?'+ ':'− ')+safe(money(x.amount))+'</strong></li>';
+        return '<li class="ledger-row" role="button" tabindex="0" data-ledger-edit="'+safe(x.id)+'" aria-label="編輯 '+safe(x.store||'記錄')+'"><div class="ledger-item" data-user-text><strong>'+safe(x.store||'未命名紀錄')+'</strong>'+(note?'<p>'+safe(note)+'</p>':'')+'</div><div class="ledger-meta">'+safe(x.category||'其他')+'・'+safe(x.payment||'未設定')+'</div><strong class="ledger-amount '+(incoming?'ledger-income':'ledger-expense')+'">'+(incoming?'+ ':'− ')+safe(money(x.amount))+'</strong></li>';
       }).join(''):'<li class="ledger-empty">這一天尚無收支記錄。<span>新增記錄後，會在這裡彙整。</span></li>')+'</ul>'+
       '<footer class="ledger-footer"><span>收入 '+incomeCount+' 筆 · 支出 '+(rows.length-incomeCount)+' 筆</span><span>本日結餘 <strong class="'+(net<0?'ledger-expense':'ledger-income')+'">'+(net>0?'+ ':'')+safe(money(net))+'</strong></span></footer>';
   }
@@ -64,7 +64,7 @@
     const query=el('ledgerSearch').value.trim().toLowerCase(),box=el('ledgerSearchResults');
     if(!query){box.innerHTML='';return}
     const matches=state.entries.filter(x=>[x.store,x.note,x.category,x.payment,x.amount,x.date,...(x.items||[]).map(i=>i.name)].join(' ').toLowerCase().includes(query)).sort((a,b)=>String(b.date).localeCompare(String(a.date)));
-    box.innerHTML='<p class="ledger-help">找到 '+matches.length+' 筆記錄，點選可直接編輯。</p>'+matches.slice(0,100).map(x=>'<button type="button" class="ledger-search-result" data-ledger-search-edit="'+safe(x.id)+'"><span><small>'+safe(x.date)+'</small><strong>'+safe(x.store||'未命名紀錄')+'</strong></span><span class="'+(x.type==='income'?'ledger-income':'ledger-expense')+'">'+(x.type==='income'?'+ ':'− ')+safe(money(x.amount))+'</span></button>').join('')+(matches.length>100?'<p class="ledger-help">目前顯示前 100 筆，請縮小搜尋範圍。</p>':'');
+    box.innerHTML='<p class="ledger-help">找到 '+matches.length+' 筆記錄，點選可直接編輯。</p>'+matches.slice(0,100).map(x=>'<button type="button" class="ledger-search-result" data-ledger-search-edit="'+safe(x.id)+'"><span><small>'+safe(x.date)+'</small><strong data-user-text>'+safe(x.store||'未命名紀錄')+'</strong></span><span class="'+(x.type==='income'?'ledger-income':'ledger-expense')+'">'+(x.type==='income'?'+ ':'− ')+safe(money(x.amount))+'</span></button>').join('')+(matches.length>100?'<p class="ledger-help">目前顯示前 100 筆，請縮小搜尋範圍。</p>':'');
   }
   function moveMonth(offset){const date=day(calendarMonth+'-01');date.setMonth(date.getMonth()+offset);calendarMonth=date.getFullYear()+'-'+String(date.getMonth()+1).padStart(2,'0');renderExtras()}
   el('ledgerMonthPrev').onclick=()=>moveMonth(-1);el('ledgerMonthNext').onclick=()=>moveMonth(1);

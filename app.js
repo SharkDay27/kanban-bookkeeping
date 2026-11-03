@@ -167,21 +167,27 @@ const HANS_CHARS={
  '構':'构','匯':'汇','總':'总','價':'价','較':'较','與':'与','這':'这','個':'个','後':'后','應':'应','該':'该','裡':'里','讓':'让',
  '還':'还','過':'过','進':'进','開':'开','關':'关','實':'实','際':'际','種':'种','簡':'简','繁':'繁'
 };
+let HANS_PHRASE_KEYS=null;
 function toHansText(input){
  let s=String(input==null?'':input);
- Object.keys(HANS_PHRASES).sort(function(a,b){return b.length-a.length}).forEach(function(k){s=s.split(k).join(HANS_PHRASES[k])});
+ if(!s)return s;
+ if(!HANS_PHRASE_KEYS)HANS_PHRASE_KEYS=Object.keys(HANS_PHRASES).sort(function(a,b){return b.length-a.length});
+ HANS_PHRASE_KEYS.forEach(function(k){s=s.split(k).join(HANS_PHRASES[k])});
  return Array.from(s).map(function(ch){return HANS_CHARS[ch]||ch}).join('');
 }
 function isHans(){return !!(state&&state.profile&&state.profile.language==='zh-Hans')}
 function localizeText(s){return isHans()?toHansText(s):String(s==null?'':s)}
 let languageObserver=null;
+// 使用者自己輸入的店名、備註、品名放在 [data-user-text] 內，簡體模式不轉換。
+function isUserTextNode(node){const el=node&&(node.nodeType===Node.ELEMENT_NODE?node:node.parentElement);return !!(el&&el.closest&&el.closest('[data-user-text]'))}
 function translateDom(root){
- if(!isHans()||!root)return;
+ if(!isHans()||!root||isUserTextNode(root))return;
  const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
  const nodes=[];let n;
  while((n=walker.nextNode()))nodes.push(n);
  nodes.forEach(function(node){
    if(node.parentElement&&['SCRIPT','STYLE'].includes(node.parentElement.tagName))return;
+   if(isUserTextNode(node))return;
    const next=toHansText(node.nodeValue);
    if(next!==node.nodeValue)node.nodeValue=next;
  });
@@ -197,9 +203,9 @@ function setupLanguageObserver(){
  translateDom(document.body);
  languageObserver=new MutationObserver(function(list){
    list.forEach(function(m){
-     if(m.type==='characterData'){const next=toHansText(m.target.nodeValue);if(next!==m.target.nodeValue)m.target.nodeValue=next}
+     if(m.type==='characterData'){if(isUserTextNode(m.target))return;const next=toHansText(m.target.nodeValue);if(next!==m.target.nodeValue)m.target.nodeValue=next}
      m.addedNodes&&m.addedNodes.forEach(function(node){
-       if(node.nodeType===Node.TEXT_NODE){const next=toHansText(node.nodeValue);if(next!==node.nodeValue)node.nodeValue=next}
+       if(node.nodeType===Node.TEXT_NODE){if(isUserTextNode(node))return;const next=toHansText(node.nodeValue);if(next!==node.nodeValue)node.nodeValue=next}
        else if(node.nodeType===Node.ELEMENT_NODE)translateDom(node);
      });
    });
@@ -209,7 +215,7 @@ function setupLanguageObserver(){
 function setLanguage(lang){
  if(lang!=='zh-Hans'&&lang!=='zh-Hant')return;
  state.profile.language=lang;
- saveLocal();
+ if(saveLocal()===false)return;
  location.reload();
 }
 function renderLanguageSwitch(){
@@ -269,7 +275,13 @@ function saveLocal(){
     if(!saveLocal._warned){saveLocal._warned=true;setTimeout(function(){toast('原始資料尚未備份，已暫停自動儲存；請先下載原始資料檔')},0)}
     return false;
   }
-  localStorage.setItem(KEY,JSON.stringify(state));return true;
+  try{localStorage.setItem(KEY,JSON.stringify(state));saveLocal._failNotified=false;return true}
+  catch(e){
+    console.error('saveLocal',e);
+    // 同一波連續失敗只提示一次，成功儲存後重置。
+    if(!saveLocal._failNotified){saveLocal._failNotified=true;setTimeout(function(){toast('儲存失敗：瀏覽器儲存空間可能已滿或被停用（例如無痕模式），這次變更重新整理後會消失')},0)}
+    return false;
+  }
 }
 function defaultState(){return {entries:[],profile:{initialAmount:0,name:'但丁',currency:'TWD',language:'zh-Hant'},rpg:{xp:0,gold:0,itemBoxes:0,chests:{wood:0,silver:0,gold:0},inventory:[],equipped:[],consumables:{water:3,potion:0},player:{hp:100,maxHp:100,lastCombat:'尚無受擊紀錄。'},lastContainment:null,achievements:[],achievementBadges:[],monthlyBosses:{},rewardLog:'開始記錄來啟動管理流程。',streakMilestones:[]},exploration:null,daily:{}}}
 function normalizeEntry(x){return {...x,type:x.type||'expense',category:CATEGORY_MIGRATION[x.category]||x.category||'其他',amount:Number(x.amount||0),date:x.date||today(),payment:x.payment||'現金',store:x.store||'未命名紀錄',items:Array.isArray(x.items)?x.items:[],note:x.note||''}}
@@ -338,8 +350,8 @@ function notifyStorageLoadProblem(){
   }
 }
 function allCategories(){return [...new Set([...EXPENSE_CATS,...INCOME_CATS,...state.entries.map(x=>x.category).filter(Boolean)])]}
-function updateCategoryOptions(type){const list=(type==='income'?INCOME_CATS:EXPENSE_CATS).concat(state.entries.filter(x=>x.type===type).map(x=>x.category));const uniq=[...new Set(list)];$('ecat').innerHTML=uniq.map(c=>`<option>${c}</option>`).join('')}
-function refreshFilters(){const cats=allCategories();const prev=$('cat').value;$('cat').innerHTML='<option value="">所有分類</option>'+cats.map(c=>`<option>${c}</option>`).join('');$('cat').value=prev;updateCategoryOptions($('etype').value)}
+function updateCategoryOptions(type){const list=(type==='income'?INCOME_CATS:EXPENSE_CATS).concat(state.entries.filter(x=>x.type===type).map(x=>x.category));const uniq=[...new Set(list)];$('ecat').innerHTML=uniq.map(c=>`<option>${esc(c)}</option>`).join('')}
+function refreshFilters(){const cats=allCategories();const prev=$('cat').value;$('cat').innerHTML='<option value="">所有分類</option>'+cats.map(c=>`<option>${esc(c)}</option>`).join('');$('cat').value=prev;updateCategoryOptions($('etype').value)}
 function entriesForDate(d){return state.entries.filter(x=>x.date===d)}
 function dayStats(d){const e=entriesForDate(d),expense=e.filter(x=>x.type==='expense').reduce((s,x)=>s+x.amount,0),income=e.filter(x=>x.type==='income').reduce((s,x)=>s+x.amount,0);return {count:e.length,cats:new Set(e.map(x=>x.category)).size,expense,income,net:income-expense}}
 function monsterForDate(d){
@@ -1056,7 +1068,7 @@ function commentEntryCard(entry,opts){
   }
   if(!lines.length)return '';
   const copy={...entry.comment,lines:lines};
-  return '<div class="commentary-entry wood kind-'+esc(entry.comment.kind)+' '+(opts.sinner?'compact-by-sinner':'')+'"><div class="commentary-head"><div><b>'+esc(entry.store)+'</b><div class="commentary-meta">'+esc(entry.date)+' / '+(entry.type==='income'?'收入':'支出')+' / '+esc(entry.category||'其他')+' / '+money(entry.amount)+arayaAgeMarkup(entry.comment.arayaAge)+'</div></div><span class="commentary-tag '+(rare?'rare':'')+'">'+commentKindLabel(entry.comment.kind)+'</span></div><div class="commentary-lines">'+renderCommentLines(copy)+'</div></div>';
+  return '<div class="commentary-entry wood kind-'+esc(entry.comment.kind)+' '+(opts.sinner?'compact-by-sinner':'')+'"><div class="commentary-head"><div><b data-user-text>'+esc(entry.store)+'</b><div class="commentary-meta">'+esc(entry.date)+' / '+(entry.type==='income'?'收入':'支出')+' / '+esc(entry.category||'其他')+' / '+money(entry.amount)+arayaAgeMarkup(entry.comment.arayaAge)+'</div></div><span class="commentary-tag '+(rare?'rare':'')+'">'+commentKindLabel(entry.comment.kind)+'</span></div><div class="commentary-lines">'+renderCommentLines(copy)+'</div></div>';
 }
 function setCommentaryView(view){
   commentaryView=view==='sinner'?'sinner':'time';
@@ -1218,7 +1230,7 @@ function saveEntry(keepOpen=false){
     setTimeout(function(){try{render()}catch(e){console.error('render after save',e)}},80);
   }
 }
-function deleteEntry(entryId){const id=typeof entryId==='string'?entryId:$('eid').value;if(!id||!state.entries.some(x=>x.id===id))return;if(confirm('確定刪除這筆記錄？')){state.entries=state.entries.filter(x=>x.id!==id);state.rpg.rewardLog='你刪除了一筆記錄。';saveLocal();if($('dlg').open&&$('eid').value===id)$('dlg').close();render();toast('已刪除記錄')}}
+function deleteEntry(entryId){const id=typeof entryId==='string'?entryId:$('eid').value;if(!id||!state.entries.some(x=>x.id===id))return;if(confirm('確定刪除這筆記錄？')){state.entries=state.entries.filter(x=>x.id!==id);state.rpg.rewardLog='你刪除了一筆記錄。';const saved=saveLocal();if($('dlg').open&&$('eid').value===id)$('dlg').close();render();if(saved)toast('已刪除記錄')}}
 function parseCSVLoose(text){const rows=[];let row=[],field='',q=false;for(let i=0;i<text.length;i++){const c=text[i],n=text[i+1];if(q){if(c==='"'&&n==='"'){field+='"';i++}else if(c==='"'){q=false}else field+=c}else{if(c==='"')q=true;else if(c===','){row.push(field);field=''}else if(c==='\n'){row.push(field);rows.push(row);row=[];field=''}else if(c!=='\r')field+=c}}if(field.length||row.length){row.push(field);rows.push(row)}if(!rows.length)return [];const head=rows[0],out=[];rows.slice(1).forEach(r=>{if(!r.some(Boolean))return;while(r.length<head.length)r.push('');if(r.length>head.length)r=[...r.slice(0,head.length-1),r.slice(head.length-1).join(',')];out.push(Object.fromEntries(head.map((k,i)=>[k,r[i]||'']))) });return out}
 function autoExpenseCategory(store,items){
  const t=(store+' '+items.join(' ')).toLowerCase(),rules=[
@@ -1277,8 +1289,8 @@ async function importCsvFiles(ev){
 }
 function download(name,content,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([content],{type}));a.download=name;a.click()}
 function backupJson(){download('終端記錄備份.json',JSON.stringify(state,null,2),'application/json')}
-async function restoreJson(ev){const file=ev.target.files?.[0];if(!file)return;try{const parsed=JSON.parse(await file.text());if(!parsed||(!Array.isArray(parsed.entries)&&!Array.isArray(parsed)))throw new Error();if(confirm('確定用這份備份覆蓋目前資料？')){state=migrate(parsed);STORAGE_LOAD_PROBLEM=null;saveLocal();render();toast('已還原備份')}}catch(e){alert('無法還原：這不是有效的備份 JSON。')}ev.target.value=''}
-function clearLocalData(){if(confirm('確定清除這台裝置上的所有記錄與 RPG 進度？此動作無法復原。')){state=defaultState();STORAGE_LOAD_PROBLEM=null;saveLocal();render();toast('已清除本機資料')}}
+async function restoreJson(ev){const file=ev.target.files?.[0];if(!file)return;try{const parsed=JSON.parse(await file.text());if(!parsed||(!Array.isArray(parsed.entries)&&!Array.isArray(parsed)))throw new Error();if(confirm('確定用這份備份覆蓋目前資料？')){state=migrate(parsed);STORAGE_LOAD_PROBLEM=null;const saved=saveLocal();render();if(saved)toast('已還原備份')}}catch(e){alert('無法還原：這不是有效的備份 JSON。')}ev.target.value=''}
+function clearLocalData(){if(confirm('確定清除這台裝置上的所有記錄與 RPG 進度？此動作無法復原。')){state=defaultState();STORAGE_LOAD_PROBLEM=null;const saved=saveLocal();render();if(saved)toast('已清除本機資料')}}
 function exportCsv(){const rows=filtered();const head=['日期','類型','店家/用途/來源','金額','分類','付款方式','發票號碼','備註','來源'];const body=rows.map(x=>[x.date,x.type==='income'?'收入':'支出',x.store,x.amount,x.category,x.payment,x.invoice||'',x.note||'',x.source||'']);const q=v=>/[",\n]/.test(String(v??''))?`"${String(v).replaceAll('"','""')}"`:String(v??'');const text='\ufeff'+[head,...body].map(r=>r.map(q).join(',')).join('\n');download('終端記錄匯出.csv',text,'text/csv;charset=utf-8')}
 
 const CHART_COLORS=['#b52d2d','#d2cec4','#797b83','#8b7046','#59675d','#715a65','#8f6b6b','#555860','#aaa69c','#6f6251'];
@@ -1294,7 +1306,7 @@ function renderCharts(){
   $('statsComment').textContent=income||expense?(net>=0?`本月目前是正淨額 ${money(net)}。繼續維持記錄，就能看清楚金幣流向。`:`本月目前支出高於收入 ${money(Math.abs(net))}。這只是資訊提示，不影響 RPG 獎勵。`):'先建立一些收入／支出檔案索引，就能看到完整分析。';
 }
 
-function saveSettings(){state.profile.initialAmount=Number($('initialInput').value||0);state.profile.name='但丁';saveLocal();render();toast('已儲存設定')}
+function saveSettings(){state.profile.initialAmount=Number($('initialInput').value||0);state.profile.name='但丁';const saved=saveLocal();render();if(saved)toast('已儲存設定')}
 const TAB_LABELS={adventure:'終端',book:'記錄',quests:'任務',explore:'探索',sinners:'罪人管理',backpack:'背包',bestiary:'圖鑑',progress:'成就',commentary:'評議',stats:'統計',settings:'設定'};
 function setMainMenuOpen(open){
   const menu=$('mainMenuTabs'),toggle=$('mainMenuToggle');
