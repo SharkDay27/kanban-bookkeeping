@@ -315,6 +315,10 @@ function migrate(old){const s=defaultState();
   }
   s.exploration=old.exploration||null;
   s.daily=old.daily||{};
+  // 舊版存下來的系統文字（評議、獎勵紀錄、探索紀錄）把發票寫成「小票」；只改系統文字，不動使用者輸入的店名與備註。
+  const fixWording=function(v){if(v==null)return v;const t=JSON.stringify(v);return t.indexOf('小票')<0?v:JSON.parse(t.replace(/小票/g,'發票'))};
+  s.rpg=fixWording(s.rpg);s.exploration=fixWording(s.exploration);s.daily=fixWording(s.daily);
+  s.entries.forEach(function(e){if(e.comment)e.comment=fixWording(e.comment)});
   return s;
 }
 function load(){
@@ -1004,10 +1008,22 @@ function renderProgress(){
       '<div class="achievement-reward">REWARD / '+item.gold+' 金幣</div></div>';
   }).join('');
 }
+// 各分頁專屬的繪製函式：只有目前看得到的分頁會立即重畫，其餘標記為待更新，切換過去時再畫。
+// 用名稱查詢，因為其他模組會在載入後替換這些全域函式。
+const SECTION_RENDERERS={quests:'renderQuests',book:'renderBoard',stats:'renderCharts',bestiary:'renderBestiary',progress:'renderProgress',backpack:'renderBackpack',sinners:'renderSinnerManagement',commentary:'renderCommentaryArchive'};
+const staleSections=new Set();
+function activeSectionId(){const el=document.querySelector('section.section.active');return el?el.id:''}
+function renderSection(id){
+  const name=SECTION_RENDERERS[id];if(!name)return;
+  staleSections.delete(id);
+  const fn=window[name];
+  if(typeof fn==='function'){try{fn()}catch(e){console.error('render section '+id,e)}}
+}
 function render(){
   backfillMissingComments();refreshFilters();renderLanguageSwitch();renderCurrencySelector();renderSummary();renderBookkeepingHabits();
-  renderRpg();renderQuests();renderBoard();renderCharts();renderBestiary();checkAchievements();
-  renderProgress();renderBackpack();renderExploration();renderSinnerManagement();renderCommentaryArchive();
+  renderRpg();checkAchievements();renderExploration();
+  const active=activeSectionId();
+  Object.keys(SECTION_RENDERERS).forEach(function(id){if(id===active)renderSection(id);else staleSections.add(id)});
   if($('initialInput'))$('initialInput').value=state.profile.initialAmount||'';
 }
 
@@ -1052,6 +1068,10 @@ function backfillMissingComments(){
 
 let commentaryView='time';
 let commentarySinner='all';
+// 評議很多時一次畫幾千張卡片會卡住，先顯示最新的一批，按「顯示更多」再往下載。
+const COMMENTARY_PAGE=60;
+let commentaryLimit=COMMENTARY_PAGE;
+function commentaryMoreButton(remaining){return remaining>0?'<button type="button" class="commentary-more mini-btn" data-commentary-more>顯示更多（還有 '+remaining+' 則）</button>':''}
 function sinnerForLineSpeaker(speaker){
   if(!speaker)return null;
   if(String(speaker).includes('阿賴耶'))return '良秀';
@@ -1071,7 +1091,7 @@ function commentEntryCard(entry,opts){
   return '<div class="commentary-entry wood kind-'+esc(entry.comment.kind)+' '+(opts.sinner?'compact-by-sinner':'')+'"><div class="commentary-head"><div><b data-user-text>'+esc(entry.store)+'</b><div class="commentary-meta">'+esc(entry.date)+' / '+(entry.type==='income'?'收入':'支出')+' / '+esc(entry.category||'其他')+' / '+money(entry.amount)+arayaAgeMarkup(entry.comment.arayaAge)+'</div></div><span class="commentary-tag '+(rare?'rare':'')+'">'+commentKindLabel(entry.comment.kind)+'</span></div><div class="commentary-lines">'+renderCommentLines(copy)+'</div></div>';
 }
 function setCommentaryView(view){
-  commentaryView=view==='sinner'?'sinner':'time';
+  commentaryView=view==='sinner'?'sinner':'time';commentaryLimit=COMMENTARY_PAGE;
   $('commentViewTime')?.classList.toggle('active',commentaryView==='time');
   $('commentViewSinner')?.classList.toggle('active',commentaryView==='sinner');
   if($('sinnerFilterBar'))$('sinnerFilterBar').style.display=commentaryView==='sinner'?'flex':'none';
@@ -1088,10 +1108,11 @@ function renderSinnerFilters(rows){
   });
   bar.innerHTML='<button type="button" class="sinner-filter '+(commentarySinner==='all'?'active':'')+'" data-sinner="all">全部</button>'+
     SINNERS.map(function(s){return '<button type="button" class="sinner-filter '+(commentarySinner===s.name?'active':'')+'" data-sinner="'+esc(s.name)+'">'+esc(s.name)+'<span class="count">'+(counts[s.name]||0)+'</span></button>'}).join('');
-  bar.querySelectorAll('[data-sinner]').forEach(function(btn){btn.onclick=function(){commentarySinner=btn.dataset.sinner;renderCommentaryArchive()}});
+  bar.querySelectorAll('[data-sinner]').forEach(function(btn){btn.onclick=function(){commentarySinner=btn.dataset.sinner;commentaryLimit=COMMENTARY_PAGE;renderCommentaryArchive()}});
 }
 function renderCommentaryArchive(){
   const box=$('commentaryList');if(!box)return;
+  if(!box.dataset.moreBound){box.dataset.moreBound='1';box.addEventListener('click',function(e){if(e.target.closest('[data-commentary-more]')){commentaryLimit+=COMMENTARY_PAGE;renderCommentaryArchive()}})}
   const rows=state.entries.filter(function(x){return x.comment&&x.comment.lines&&x.comment.lines.length}).sort(function(a,b){
     const ca=a.comment.createdAt||a.date,cb=b.comment.createdAt||b.date;return cb.localeCompare(ca);
   });
@@ -1100,7 +1121,7 @@ function renderCommentaryArchive(){
   if($('sinnerFilterBar'))$('sinnerFilterBar').style.display=commentaryView==='sinner'?'flex':'none';
   if(!rows.length){box.innerHTML='<div class="empty wood panel">尚無罪人評議。新增一筆收入或支出後，評議會固定保存於此。</div>';return}
   if(commentaryView==='time'){
-    box.innerHTML=rows.map(function(entry){return commentEntryCard(entry)}).join('');
+    box.innerHTML=rows.slice(0,commentaryLimit).map(function(entry){return commentEntryCard(entry)}).join('')+commentaryMoreButton(rows.length-commentaryLimit);
     return;
   }
   renderSinnerFilters(rows);
@@ -1113,7 +1134,7 @@ function renderCommentaryArchive(){
     });
     if(!matched.length)return '';
     return '<div class="sinner-group"><div class="sinner-group-head"><div><div class="sinner-group-code">SINNER // '+esc(sinner?sinner.id:'--')+'</div><div class="sinner-group-name" style="--speaker-color:'+(typeof sinnerColorForSpeaker==='function'?sinnerColorForSpeaker(name):'#c9c5bb')+'">'+esc(name)+'</div></div><div class="sinner-group-count">'+matched.length+' 筆評議</div></div>'+
-      matched.map(function(entry){return commentEntryCard(entry,{sinner:name})}).join('')+'</div>';
+      matched.slice(0,commentaryLimit).map(function(entry){return commentEntryCard(entry,{sinner:name})}).join('')+commentaryMoreButton(matched.length-commentaryLimit)+'</div>';
   }).join('');
   box.innerHTML=groups||'<div class="empty wood panel">此罪人目前尚無評議紀錄。</div>';
 }
@@ -1287,11 +1308,25 @@ async function importCsvFiles(ev){
   if(failed.length)msg+=`；部分內容讀取失敗：${failed.join('、')}`;
   toast(msg);
 }
-function download(name,content,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([content],{type}));a.download=name;a.click()}
+function download(name,content,type){const url=URL.createObjectURL(new Blob([content],{type}));const a=document.createElement('a');a.href=url;a.download=name;a.style.display='none';document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url)},10000)}
 function backupJson(){download('終端記錄備份.json',JSON.stringify(state,null,2),'application/json')}
 async function restoreJson(ev){const file=ev.target.files?.[0];if(!file)return;try{const parsed=JSON.parse(await file.text());if(!parsed||(!Array.isArray(parsed.entries)&&!Array.isArray(parsed)))throw new Error();if(confirm('確定用這份備份覆蓋目前資料？')){state=migrate(parsed);STORAGE_LOAD_PROBLEM=null;const saved=saveLocal();render();if(saved)toast('已還原備份')}}catch(e){alert('無法還原：這不是有效的備份 JSON。')}ev.target.value=''}
 function clearLocalData(){if(confirm('確定清除這台裝置上的所有記錄與 RPG 進度？此動作無法復原。')){state=defaultState();STORAGE_LOAD_PROBLEM=null;const saved=saveLocal();render();if(saved)toast('已清除本機資料')}}
-function exportCsv(){const rows=filtered();const head=['日期','類型','店家/用途/來源','金額','分類','付款方式','發票號碼','備註','來源'];const body=rows.map(x=>[x.date,x.type==='income'?'收入':'支出',x.store,x.amount,x.category,x.payment,x.invoice||'',x.note||'',x.source||'']);const q=v=>/[",\n]/.test(String(v??''))?`"${String(v).replaceAll('"','""')}"`:String(v??'');const text='\ufeff'+[head,...body].map(r=>r.map(q).join(',')).join('\n');download('終端記錄匯出.csv',text,'text/csv;charset=utf-8')}
+function exportCsv(){
+  const rows=filtered(),total=state.entries.length;
+  const head=['日期','類型','店家/用途/來源','金額','分類','付款方式','發票號碼','備註','來源'];
+  // 文字欄位開頭是 = + - @ 時，Excel 會當成公式執行；前面加 ' 讓它保持純文字。
+  const textCell=v=>{const t=String(v??'');return /^[=+\-@\t\r]/.test(t)?"'"+t:t};
+  const body=rows.map(x=>[x.date,x.type==='income'?'收入':'支出',textCell(x.store),Number(x.amount||0),textCell(x.category),textCell(x.payment),textCell(x.invoice||''),textCell(x.note||''),textCell(x.source||'')]);
+  const q=v=>/[",\r\n]/.test(String(v??''))?`"${String(v).replaceAll('"','""')}"`:String(v??'');
+  const text='\ufeff'+[head,...body].map(r=>r.map(q).join(',')).join('\r\n');
+  // 檔名與提示標出匯出範圍，避免把「本月」誤當成「全部」。
+  const m=$('month').value,t=$('typeFilter').value,c=$('cat').value,kw=$('search').value.trim();
+  const scope=[m,t==='income'?'收入':t==='expense'?'支出':'',c,kw?'搜尋「'+kw+'」':''].filter(Boolean);
+  const safeName=scope.join('_').replace(/[\\/:*?"<>|「」\s]+/g,'_').slice(0,60);
+  download('終端記錄匯出_'+(scope.length?safeName:'全部')+'.csv',text,'text/csv;charset=utf-8');
+  toast(scope.length&&rows.length<total?`已匯出篩選結果 ${rows.length} 筆（共 ${total} 筆）。要匯出全部，請先清空月份與篩選條件`:`已匯出全部 ${rows.length} 筆記錄`);
+}
 
 const CHART_COLORS=['#b52d2d','#d2cec4','#797b83','#8b7046','#59675d','#715a65','#8f6b6b','#555860','#aaa69c','#6f6251'];
 function pieData(rows,keyFn){const map={};rows.forEach(x=>{const k=keyFn(x)||'其他';map[k]=(map[k]||0)+Number(x.amount||0)});return Object.entries(map).sort((a,b)=>b[1]-a[1])}
@@ -1327,6 +1362,7 @@ function setTab(id){
   document.querySelectorAll('.bottom [data-goto]').forEach(function(btn){btn.classList.toggle('active',btn.dataset.goto===id)});
   if($('mainMenuCurrent'))$('mainMenuCurrent').textContent=TAB_LABELS[id]||'主功能';
   setMainMenuOpen(false);
+  if(staleSections.has(id))renderSection(id);
   if(id==='sinners'&&typeof window.forceRenderSinnerManagement==='function'){
     window.forceRenderSinnerManagement();
   }

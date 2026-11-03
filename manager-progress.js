@@ -37,30 +37,10 @@
     box.hidden=false;
   }
 
-  // Terminology compatibility: old saved/display text that still says 小票 is shown as 發票.
-  function normalizeInvoiceWording(root){
-    if(!root)return;
-    const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
-    const nodes=[];let node;
-    while((node=walker.nextNode()))nodes.push(node);
-    nodes.forEach(function(n){
-      if(n.nodeValue&&n.nodeValue.indexOf('小票')>=0)n.nodeValue=n.nodeValue.replace(/小票/g,'發票');
-    });
-  }
-
   window.forceRenderManagerProgress=render;
   window.showBookkeepingReward=showReward;
-  window.normalizeInvoiceWording=normalizeInvoiceWording;
 
   render();
-  normalizeInvoiceWording(document.body);
-
-  const observer=new MutationObserver(function(records){
-    records.forEach(function(r){
-      r.addedNodes.forEach(function(n){if(n.nodeType===1||n.nodeType===3)normalizeInvoiceWording(n.nodeType===1?n:n.parentNode)});
-    });
-  });
-  observer.observe(document.body,{childList:true,subtree:true});
 
   window.addEventListener('pageshow',function(){setTimeout(render,0)});
 })();
